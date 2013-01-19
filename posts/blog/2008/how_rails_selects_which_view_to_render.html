@@ -1,0 +1,51 @@
+date: 2008.10.9
+title: How Rails selects which view to render
+
+<p>This is exactly how rails does that:</p>
+
+<img src="http://augustl.s3.amazonaws.com/blog/rails_view_name_components.png" width="600" height="100" />
+
+<dl>
+  <dt>[action name]</dt>
+  <dd>The name of the current action. *show* for /posts/1, *index* for /posts etc.</dd>
+
+  <dt>[mime type]</dt>
+  <dd>*html* by default. *js* for /posts.js, *xml* for /posts/1.xml etc. Optional. Leave this out, and rails uses the template for all mime types of that action.</dd>
+
+  <dt>[template type]</dt>
+  <dd>Which template engine Rails should use. Chose from *erb*, *builder*, *rjs* and so on.</dd>
+</dl>
+
+<p>Some examples of resource paths and the respective template names:</p>
+
+<dl>
+  <dt>/posts</dt>
+  <dd>index.html.erb</dd>
+
+  <dt>/posts.xml</dt>
+  <dd>index.xml.builder</dd>
+
+  <dt>/posts/1.js</dt>
+  <dd>show.js.rjs</dd>
+</dl>
+
+<h2>Template type does not have to match mime type</h2>
+
+<p>Template types and mime types does not have to match, though, as they do in the example above. *index.html.builder*, *show.xml.rjs* and *update.js.erb* are all valid template names. It means that you can use erb to create XML and builder to create HTML. Your choice.</p>
+
+<dl>
+  <dt>/posts.xml</dt>
+  <dd>index.xml.erb</dd>
+</dl>
+
+<h2>Optional mime type</h2>
+
+<p>The mime type is also optional. The template *index.erb* will be rendered for all mime types.</p>
+
+<dl>
+  <dt>/posts</dt>
+  <dd>index.erb</dd>
+
+  <dt>/posts.js</dt>
+  <dd>index.erb</dd>
+</dl>

@@ -1,0 +1,28 @@
+date: 2007.12.17
+title: Mr. WYSIWYG, this is not how HTML is done
+
+<p>It&#8217;s getting sillier and sillier, the machine war is upon us.</p>
+ 
+<p>This is not how a paragraph is done.</p>
+ 
+<pre><code><h1>
+  <span class="Apple-style-span" style="font-size: 10px; font-weight: normal">&nbsp;</span>
+   <br />
+</h1>
+<div> ... content </div>
+</code></pre>
+
+<p>This neither:</p>
+
+<pre><code><div>&nbsp;</div>
+<div >
+   <br />
+</div>
+<div>
+  <br class="webkit-block-placeholder" />
+</div>
+<div>content... </div></code></pre>
+ 
+<p>Srsly! <span class="caps">THIS</span> is how you do a paragraph:</p>
+
+<pre><code><p>content...</p></code></pre>

@@ -1,0 +1,46 @@
+date: 2007.12.19
+title: Third Rails patch
+
+<p>This is probably the last time I post explicitly about patches here, it&#8217;s not special anymore</p>
+
+<p>So right, here it is:</p>
+
+<p><a href="http://dev.rubyonrails.org/ticket/10568">http://dev.rubyonrails.org/ticket/10568</a></p>
+
+<p>The <tt class="inline_code">setup</tt> method is subclassed tests isn&#8217;t run. Not cool if you need to do something like this:</p>
+
+<pre><code>class FooControllerTest < ActiveSupport::TestCase
+  def setup
+    # subdomain authentication coming in!
+    @request.host = "subdomain.local.host"
+  end
+
+  def test_me
+    assert important_thing_relying_on_subdomain
+  end
+
+  def test_but_oh_noes
+    raise @request.host.inspect
+    # it'll go "test.host", which is the default
+  end
+end</code></pre>
+
+<p>Annoying. You could even do this:</p>
+
+<pre><code>class FooControllerTest < ActiveSupport::TestCase
+  def setup
+    raise "BUT OMG LOL"
+  end
+
+  def test_me
+    assert important_thing_relying_on_subdomain
+  end
+
+  def test_but_oh_noes
+    assert something_else
+  end
+end</code></pre>
+
+<p>And none of the test would get raised, because the <tt class="inline_code">setup</tt> method simply doesn&#8217;t run.</p> 
+
+<p>This was because of fancyness added in <a href="http://dev.rubyonrails.org/changeset/8392">changeset #8392</a>. <a href="http://www.brynary.com/">Brynary</a> is working some magic, so it&#8217;ll hopefully be a fix soon. If not, it&#8217;ll get rolled back. Yarr.</p>

@@ -1,0 +1,70 @@
+date: 2008.9.8
+title: <code>to_proc</code>
+
+<p>You've probably seen this in Rails:</p>
+
+<pre><code>User.find(:all).map(&:name)</code></pre>
+
+<p>It is the equivalent of doing:</p>
+
+<pre><code>User.find(:all).map {|p| p.name }</code></pre>
+
+<p>The technique in question is called "symbol to proc". First, let's examine <code>to_proc</code>.</p>
+
+<h2><code>to_proc</code></h2>
+
+<pre><code>def call_a_proc(&proc)
+  proc.call
+end
+
+leethal = "some guy"
+
+call_a_proc(&leethal)
+# => TypeError: wrong argument type String (expected Proc)
+</code></pre>
+
+<p>Yeah, this is pretty odd. It's about time someone lets you in on a little secret:</p>
+
+<pre><code>class String
+  def to_proc
+    Proc.new { puts "I am a proc" }
+  end
+end
+
+call_a_proc(&leethal)
+# => I am a proc
+</code></pre>
+
+<p>The object responds to a <code>to_proc</code> method now, and Ruby calls it.</p>
+
+<h2>Back to Rails</h2>
+
+<p>So what is Rails doing that lets us do <code>map(&:name)</code>?</p>
+  
+<pre><code>class Symbol
+  def to_proc
+    Proc.new { |*args| args.shift.__send__(self, *args) }
+  end
+end
+</code></pre>
+
+<p>That's right, it defines <code>to_proc</code> on <code>Symbol</code>.</p>
+
+<p>Because of the to_proc magic, and because all methods that accepts blocks can take a proc instead, <code>map(&:name)</code> now works as a shortcut to <code>map {|i| i.name }</code>, thanks to this single line of code.</p>
+
+<p>By the way, Rails could have been doing this:</p>
+
+<pre><code>class Symbol
+  def to_proc
+    Proc.new {|arg| arg.__send__(self) }
+  end
+end
+</code></pre>
+
+<p>Many people says Rails _should_ do this, because of performance issues. With Rails' implementation, though, this works:</p>
+
+<pre><code>[1, 2, 3].inject(&:+)
+# => 6
+</code></pre>
+
+<p>Don't worry, you don't have to understand exactly what that <code>to_proc</code> code does. Feel free to investigate the matter until you do, though.</p>

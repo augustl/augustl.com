@@ -1,0 +1,46 @@
+date: 2009.8.31
+title: S3 upload Snow Leopard service
+
+<p>Snow Leopard, the latest addition to the OS X family, has <del>a new and very powerful feature called services</del> revamped the Services system, and made it a whole lot more useful. In short, services are contextual aware actions, and Apple has made it easy for users to create their own services with an updated Automator.</p>
+
+<p>I wanted to familiarize myself with how the services system works, and create something useful. I created a service that lets you upload documents (images, mp3s, text documents, &#8230;) to an Amazon S3 bucket. Short summary:</p>
+
+<ul>
+  <li>Install</li>
+  <li>Right click image, choose &#8220;Upload to S3&#8221;</li>
+  <li><span class="caps">URL</span> of uploaded image is pasted to your clipboard.</li>
+</ul>
+
+<p>Awesome for sharing images on IM, email, irc, and so on.</p>
+
+<p style="float:left;"><img src="http://s3.amazonaws.com/augustl-stuff/upload-to-s3-contextual-menu-67.png" alt="" /></p>
+
+<p style="float:left;"><img src="http://s3.amazonaws.com/augustl-stuff/upload-to-s3-success-35.png" alt="" /></p>
+
+<div style="clear:both;"></div>
+
+<h2>Installing</h2>
+
+<ol>
+  <li>Download <a href="http://augustl-stuff.s3.amazonaws.com/Upload%20to%20S3%20v3.zip">the service</a>.</li>
+  <li>Extract and copy to <tt>~/Library/Services</tt>. Create the directory if it doesn&#8217;t exist.</li>
+</ol>
+
+<p>That&#8217;s all there is. The next time you right click an image, there&#8217;ll be a &#8220;Upload to S3&#8221; option in the right click menu.</p>
+
+<p>When you run the script for the first time, you will be prompted for your S3 login credentials. Don&#8217;t worry, they will be safely stored in your keychain, just like all your passwords are on OS X.</p>
+
+<h2>How it works</h2>
+
+<p>The service/Automator workflow uses a combination of Applescript and Ruby to get the job done. The applescripts handles the dialog boxes and fetches info from the keychain. The ruby script uses the aws/s3 gem to upload the file to S3. It installs the gem if it isn&#8217;t already installed. When the ruby script has uploaded the file, it will pass on the <span class="caps">URL</span> to a 2nd applescript which pastes the <span class="caps">URL</span> to the clipboard and provides feedback to the user.</p>
+
+<p>The ability to execute ruby scripts out of the box from automator is new in Snow Leopard. So are the contextual services. Snow Leopard was released mere days ago, we can only begin to imagine the different ways people will make use of this new and powerful feature.</p>
+
+<p>If you want to have a look at the source code, download the service (link above) and open it with Automator.</p>
+
+<h2><span class="caps">CHANGELOG</span></h2>
+
+<ul> 
+  <li>Sep 2. 2009: Checking if the bucket name is blank when the bucket name storage file exists.</li>
+  <li>Aug 31. 2009: Updated to use &#8220;documents&#8221; instead of &#8220;images&#8221;, to enable uploading of text files, audio files, and more.</li>
+</ul>

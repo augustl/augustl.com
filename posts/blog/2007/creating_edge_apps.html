@@ -1,0 +1,17 @@
+date: 2007.12.13
+title: Creating edge apps
+
+<p>I&#8217;m living on trunk/edge, and I use this shellscript to create new rails apps.</p>
+
+<p>I have a Rails trunk checked out and ready. This is what the shellscript does:</p>
+
+<pre>#!/usr/bin/env bash
+EDGE_IS_AT="/path/to/your_own/rails_trunk" 
+svn up $EDGE_IS_AT
+ruby "$EDGE_IS_AT/railties/bin/rails" $@</pre>
+
+<p>I stored that in a file called &#8216;edgerails&#8217;, added it to a bin directory, and hey ho!</p>
+
+<pre>edgerails new_app_name</pre>
+
+<p>It ups the trunk to the very latest version, and creates the rails app with the <tt>rails</tt> command of the edge rails. Yep!</p> 

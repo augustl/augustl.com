@@ -1,0 +1,47 @@
+date: 2007.11.26
+title: Syntax highlighter
+
+<p>How I syntax highlight code in this blog. CodeRay + regular expressions.</p>  
+ 
+<p>I&#8217;m using this app-only plugin called <tt>cache_html</tt>. It lets me do this:</p> 
+ 
+<pre><code>class Post < ActiveRecord::Base
+  cache_html :intro, :content
+end</code></pre>
+
+<p>This runs some parsing &#8211; textile and coderay &#8211; on that content, and stores it in <tt>[column_name]_html</tt>. Honestly, that&#8217;s kind of useless, as this app is using page caching, but oh well.  Even the <span class="caps">RSS</span> feed is page cached, yawn.</p>
+  
+<p>So, the <code>cache_html</code> does it&#8217;s thing <code>before_save</code>, and this is one of the things:</p> 
+ 
+ 
+<pre><code>def coderay(text)
+  duped = text.dup
+  expression = /(<source(?:\:([a-z]+))?>(.+?)<\/source>)/m
+  text.scan(expression) do |all, language, code|
+    language ||= :ruby
+
+    if (code.scan(/\n/)).empty? # has no newlines?
+      highlighted = '<span class="inline_code">'
+      highlighted += CodeRay.scan(code, language.to_sym).div(:wrap => nil, :css => :class)
+      highlighted += '</span>'
+    else
+      code.strip!
+      highlighted = CodeRay.scan(code, language.to_sym).div(:css => :class)
+    end
+
+    duped.gsub!(all, "<notextile>#{highlighted}</notextile>")
+  end
+
+  duped
+end</code></pre>
+ 
+<p>There ya go. Some notes:</p> 
+ 
+ 
+<ul> 
+  <li>It&#8217;s dirty. This is strictly <code>ActionView</code> stuff. I should have used <code>content_tag</code> and all sorts of neat helpers, but I can&#8217;t do that, as I&#8217;m in the <code>ActiveRecord</code> scope.</li> 
+  <li>It&#8217;s looking for <tt>&lt;source&gt;</tt> tags, and highlights that. I can also go <tt>&lt;source:language&gt;</tt>. It&#8217;s Ruby by default.</li> 
+  <li>I&#8217;m doing <code>dup</code> because a string can&#8217;t modify (<code>gsub</code>) itself inside a <code>scan</code> block.</li> 
+  <li>It scans the content for newlines. If there&#8217;s no newlines around, it&#8217;s considered an in-line code sample.</li> 
+  <li><tt>&lt;notextile&gt;</tt> makes sure textile doesn&#8217;t parse the code samples (that&#8217;d be rather silly)</li> 
+</ul> 

@@ -1,0 +1,47 @@
+date: 2008.08.31
+title: Active Record anywhere!
+
+<p>You can use <code>ActiveRecord</code> anywhere!</p>
+
+<pre><code>require 'rubygems'
+require 'active_record'
+ 
+ActiveRecord::Base.establish_connection({
+  :adapter => 'postgresql',
+  :user => 'foo',
+  :password => 'bar',
+  :database => 'whatever'
+})
+ 
+class Task >< ActiveRecord::Base
+  set_table_tame "a_legacy_thingie"
+  
+  def utility_methods
+    update_attribute(:title, "yep")
+  end
+end
+ 
+Task.find(:first)</code></pre>
+
+<p>Etcetera. It&#8217;s <code>ActiveRecord</code>, you know what to do. Going wild:</p>
+
+<pre><code>
+ActiveRecord::Base.establish_connection(:adapter => "sqlite3", :database => ":memory:")
+ 
+ActiveRecord::Schema.define do
+  create_table :posts do |t|
+    t.string :title
+    t.text :excerpt, :body
+  end
+end
+ 
+class Post < ActiveRecord::Base
+  validates_presence_of :title
+end
+ 
+Post.create(:title => "A new post!")
+Post.create(:title => "Another post", :excerpt => "The excerpt is an excerpt.")
+ 
+puts Post.count
+# =>; 2
+</code></pre> 

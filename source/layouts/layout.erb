@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <% if yield_content(:title).blank? %>
+      <title>August Lilleaas' blog</title>
+    <% else %>
+      <title><%= yield_content(:title) %> (August Lilleaas' blog)</title>
+    <% end %>
+    <%= stylesheet_link_tag "screen" %>
+  </head>
+  <body class="<%= page_classes %>">
+    <%= yield %>
+  </body>
+</html>

@@ -1,0 +1,27 @@
+date: 2009.6.25
+title: Global gitignores
+
+<p>On Mac OS X, the Finder creates a <tt>.DS_Store</tt> file in all the directories it displays. If you happen to browse your git repository with the Finder, you&#8217;ll get these files in your repo, and they&#8217;ll show up as untracked files in <tt>git status</tt>. A common workaround is to add <tt>.DS_Store</tt> to the <tt>.gitignore</tt>. Here&#8217;s one of my gitignore files for a Rails project:</p>
+
+<pre>.DS_Store
+*.log
+*.sqlite3
+config/database.yml
+db/schema.rb
+tmp/**/*</pre>
+
+<p>I have a slight problem with this, though. The <tt>.DS_Store</tt> isn&#8217;t related to your project, it is related to the system you&#8217;re coding on. Yor <tt>.gitignore</tt> file will be a lot more elegant if it only lists files that are related to the projects. For a Rails app, log files and <tt>db/schema.rb</tt> is definitely app related. <tt>.DS_Store</tt> isn&#8217;t, though.</p>
+
+<p>This is why I have a global gitignore file for my system, that ignores system related files.</p>
+
+<pre>&gt; git config --global core.excludesfile ~/.gitignore</pre>
+
+<p>This file contains the following:</p>
+
+<pre>.DS_Store</pre>
+
+<p>And voila, you no longer have to add <tt>.DS_Store</tt> to all your <tt>.gitignore</tt> files.</p>
+
+<hr />
+
+<p>While this article might seem OS X specific, it applies to all systems. A good example is <tt>thumbs.db</tt> on Windows systems. I&#8217;m sure some Linux distros has similar system files. Global gitignores are not limited to <tt>.DS_Store</tt> on OS X, but all system files that shouldn&#8217;t be allowed to sneak into your repositories or your <tt>.gitignore</tt>s.</p>

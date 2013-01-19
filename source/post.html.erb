@@ -1,0 +1,6 @@
+<% content_for(:title, @post.title) %>
+<div id="article" class="article">
+  <h1><%= @post.title %></h1>
+  <p class="timestamp">Published <%= @post.display_date %></p>
+  <%= @post.body %>
+</div>

@@ -1,0 +1,19 @@
+<h1>August Lilleaas</h1>
+
+<ul class="inline-dots">
+  <li><a href="http://github.com/augustl">open source</a></li>
+  <li><a href="http://twitter.com/augustl">twitter</a></li>
+  <li><a href="mailto:august@augustl.com">august@augustl.com</a></li>
+</ul>
+
+<p>I'm a programmer, and this is my website.</p>
+
+<h2>Latest 10 posts</h2>
+
+<% @posts.each do |post| %>
+  <p><a href="<%= post.url %>"><%= post.title %></a> (<%= post.display_date %>)</p>
+<% end %>
+
+<h2>All posts</h2>
+
+<p>Go to <a href="/archive">the archive</a>.</p>

@@ -1,0 +1,28 @@
+date: 2008.8.31
+title: Recursively doing stuff with hashes
+
+<p>It's assumed that by "recursive", one means that when a value in a hash contains another hash, do X on that hash as well.</p>
+
+<pre><code>class Hash
+  def recursively(&block)
+    each {|k, v| Hash === v ? v.recursively(&block) : yield(k, v) }
+  end
+end
+</code></pre>
+
+<p>This lets us do the following:</p>
+
+<pre><code>h = {:foo => "bar", :baz => {:srsly => "ye", :oh_hai => {:works => "indeed"}}}
+h.recursively {|k, v| v.upcase! }
+# => {:foo=>"BAR", :baz=>{:oh_hai=>{:works=>"INDEED"}, :srsly=>"YE"}}
+</code></pre>
+
+<p><tt>SystemStackError: stack level too deep</tt> can be produced by having one of the keys refer to the hash in question, though, be careful.</p>
+
+<pre><code>h = {:foo => "bar", :maz => {:hai => "to you"}}
+h[:oops] = h
+# => {:oops=>{...}, :foo=>"bar", :maz=>{:hai=>"to you"}}
+
+h.recursively {|k, v| v.upcase! }
+# => SystemStackError: stack level too deep
+</code></pre>

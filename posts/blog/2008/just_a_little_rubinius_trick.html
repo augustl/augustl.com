@@ -1,0 +1,16 @@
+date: 2008.9.3
+title: Just a little Rubinius trick
+
+<p>Rubinius can do it all.</p>
+
+<pre><code>def pwn_locals
+  MethodContext.current.sender.locals[0] = 666
+end
+
+a = 8
+pwn_locals
+puts a
+# => 666
+</code></pre>
+
+<p>Isn't that just awesome?</p>

@@ -1,0 +1,68 @@
+date: 2008.9.11
+title: <code>rescue nil</code> is not awesome
+
+<p>Deliberately calling code that may raise an error is ugly. Just look at it:</p>
+
+<pre><code>person.name.gsub(/foo/, 'bar') rescue nil</code></pre>
+
+<p>As <code>person.name</code> returns <code>nil</code> if no name has been set, <code>person.name.gsub</code> would raise a <code>NoMethodError</code> in the event of a nameless person. <code>nil</code> has no <code>gsub</code> method. Because we know this, we <code>rescue</code>. So, we deliberately call code that may raise an error. Which is ugly.</p>
+
+<p>Instead, you should determine wether or not the code you call can raise an error, and then just not call it.</p>
+
+<pre><code>person.name.gsub(/foo/, 'bar') if person.name</code></pre>
+
+<p>This is also sort of odd, though. If getting a persons name takes 2 seconds, the additional call to <code>person.name</code> sucks. Etc.</p>
+
+<p>Introducing <soruce>try</soruce>!</p>
+
+<pre><code>class Object
+  def try(*args, &block)
+    return if self.nil?
+    block_given? ? yield(self) : self.__send__(args.shift, *args)
+  end
+end
+</code></pre>
+
+<p>Yes! Now you can do this instead:</p>
+
+<pre><code>person.name.try(:gsub, /foo/, 'bar')</code></pre>
+
+<p>An actual working sample:</p>
+
+<pre><code>class Person
+  attr_reader :name
+
+  def initialize(name = nil)
+    @name = name
+  end
+end
+
+p = Person.new() # name is nil!
+p.name.upcase
+# => NoMethodError: undefined method ‘upcase’ for nil:NilClass
+
+p.name.try(:upcase)
+# => nil
+
+p.name.try(:gsub, /foo/, 'bar')
+# => nil
+
+p.name.try {|n| n.upcase.reverse }
+# => nil
+</code></pre>
+
+<p>Every call returns nil, because <code>name</code> is nil. The point is that no errors were raised.</p>
+
+<p>Here's how it looks when <code>name</code> isn't nil:</p>
+
+<pre><code>p2 = Person.new('Joe')
+
+p2.name.try(:upcase)
+# => "JOE"
+
+p2.name.try(:gsub, /J/, 'A')
+# => 'Aoe'
+
+p2.name.try {|n| n.upcase.reverse }
+# => "EOJ"
+</code></pre>

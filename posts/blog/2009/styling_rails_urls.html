@@ -1,0 +1,136 @@
+date: 2009.6.14
+title: Styling Rails URLs
+
+<p>This article explains how you can alter the looks of your URLs in a Rails friendly way. I assume that you know how to use <code>map.resources</code> and named routes.</p>
+
+<h2>Adding .html to all pages</h2>
+
+<p><code>ActionController</code> has a <code>default_url_options</code> method that it uses for all <span class="caps">URL</span> generation tasks. It returns an empty hash by default, but can be overridden.</p>
+
+<pre><code>class ApplicationController < ActionController::Base
+  def default_url_options(options = nil)
+    {:format => "html"}
+  end
+end</code></pre>
+
+<p>Note that the options to your individual route calls gets predesence, <code>posts_path(:format => "xml")</code> will append <tt>.xml</tt>, not <tt>.html</tt>.</p>
+
+<h2>Custom route names</h2>
+
+<p>For a projects controller&#8217;s show action, the default <span class="caps">URL</span> looks like this:</p>
+
+<pre>/projects/5</pre>
+
+<p>What if you want to localize it?</p>
+
+<pre>/prosjekter/5</pre>
+
+<p>One way is to name the controller &#8220;prosjekter&#8221; instead of &#8220;projects&#8221;. That isn&#8217;t very Rails friendly, though, you&#8217;ll end up fighting with pluralization conventions. Thankfully, there is a Rails friendly way to do this, via <tt>routes.rb</tt>.</p>
+
+<pre><code>map.resources :projects, :as => "prosjekter", :path_names => {:new => "nytt", :edit => "rediger"}</code></pre>
+
+<p>That will give you these URLs:</p>
+
+<pre>/prosjekter/5
+/prosjekter/nytt
+/prosjekter/5/rediger</pre>
+
+<p>You can also set <code>:path_names</code> globally, by adding the following to <tt>config/environment.rb</tt>.</p>
+
+<pre><code>config.action_controller.resources_path_names = { :new => 'ny', :edit => 'rediger' }</code></pre>
+
+<h2>URLs without the ID of the record</h2>
+
+<p>Normaly, Rails URLs look like this:</p>
+
+<pre>/posts/5
+/projects/239
+/users/39/favorites/2</pre>
+
+<p>Perhaps you want more descriptive URLs, though, such as having the title of the post in the <span class="caps">URL</span> instead of just the ID. Here are a few altervatives.</p>
+
+<h2>The easy way with compromises</h2>
+
+<pre>/posts/5-a-post-about-rockets
+/projects/239-new-website
+/users/39-augustl/favorites/2-that-book</pre>
+
+<p>The compromise is that the ID still is in the <span class="caps">URL</span>. It is unlikely that a visible ID is a problem, but if it for some reason is, you can learn how to do it without the ID in the next section.</p>
+
+<p>What makes Rails use the ID alone in the first place? The answer is <code>to_param</code>. It&#8217;s an instance method in all models, and it looks like this:</p>
+
+<pre><code>def to_param
+  id
+end</code></pre>
+
+<p>We can override it to include the title of the post as well as the ID.</p>
+
+<pre><code>class Post < ActiveRecord::Base
+  def to_param
+    "#{id}-#{title.parameterize}"
+  end
+end</code></pre>
+
+<p>Rails will now use the id, a dash, and and <span class="caps">URL</span> friendly version of the title. We need to make it <span class="caps">URL</span> friendly with <code>parameterize</code>, so that <code>"Foo and bar!"</code> turns into <code>"foo-and-bar"</code>. If we don&#8217;t, we&#8217;ll get invalid URLs, and browsers will blow up.</p>
+
+<p>The reason this is the easy way, is that this is all there is to it. Our finds will still work, because of the way Ruby handles <code>to_i</code> on strings.</p>
+
+<pre><code>"5-a-post-about-rockets".to_i
+# => 5</code></pre>
+
+<p>The <code>find</code> method that we use in the controllers calls <code>to_i</code> for us.</p>
+
+<pre><code>Post.find("5-a-post-about-rockets")
+# equals
+Post.find(5)</code></pre>
+
+<h2>The hard way</h2>
+
+<pre>/posts/a-post-about-rockets
+/projects/new-website
+/users/augustl/favorites-that-book</pre>
+
+<p>Because the ID is no longer in the <span class="caps">URL</span>, we have to change the code a bit.</p>
+
+<pre><code>class Post < ActiveRecord::Base
+  before_create :create_slug
+  
+  def to_param
+    slug
+  end
+    
+  def create_slug
+    self.slug = self.title.parameterize
+  end
+end</code></pre>
+
+<p>When a post is created, the <span class="caps">URL</span> friendly version of the title is stored in the database, in the <tt>slug</tt> column. We also have to update the finds to find records using the slug column instead of using the ID.</p>
+
+<pre><code>class ProjectsController < ApplicationController
+  def show
+    @project = Project.find_by_slug!(params[:id])
+  end
+end</code></pre>
+
+<p>Apply the same tactic to all relevant finds, and you&#8217;re good to go.</p>
+
+<h2>No controller names</h2>
+
+<p>Instead of <code>/users/augustl/projects/a-project</code>, you might prefer this:</p>
+
+<pre>/augustl/a-project
+/some-user/another-project</pre>
+
+<p>Just a heads up: Most people don&#8217;t care about how the URLs looks. In my opinion, it only makes sense to do this kind of routing if your users are typing in the URLs by hand, or if the <span class="caps">URL</span> is commonly linked to. Github projects is a good example of sensible use of short URLs. If not, I advise you to leave the controller names in there.</p>
+
+<p>Anyhow, here&#8217;s how you do it:</p>
+
+<pre><code>map.short_user ":id", :controller => "users", :action => "show"
+map.short_project ":user_id/:id", :controller => "projects", :action => "show"</code></pre>
+
+<p>This gives you two very handy named routes.</p>
+
+<pre><code>short_user_path(@user)
+short_project_path(@user, @project)</code></pre>
+
+<p>The example above only handles those two show actions. I advise using regular <code>map.resources</code> for <code>create</code>, <code>edit</code> etc. Users will never have to <em>link</em> to the <span class="caps">URL</span> that creates a new project, so it&#8217;s pointless to style those routes.</p>

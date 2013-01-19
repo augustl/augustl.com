@@ -1,0 +1,109 @@
+date: 2010.11.27
+title: iOS unit testing Tips & Tricks
+
+<p>I recently presented Test Driven Development in iOS to a local Cocoa user group, where I TDD-ed the authentication of a Twitter app in about 1.5 hours of live coding. It was a great way of showcasing TDD, and the listeners seemed to enjoy it as well.</p>
+
+<p>In this post I'll expand on what I said there, by showcasing specific useful tips and tricks for unit testing in iOS. While the talk was more of a plain TDD talk than an iOS talk, this post has iOS specific content that other iOS developers will find useful when unit testing their apps.</p>
+
+<p>If you want to get started with unit tests on iOS, I plan to write about that later. This post is for those who already know how to write and run them.</p>
+
+<h2>Avoid the application delegate and view controllers</h2>
+
+<p>I suggest you try to avoid the application delegate entirely in your unit tests. Don't even add it to the unit test target. The unit test runtime environment is very different from the simulator and device environment, so your application delegate will most likely fail to do anything at all.</p>
+
+<p>This might be obvious to you, but abstracting all the code you want to unit tests into separate <code>NSObject</code> ancestor classes will make your life a lot easier. With separate classes, you are able to write contracts utilizing strings, arrays and other easy to create objects, rather than <code>NSBundle</code>s, <code>UIApplication</code>s and other hard to create objects.</p>
+
+<p>For example, if you're fetching data from a server, put it in a separate <code>ServerFetcher</code> class that inherits from <code>NSObject</code>, instead of injecting the code directly into a view controller. It's much easier to make an instance of a simple <code>NSObject</code> class in your tests and call methods on it, than trying to instantiate a <code>UIApplication</code> to call your app delegate and view controllers and what not.</p>
+
+<h2>Core Data entities</h2>
+
+<p><strong>Update:</strong> I published an <a href="http://augustl.com/blog/2011/unit_testing_ios_core_data_versioned_or_multiple_models">updated version of this code</a>.</p>
+
+<p>When unit testing Core Data entities, we want to to start with a clean slate for each test. The example below showcases the use of an in-memory datastore instead of the default SQLite datastore. With an in-memory datastore, all we need to do in order to get a full fletched Core Data stack, is to initialize Core Data in <code>setUp</code>. No extra cleanup or resets is required. In the example below, we do a cleanup in <code>tearDown:</code>, but that's only for memory management. We get a clean slate from <code>setUp</code> regardless.</p>
+
+<p>In actual projects I prefer to wrap all the Core Data stuff for my tests in a <code>ManagedObjectTestHelper</code> class that has a <code>context</code> method, but for clarity I've written the code directly into the unit test here.</p>
+
+<p>When you're set up, you can use your normal Core Data methods as in your application code. There's an example of this in the <code>testSomething</code> test case.</p>
+
+<pre><code>@interface MyTest : SenTestCase {
+    NSManagedObjectModel *model;
+    NSPersistentStoreCoordinator *coordinator;
+    NSPersistentStore *store;
+    NSManagedObjectContext *context; 
+}
+@end
+
+@implementation MyTest
+- (void)setUp {
+    model = [[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]] retain];
+    coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model];
+    store = [[coordinator addPersistentStoreWithType: NSInMemoryStoreType
+                                       configuration: nil
+                                                 URL: nil
+                                             options: nil 
+                                               error: NULL] retain];
+    context = [[NSManagedObjectContext alloc] init];
+    context.persistentStoreCoordinator = coordinator;
+}
+
+- (void)tearDown {
+    [context release];
+    [store release];
+    [coordinator release];
+    [model release];
+}
+
+- (void)testSomething {
+    MyEntity *e = [NSEntityDescription insertNewObjectForEntityForName:@"MyEntity"
+                                                inManagedObjectContext:context];
+}
+@end
+</code></pre>
+
+<h2>Fixtures</h2>
+
+<p>Fixtures are (included but not limited to) files in the file system that stores data you can use in your unit tests.</p>
+
+<p>Fixtures can be useful in a number if situations. A good example is XML parsing, where you want to feed your parser with many different XML documents that are tailor made to hit all the edge cases of your parser. Storing the XML documents in files is much more convenient than storing them in string literals in your unit tests. It's a lot easier to get it right when you edit a syntax highlited XML file, compared to editing a large one-liner string literal.</p>
+
+<p>The hard part is bundles. Normally, <code>[[NSBundle mainBundle] pathForResource:@"test1" ofType:@"xml"]</code> will return a <code>NSString</code> containing the path to that file. This is not the case for unit tests, though, where the mainBundle is different from in the application environment. But it's still possible to load files in unit tests.</p>
+
+<p>In my Xcode project, I have a Tests group, that is mapped to a Tests directory, so the tests are in a separate directory in the file system instead of the root directory of the project. (Remember, groups in Xcode doesn't necessarily translate to folders in the file system.) Similarly, in the Tests group, I have a Fixtures group, set up to match a folder just like the Tests group. To map a group to a folder in Xcode, select the group, press Command + I, and set the path.</p>
+
+<img src="http://augustl.s3.amazonaws.com/blog/2010/xcode-test-fixtures-path-directory.png" width="500" height="159" style="margin: 30px 0;" />
+
+<p>With this exact setup, the following code is copy-pasteable.</p>
+
+<pre class="del"><code>-(NSData *)loadFixture:(NSString *)name {
+    NSMutableString *path = [[NSMutableString alloc] init];
+    [path appendString:[[NSFileManager defaultManager] currentDirectoryPath]];
+    [path appendString:@"/Tests/Fixtures/"];
+    [path appendString:name];
+    NSData *data = [NSData dataWithContentsOfFile:path];
+    [path release];
+
+    return data;
+
+}</code></pre>
+
+<p>Update: Jim Leask e-mailed me with an improved version that works with the Xcode 4 style in-application unit testing. Reproduced below by his permission.</p>
+
+<pre><code>-(NSData *)loadFixture:(NSString *)name
+{
+    NSBundle *unitTestBundle = [NSBundle bundleForClass:[self class]];
+    NSString *pathForFile    = [unitTestBundle pathForResource:name ofType:nil];
+    NSData   *data           = [[NSData alloc] initWithContentsOfFile:pathForFile];
+    return data;
+}</code></pre>
+
+<p>Add this method directoy to your unit test, or wrap it elsewhere as you see fit.</p>
+
+<p>If your setup differs from mine, just alter the <code>path</code> string to match your setup.</p>
+
+<p><a href="https://github.com/augustl/libbase64/tree/master/src/">Here's a live example of this setup</a>. It's an open source Base64 lib I wrote. It's using the exact same setup as outlined above.</p>
+
+<p>If you want a <code>NSString</code> instead of a <code>NSData</code>, you can replace <code>[NSData dataWithContentsOfFile:]</code> with <code>[NSString stringWithContentsOfFile:encoding:error:]</code>.</p>
+
+<h2><del>Don't panic</del>Panic</h2>
+
+<p>I've had tons of problems with unit testing in Xcode. It can some times be very hard to even set up a working test target that is able to run the tests without yielding all sorts of arcane warnings and errors. I plan to write more about this in the future, but for now, feel free to e-mail me (the address is on the home page) if you struggle with setting up unit tests in Xcode. </p>

@@ -1,0 +1,21 @@
+date: 2007.12.14
+title: Second Rails patch
+
+<p>Adding Giles Bowkett&#8217;s ideas to <tt class="inline_code"><span class="co">ActiveSupport</span></tt>.</p>
+ 
+<p>Here ya go:</p>
+
+<p><a href="http://dev.rubyonrails.org/ticket/10503">http://dev.rubyonrails.org/ticket/10503</a></p>
+
+<p>It&#8217;s pretty simple.</p>
+
+<pre><code>{:a => :b} + {:c => :d}
+# => {:a => :b, :c => :d}
+
+{:a => :b, :c => :d} - {:c => :d}
+# => {:a => :b}
+
+{:a => :b, :c => :d} - {:c => :x}
+# => {:a => :b, :c => :d}</code></pre>
+
+<p>All credits to Giles Bowkett for coming up with this.</p>

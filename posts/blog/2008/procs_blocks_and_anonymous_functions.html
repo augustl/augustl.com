@@ -1,0 +1,245 @@
+date: 2008.11.08
+title: Procs, blocks and anonymous functions
+
+<p>This is a Big Picture&#8482; post. I will attempt to give you a thorough understanding of how blocks and procs works in Ruby by showing examples and explaining basics. I will also show some examples from other languages, namely Javascript and Lua, in order to really expand on the Big Picture&#8482; in this article.</p>
+
+<h2>Storing pieces of code</h2>
+
+<p>In Ruby, you can store pieces of code and execute them on demand; methods. You define the method, add code to the method body, and run the method whenever you want.</p>
+
+<p>In addition to methods, there is another way in Ruby to store code that you can call later; procs.</p>
+
+<pre><code>say_hello = Proc.new { puts "Hello!" }</code></pre>
+
+<p>Contrary to what you might expect, the <code>puts</code> doesn&#8217;t run. Ruby only <em>stores</em> the code inside the proc, it doesn&#8217;t <em>run</em> it. Not yet, at least. It runs when we tell it to. Let&#8217;s run it right away. Remember, we stored the proc in the <code>say_hello</code> variabe.</p>
+
+<pre><code>say_hello.call
+# => "Hello!"</code></pre>
+
+<p>So, there you go. That&#8217;s what procs are, and that is all there is to it. But how the fsck is this useful to anyone? Why not just use methods?</p>
+
+<h2>Organizing your code with procs</h2>
+
+<p>Procs are useful code organization tools. Let&#8217;s say that you want to calculate the running time for a few code snippets, in order to benchmark them. To do this elegantly, you want to be able to call a method and pass some code to it, and have the execution time returned.</p>
+
+<p>Here&#8217;s how you can use procs to do just that:</p>
+
+<pre><code>def time(a_proc)
+  start = Time.now
+  a_proc.call
+  puts Time.now - start
+end
+ 
+time(Proc.new { code_here })
+time(Proc.new { more_code_here })</code></pre>
+
+<p>The execution times of the code inside the procs will be neatly displayed as you run this code. Try it yourself, right now! You can use <code>sleep(2)</code>, <code>1000.times { 5 + 5 }</code>, or anything else you might want to speed test.</p>
+
+<h2>Blocks!</h2>
+
+<p>In addition to method arguments, a method can also take a block. Passing a block is essentially the same as passing a proc, except that the syntax is different (and nicer), and you don&#8217;t have to type as much. Other than that, procs and blocks are essential the same thing: code that you can call later on.</p>
+
+<pre><code>def time
+  start = Time.now
+  yield
+  puts Time.now - start
+end
+ 
+time { code_here }
+time { more_code_here }</code></pre>
+
+<p>Looks a lot nicer, doesn&#8217;t it? Upon further inspection, it is easy to see where procs and blocks differs. Comparing the two examples, we can see that the <code>time</code> method no longer takes an argument. A block is a special internal thing in Ruby, so you don&#8217;t need to specify a method argument for the block. Also, we use <code>yield</code> instead of <code>a_proc.call</code>. <code>yield</code> is a special keyword in Ruby, telling Ruby to call the code in the block that was passed to that method. Lastly, actually passing the code to the method has a different syntax. No parentheses, because the block is not an argument. No <code>Proc.new</code> either, because we aren&#8217;t creating a proc, we are passing a block.</p>
+
+<h2>Passing arguments to procs and blocks</h2>
+
+<p>When you <code>yield</code> or <code>call</code>, you can pass arguments to the proc or block at the same time. A dumb example:</p>
+
+<pre><code>def dumb_hello_world_test
+  yield(5)
+end
+
+dumb_hello_world_test {|i| puts i * 2 }
+# => 10
+
+my_silly_proc = Proc.new {|name| puts name.upcase }
+my_silly_proc.call("August Lilleaas")
+# => "AUGUST LILLEAAS"</code></pre>
+
+<p>You have probably seen blocks taking arguments before: <code>each</code>, <code>map</code> and other enumerable methods does this.</p>
+
+<pre><code>[1, 2, 3].map {|i| puts i * 2 }
+# => 2
+# => 4
+# => 6</code></pre>
+
+<p>That&#8217;s right: map takes a block. The block gets an argument: the number in the array. Now, for something hardcore. Let&#8217;s play with an implementation of <code>Array#each</code>.</p>
+
+<pre><code>class Array
+  def each
+    i = 0
+    while(i < self.length) do
+      yield(self[i])
+      i += 1
+    end
+  end
+end
+
+my_array = ["a", "b", "c"]
+my_array.each {|letter| puts letter }
+# => "a"
+# => "b"
+# => "c"</code></pre>
+
+<p>We iterate the items in the array, and call the block &mdash; yield &mdash; for every item in the array. When we yield, we pass the current array iteration to the block.</p>
+
+<h2>The big picture: blocks and procs in other languages.</h2>
+
+<p>Ruby isn&#8217;t the only language that lets you pass around chunks of code. Here are some examples in Javascript and Lua. Despite their obvious use case differences, these two languages are pretty similar.</p>
+
+<p>Remember how you can use both methods and procs/blocks to store chunks of code in Ruby? In JS/Lua, methods and procs/blocks are replaced by functions. This is possible because, unlike Ruby, you can refer to a function by name without calling it, or create anonymous functions.</p>
+
+<pre><code>// javascript
+var sayHello = function(){
+  alert("Hello, World!");
+}
+ 
+sayHello    // a reference
+sayHello()  // calling it
+ 
+-- lua
+local function sayHello()
+  print("Hello, World!");
+end
+ 
+sayHello    -- a reference
+sayHello()  -- calling it</code></pre>
+
+<p>Again, unlike Ruby, <code>sayHello</code> won&#8217;t execute the function, while <code>sayHello()</code> will. Let&#8217;s create an implementation of the <code>time</code> method in JS and Lua.</p>
+
+<pre><code>// javascript
+var time = function(callback){
+  var start = new Date();
+  callback();
+  alert(new Date.getTime() - start.getTime());
+}
+ 
+time(function(){
+  // run some code here..
+});
+ 
+-- lua
+local function time(callback)
+  local start = os.time();
+  callback();
+  print(os.time() - start);
+end
+ 
+time(function()
+  -- run some code here..
+end);</code></pre> 
+
+<p>As you can see, you can pass an anonymous function definition directly to the two <code>time</code> functions, as an argument &mdash; similar to the way you Ruby lets you pass procs as method arguments.</p>
+
+<p>Just to elaborate, and as mentioned, you can pass a reference to a function as well as an actual function definition.</p>
+
+<pre><code>time(sayHello)</code></pre>
+
+<p>And just to make sure you&#8217;re with me: <code>time(sayHello())</code> will break miserably. <code>sayHello</code> will execute before <code>time</code>, which causes <code>time</code> to use whatever executing <code>sayHello</code> returns, instead of the function reference.</p>
+
+<p>Lastly, a Ruby recap. In Ruby, <code>foo</code> and <code>foo()</code> are equivalents.</p> 
+
+<pre><code>def say_hello
+  puts "Hello, World!"
+end
+
+say_hello
+# => "Hello, World!"
+say_hello()
+# => "Hello, World!"</code></pre>
+
+<p>So, while other languages are able to pass around chunks of code by using references to other functions, Ruby doesn&#8217;t allow that. Ruby has a separate feature for this, though; procs and blocks.</p>
+
+<h2>Relevant boring facts: Blocks to procs to blocks</h2>
+
+<p>You can convert a block passed to a method into a proc by using special syntax for this.</p> 
+
+<pre><code>def time(&block)
+  puts block
+end
+
+time
+# => nil
+time { foo }
+# => #<Proc:0x00029bbc></code></pre>
+
+<p>You can <em>also</em> do this the other way around: pass a proc to a method and make it look as if you passed a block.</p> 
+
+<pre><code>def time
+  yield
+end
+
+my_proc = Proc.new { puts "I was called!" }
+time(&my_proc)
+# => "I was called!"</code></pre>
+
+<p>The ampersand is the key here, which tells Ruby that <code>block</code> and <code>my_proc</code> isn&#8217;t a method argument but a reference to the block passed to that method. Leave out the ampersand, and it&#8217;ll be treated as a regular method argument.</p>
+
+<pre><code>def time(block)
+  puts block
+end
+
+time { foo }
+# => ArgumentError: wrong number of arguments (0 for 1)
+# Because the ampersand was left out in the method definition, the method now expects an
+# argument, and it is given none (a block is not a method argument).
+
+def time
+  yield
+end
+
+time(my_proc)
+# => ArgumentError: wrong number of arguments (1 for 0)
+# Because the time method doesn't take any arguments, and without the ampersand, my_proc 
+# is passed as a regular method argument.</code></pre>
+
+<h2>Block syntax</h2>
+
+<p><code>do ... end</code> and <code>{ ... }</code> are equivalents. These two calls to <code>time</code> are identical.</p>
+
+<pre><code>time { code_here }
+  
+time do
+  code_here
+end</code></pre> 
+
+<p>The ideom is to use <code>do ... end</code> on multi-line blocks, and <code>{ ... }</code> for one-liner blocks. It is entirely up to you, though. Following the ideom is recommended, but Ruby doesn&#8217;t enforce it.</p>
+
+<h2>A note on lambdas</h2>
+
+<p>Short answer: <code>lambda { foo }</code> and <code>proc { foo }</code> is essensially the same thing, you can use both interchangeable in your code.</p>
+
+<p>There is two differences, though: One is how it handles <code>return</code>. I suggest reading <a href="http://samdanielson.com/2007/3/19/proc-new-vs-lambda-in-ruby">this article</a>.</p>
+
+<p>The other is how it handles arguments. This is really lame and strange. <code>lambda</code> and <code>proc</code> are equivalents, while <code>Proc.new</code> differs. You&#8217;d think <code>Proc.new</code> and <code>proc</code> were equivalents, but they aren&#8217;t. I&#8217;ll let this code speak for itself.</p>
+
+<pre><code>a_lambda = lambda {|a| a.inspect }
+puts a_lambda.call
+# => nil
+puts a_lambda.call("foo", 5)
+# => ["foo", 5]
+
+sumlam = lambda {|a, b| a + b }
+sumlam.call
+# => ArgumentError: wrong number of arguments (0 for 2)
+
+sumproc = proc {|a, b| a + b }
+sumproc.call
+# => ArgumentError: wrong number of arguments (0 for 2)
+sumproc.call(4, 5)
+# => 9
+
+orlyproc = Proc.new {|a, b| a + b }
+orlyproc.call
+# => NoMethodError: undefined method `+' for nil:NilClass
+orlyproc.call(4, 5)
+# => 9</code></pre>

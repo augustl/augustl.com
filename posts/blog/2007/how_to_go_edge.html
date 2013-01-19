@@ -1,0 +1,32 @@
+date: 2007.12.2
+title: How to go edge
+
+<p>People get confused when freezing their 1.2.x Rails app to edge. Here&#8217;s how to do it properly.</p>
+
+<p>Basically, this is how you freeze an app to edge (edge is what cool kids are saying when they refer to the latest trunk/development version of Rails):</p>
+
+<p><tt>rake rails:freeze:edge</tt></p> 
+
+<p>It adds the entire Rails framework to the <tt>vendor/rails</tt> directory (as opposed to where-ever-your-gems-is-installed).</p>
+
+<p>However. When you create a new, blank rails app, you use the <tt>rails command</tt>. It creates a bunch of files, which basically is the <em>&#8220;rails framework&#8221;</em> itself. This includes the config files <tt>environment.rb</tt>, <tt>routes.rb</tt>, the directory/folder structure, <tt>.htaccess</tt>-files and so on.</p>
+
+<p>Thing is, those files have changed from 1.2.x to 2.0. If you freeze the app and try to initialize it, you&#8217;ll get all sorts of error. The rails version in <tt>vendor/rails</tt> doesn&#8217;t match up with the rails app you generated from your local version &#8211; 1.2.x.</p>
+
+<p>To fix this, run the following command:</p>
+
+<p><tt>ruby vendor/rails/railities/bin/rails .</tt></p>
+
+<p>This runs the <tt>rails</tt>-command of the recently checked out edge version, on your outdated 1.2.x app, and updates all them files to the edge versions.</p>
+
+<p>Make sure you overwrite all the files. Either select &#8220;y&#8221; every time you get prompted for an overwrite, or just go &#8220;a&#8221; the first time you get prompted, and have it overwrite everything.</p>
+
+<p>If you already have custom stuff in, say, the application controller, <tt>environment.rb</tt> etc, do this:</p>
+ 
+<ol> 
+  <li>make a backup of your app (or do nothing if you&#8217;re version controlling it with <span class="caps">SVN</span> or whatever)</li>
+  <li>run the command, and overwrite all files</li>
+  <li>update these blank-slate files with the stuff you had in them before the update, making sure you don&#8217;t remove anything from these newly generated files unless you know what you&#8217;re doing</li>
+</ol>
+
+<p>You most likely got a new <tt>config/initializers</tt> directory, a neat <tt class="inline_code">protect_from_forgery</tt> method in the application controller, a very phat cookie session storage in your <tt>config/environment.rb</tt> and lots of more 2.0 coolness.</p>

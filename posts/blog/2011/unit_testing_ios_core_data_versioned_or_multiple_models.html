@@ -1,0 +1,89 @@
+date: 2011.1.31
+title: Unit testing iOS: Core Data with multiple and/or versioned models
+
+<p>In my article <a href="http://augustl.com/blog/2010/ios_unit_testing_tips_and_tricks">iOS unit testing tips & tricks</a>, I explained how I use an in-memory managed object context in my unit tests. This article updates some code from that section. The old code did not work in a project that used versioned models.</p>
+
+<h2>Specifying the model name</h2>
+
+<p>The old version of the script had the following in it:</p>
+
+<pre><code>[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]</code></pre>
+
+<p>This is problematic. If your project has a model with multiple versions, you will get an error saying <em>Can't merge models with two different entities named 'MyEntityName'</em>. This is because it finds all the versions of your model in <code>[NSBundle allBundles]</code>, treats them as separate models, and tries to merge them. Merging two almost identical models will throw errors.</p>
+
+<p>You can solve the problem by altering the code to only get the model you want to use:</p>
+
+<pre><code>// Old
+model = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]];
+
+// New
+static NSString *testTargetName = @"Tests";
+NSBundle *testsBundle;
+for (NSBundle *bundle in [NSBundle allBundles]) {
+    // @"Tests" is the name of the test target.
+    if ([[b objectForInfoDictionaryKey:@"CFBundleExecutable"] isEqualToString:testTargetName]) {
+        testsBundle = bundle;
+        break;
+    }
+}
+       
+NSURL *modelURL = [NSURL fileURLWithPath:[testsBundle pathForResource:@"YourModelName" ofType:@"momd"]];
+self.model = [[[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL] autorelease];</code></pre>
+
+<p>The most significant change is that we now specify the model name. We could try guessing the model name, or get the first model we find and use it. But if we guess wrong, or you're in a project with multiple modules, we're screwed. So we might as well specify it. Replace <code>@"YourModelName"</code> with the name of the <code>.xcdatamodel</code> or <code>.xcdatamodeld</code> file. Off topic, but FYI: In Xcode's templates, the models is named after the project itself. It's in the Resources group.</p>
+
+<h2>The full code</h2>
+
+<pre><code>// Header
+@interface ManagedObjectContextTestHelper : NSObject {
+}
+
+-(id)initWithModelName:(NSString *)name;
+
+@property (nonatomic, retain) NSManagedObjectModel *model;
+@property (nonatomic, retain) NSPersistentStoreCoordinator *coordinator;
+@property (nonatomic, retain) NSPersistentStore *store;
+@property (nonatomic, retain) NSManagedObjectContext *context;
+
+@end
+
+// Implementation
+@implementation ManagedObjectContextTestHelper
+@synthesize model, coordinator, store, context;
+-(id)initWithModelName:(NSString *)name {
+    static NSString *testTargetName = @"Tests";
+    
+    if (self = [super init]) {
+        NSBundle *testsBundle;
+        for (NSBundle *bundle in [NSBundle allBundles]) {
+            if ([[bundle objectForInfoDictionaryKey:@"CFBundleExecutable"] isEqualToString:testTargetName]) {
+                testsBundle = bundle;
+                break;
+            }
+        }
+        
+        NSURL *modelURL = [NSURL fileURLWithPath:[testsBundle pathForResource:name ofType:@"momd"]];
+        self.model = [[[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL] autorelease];
+        self.coordinator = [[[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model] autorelease];
+        self.store = [coordinator addPersistentStoreWithType: NSInMemoryStoreType
+                                          configuration: nil
+                                                    URL: nil
+                                                options: nil 
+                                                  error: NULL];
+        
+        self.context = [[[NSManagedObjectContext alloc] init] autorelease];
+        self.context.persistentStoreCoordinator = coordinator;
+
+    }
+    
+    return self;
+}
+
+-(void)dealloc {
+    [context release];
+    [store release];
+    [coordinator release];
+    [model release];
+    [super dealloc];
+}
+@end</code></pre>

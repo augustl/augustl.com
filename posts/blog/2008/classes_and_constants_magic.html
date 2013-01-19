@@ -1,0 +1,89 @@
+date: 2008.9.1
+title: Classes and constants magic
+
+<p>An anonymous class!</p>
+
+<pre><code>bear = Class.new
+
+puts bear
+# => #<Class:0x8ef08>
+
+puts bear.class
+# => Class
+
+puts bear.name
+# => ""
+</code></pre>
+
+<p>This class has no name, it's anonymous. Let's create an instance of the anonymous class.</p>
+
+
+<pre><code>b = bear.new
+puts b.class
+#=> #<Class:0x8ef08>
+</code></pre>
+
+<p>Normally, <code>b.class</code> would return the class name. Anonymous means no name. Ruby returns an instance of class (the one created with <code>Class.new</code>) insntead.</p>
+
+<p>A class name is always a constant. The call <code>class Foo; end</code> tells Ruby to create an instance of <code>Class</code> and assign that instance to the constant <code>Foo</code>. These two calls are equal:</p>
+
+<pre><code>class Foo; end
+Foo = Class.new
+</code></pre>
+
+<p>Let's try this with our anonymous class. We're assigning the instance of <code>Class</code> stored in the variable <code>bear</code> to a constant, <code>Bear</code>.</p>
+
+<pre><code>Bear = bear
+
+puts b.class
+# => Bear
+
+puts b.name
+# => "Bear"
+</code></pre>
+
+<p>It now reports <code>Bear</code> as the class name, because it's no longer anonymous.</p>
+
+<p>Our instance of <code>Class</code> seems to have vanished, but it's still possible to access this instance directly.</p>
+
+<pre><code>class << Bear
+  puts self
+  # => #<Class:Bear>
+end
+</code></pre>
+
+<p>It couldn't hide from us after all. The special (<code>class <<</code>) syntax lets us access it. It also says <code>Bear</code> rather than <code>0x8ef08</code>, to let us know that this class is no longer anonymous.</p>
+
+<p>This secret and hidden instance of <code>Class</code> is what rubyists refers to as the _metaclass_ of a class. <code>#<Class:Bear></code> is the metaclass of <code>Bear</code>.</p>
+
+<p>It's this metaclass that holds all the class methods. That makes sense, because a constant can't have methods. Instances is the only thing in Ruby that has methods.</p>
+
+<p>Important summary: Class methods of a class are simply instance methods of its metaclass. Read this out loud 10 times.</p>
+
+<h2>Code speaks louder than words</h2>
+
+<pre><code>Bear.class_eval do
+  def say_hello
+    puts "Hello!"
+  end
+end
+
+Bear.say_hello
+# => NoMethodError: undefined method ‘say_hello’ for Bear:Class
+</code></pre>
+
+<p>We need to define the method on the metaclass, the instance of <code>Class</code>.</p>
+
+<pre><code>class << Bear
+  def say_hello
+    puts "Hello!"
+  end
+end
+
+Bear.say_hello
+# => "Hello!"
+</code></pre>
+
+<h2>Further reading</h2>
+
+<p>_why the lucky stiff has <a href="http://whytheluckystiff.net/articles/seeingMetaclassesClearly.html">more on the subject</a>.</p>

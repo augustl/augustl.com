@@ -1,0 +1,58 @@
+date: 2009.07.03
+title: Creating your own validations
+
+<p>There are many different methods for creating your own, custom validations in Rails. Here&#8217;s some of them:</p>
+
+<pre><code>class Post < ActiveRecord::Base
+  validate :my_custom_validation, :on => :create
+  
+  validate do |record|
+    record.errors.add_to_base("This sucks.") if record.ponies?
+  end
+  
+  def ponies?
+    false # do something real here.
+  end
+  
+  private
+  
+  def my_custom_validation
+    errors.add.to_base("I refuse to be saved!") if my_condition?
+  end
+end</code></pre>
+
+<h2>validates_each</h2>
+
+<p>You can use <code>validates_each</code> to run the same validation code on multiple attributes.</p>
+
+<pre><code>class User < ActiveRecord::Base
+  validates_each(:home_email, :job_email) do |record, attribute, value|
+    if value !~ /my fancy email regexp/
+      record.errors.add(attribute, "My error message!")
+    end
+  end
+end</code></pre>
+
+<h2>Custom validates_foo methods</h2>
+
+<p>In Rails&#8217; internals, <code>validates_each</code> is used in all the validation methods. <code>validates_each</code> will handle generic options such as <code>:on => :create</code>, <code>:if => proc { ... }</code>, and so on.</p>
+
+<pre><code># lib/validates_email.rb
+class ActiveRecord::Base
+  def self.validates_email(*args)
+    validates_each(*args) do |record, attribute, value|
+      if value !~ /my fancy email regexp/
+        record.errors.add(attribute, "is not a valid e-mail address")
+      end
+    end
+  end
+end
+ 
+# config/initializers/[anything].rb
+require "validates_email"</code></pre>
+
+<p>This code provides a <code>validates_email</code> method you can use in your model, alongside <code>validates_length_of</code> and friends.</p>
+
+<pre><code>class Contact < ActiveRecord::Base
+  validates_email :home_email, :work_email, :on => :create
+end</code></pre>

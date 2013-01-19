@@ -1,0 +1,35 @@
+date: 2008.9.26
+title: Case or hash
+
+<p>A case statement:</p>
+
+<pre><code>redirect_to case request.domain
+when "foo.com"
+  some_path
+when "bar.com"
+  other_path
+else
+  default_path
+end
+</code></pre>
+
+<p>Here, every case does the same thing. It gives redirect_to an argument. I think that you should use a hash instead.</p>
+
+<pre><code>DOMAIN_MAPPINGS = {
+  "foo.com" => some_path, "bar.com" => other_path
+}
+
+redirect_to DOMAIN_MAPPINGS[request.domain] || default_path
+</code></pre>
+
+<p>As hashes and case statements are sort of similar, I prefer to make a clear distinction between them. I only use case statements when I'm doing different things on each case. Such as this:</p>
+
+<pre><code>case current_user.role?
+when :admin
+  send_email
+when :editor
+  add_to_messages
+else
+  restrict_access!
+end
+</code></pre>

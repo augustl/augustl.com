@@ -1,0 +1,62 @@
+date: 2007.11.30
+title: before_filter-like stuff in Ruby
+
+<p>Doin&#8217; some phat Ruby to add Rails&#8217; <code>before_filter</code>-like behavior in Ruby (outside of Rails)</p> 
+
+<p>If you ever wanted Rails&#8217; neat <code>before_filter</code> kind of stuff outside of Rails, here&#8217;s how do to just that.</p> 
+ 
+<p>We&#8217;re creating a proxy class, that uses <code>method_missing</code> to do some magic. Whenever we call a method on this proxy class, the before filter stuff is called, and then the actual method we call. This proxy class also has all methods removed from it (such as <code>inspect</code>, <code>new</code>, <code>methods</code> and so on.</p> 
+ 
+ 
+<p>The actual method that we&#8217;re calling, however, is called on another class. This is done so that we can indeed do the filters on internal methods like <code>send</code> etc, as mentioned above.</p> 
+
+<pre><code>class Cool
+  def be_cool
+    puts "I'm so damn cool tbh"
+  end
+end
+
+class Silly
+  instance_methods.each do |meth| 
+    undef_method(meth) unless meth =~ /\A__/
+  end
+
+  def initialize
+    @delegate = Cool.new
+    @plz_do = []
+  end
+
+  def method_missing(meth, *args, &block)
+    @plz_do.each {|action| action.call }
+    @delegate.send(meth, *args, &block)
+  end
+
+  def plz_do(this = nil, &block)
+    if block_given?
+      @plz_do << block
+    elsif this.respond_to?(:call)
+      @plz_do << this
+    elsif this.respond_to?(:to_str)
+      @plz_do << proc { eval(this) }
+    end
+  end
+end</code></pre> 
+ 
+<p>The <code>undef_method</code> stuff is the magic thingie that undefines all the built-in methods we automatically inherit from <code><span class="co">Object</span></code> and <code><span class="co">Kernel</span></code>.</p>
+
+<p>Usage:</p> 
+  
+<pre><code>s = Silly.new
+s.plz_do proc { puts "Hello, there" }
+s.plz_do "puts 'Oh yeah!'"
+s.plz_do { puts "BUT OMG!" }
+s.be_cool
+
+# Hello, there
+# Oh yeah!
+# BUT OMG!
+# I'm so damn cool tbh</code></pre>
+
+ <p>We use <code>plz_do</code> to add stuff to the filter. All the items are stored in procs, inside an array. Those items are looped through and called before the <code>be_cool</code> method is called.</p>
+
+<p>Hawt!</p> 

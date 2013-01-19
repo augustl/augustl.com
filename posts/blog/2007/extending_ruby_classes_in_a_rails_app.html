@@ -1,0 +1,23 @@
+date: 2007.12.6
+title: Extending Ruby classes in a Rails app
+
+<p>Extending a Ruby class (or any class, really) in a Rails app is easy mode. Here&#8217;s how to do it.</p>
+
+<p>Say we&#8217;re extending array. Add a file called <tt>array_extension.rb</tt> to <tt>lib/</tt>. In other words, <tt>lib/array_extension.rb</tt>. Put this inside that file:</p>
+
+<pre><code>class Array
+  def be_silly
+    self.reverse.map {|i| i.upcase }
+  end
+end</code></pre>
+
+<p>Yay, we added a <tt class="inline_code">be_silly</tt> method. Here&#8217;s how it works:</p> 
+ 
+<pre><code>["this", "is", "cool"].be_silly
+# => ["COOL", "IS", "THIS"]</code></pre>
+
+<p>However, one more thing needs to be done. Open <tt>config/environment.rb</tt> and add this to the very bottom of the file:</p>
+
+<pre><code>require "array_extension"</code></pre>
+ 
+<p>Voila!</p> 

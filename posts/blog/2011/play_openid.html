@@ -1,0 +1,79 @@
+date: 2011.10.16
+title: OpenID authentication with attributes in Play
+
+<p>In an effort to <a href="http://chronicle.com/article/How-to-ProcrastinateStill/93959">procrastinate and still get things done</a>, I started work on a new project even though <a href="http://busterjs.org/">Buster.JS</a> isn't done yet. That's more useful than spending all day playing Minecraft, I guess.</p>
+
+<p>The app will support OpenID authentication. I'm using the <a href="http://www.playframework.org/">Play</a> framework, which has built in support for OpenID. The docs for Attribute Exchange (AX) and Simple Registration (SREG) in Play's OpenID module are very sparse, though. So I decided to write about my discoveries here.</p>
+
+<p>Here's a code-dump. The routes:</p>
+
+<pre>GET     /login                                  Authentication.index
+POST    /login                                  Authentication.create</pre>
+
+<p>The view:</p>
+
+<pre><code>#{form @Authentication.create()}
+  <input type="text" name="openid_url" />
+  <input type="submit" value="Log in" />
+#{/form}</code></pre>
+
+<p>My controller:</p>
+
+<pre><code>package controllers;
+
+import play.mvc.Controller;
+import play.libs.OpenID;
+import play.libs.OpenID.*;
+
+public class Authentication extends Controller {
+    public static void index() {
+        if (OpenID.isAuthenticationResponse()) {
+            // Postback from OpenID provider.
+            UserInfo verifiedUserInfo = OpenID.getVerifiedID();
+
+            if (verifiedUserInfo != null) {
+                // Store verifiedUserInfo.id
+                if (verifiedUserInfo.extensions != null) {
+                    renderText(verifiedUserInfo.extensions.toString());
+                } else {
+                    renderText("Logged in. Failed to get attributes");
+                }
+            } else {
+                renderText("Failed to log in.");
+            }
+        } else {
+            // Render login form.
+            render();
+        }
+    }
+
+    public static void create() {
+        String openIdURL = params.get("openid_url");
+        OpenID openIdReq = OpenID.id(openIdURL);
+            
+        // Attribute Exchange (AX)
+        openIdReq.required("email", "http://axschema.org/contact/email");
+        openIdReq.required("firstName", "http://axschema.org/namePerson/first");
+        openIdReq.required("lastName", "http://axschema.org/namePerson/last");
+
+        // Simple Registration (SREG)
+        openIdReq.required("email");
+        openIdReq.optional("fullname");
+        openIdReq.optional("timezone");
+
+        // Perform redirect
+        openIdReq.verify();
+    }
+}</code></pre>
+
+<p>The code pretty much speaks for itself. A few things to note:</p>
+
+<ul>
+  <li>The AX and SREG attributes should both be in place. Different OpenID providers use different methods of attribute exchange. MyOpenId uses SREG. Google uses AX. You may not get all the attributes you request.</li>
+  <li>The value of the first argument for AX is optional. It specifies the key name in the user info returned from the OpenID request.</li>
+  <li>The value of the argument for sreg is not optional. It has to match the SREG field name conventions.</li>
+  <li>Attribute exchange is a mess. I'm yet to find a reference. Seems your best bet is provider specific documentation, and manual testing. Bot for SREG and AX. Here's <a href="http://code.google.com/apis/accounts/docs/OpenID.html#Parameters">Google's</a> documentation, for example.</li>
+  <li>Google won't give you first and last name if they're optional, just to spice things up.</li>
+  <li>You want to store the <code>verifiedUserInfo.id</code> with your user record. This is what you will use to identify a future OpenID log in from the same Open ID with your internal user record.</li>
+  <li>The OpenID login URL for Google is https://www.google.com/accounts/o8/id. It's the same for all Google accounts, since Google will use cookies and not the URL itself to identify.</li>
+</ul>

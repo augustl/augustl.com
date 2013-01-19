@@ -1,0 +1,45 @@
+date: 2007.11.28
+title: Asserting unauthenticated actions
+
+<p>Using <code>assert_unauthenticated</code> to test that your <code>before_filter :require_login</code> thingie works.</p>
+ 
+<p>I&#8217;m not a part of the RSpec mob. It&#8217;s simply not appealing to me, good ol&#8217; <code>"test/unit"</code> is my friend. And with these recent updates on the way <a href="http://railscasts.com/episodes/81">fixtures works in 2.0</a>, mocking is a bit less cool, too.</p>
+
+<p>(I might be wrong about that mocking thought of mine, though, I&#8217;ve never mocked because I didn&#8217;t see the point of mocking, either. No mocking, no RSpec, what kind of person am I?)</p>
+
+<p>So, I&#8217;m using <code>"test/unit"</code>, and I wrote a method to assert that action x and y requires login.</p> 
+ 
+<pre><code>def test_should_block_unauthenticated
+  assert_unauthenticated :get => [:new, :edit], 
+    :post =>  [:create, :update]
+end</code></pre>
+  
+<p>Here&#8217;s the implementation (in the <tt>test_helper.rb</tt>):</p> 
+ 
+ 
+<pre><code>def assert_unauthenticated(requests = {})
+  requests.each do |type, methods|
+    methods.each do |method|
+      perform_unauthenticated_assert(type, method)
+    end
+  end
+end
+
+def perform_unauthenticated_assert(type, method)
+  # Call the method (e.g. perform the request)
+  self.send(type, method)
+
+  # Do the assert
+  assert_block "Requesting #{method} with #{type} succeeded without login" do
+    begin
+      assert !@controller.current_user
+      assert_redirected_to login_url
+    rescue
+      false
+    end
+  end
+end</code></pre>
+ 
+<p>Change the assertions inside the <code>assert_block</code> call to whatever you need to assert.</p> 
+
+<p>And yes, please mail any suggestions on how to get rid of all the silly <code>each</code>-ing to augustlilleaas at google mail dot com.</p>

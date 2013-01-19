@@ -1,0 +1,18 @@
+date: 2011.3.5
+title: Unobtrusive Google Maps with jQuery
+
+<p><em><strong>Note:</strong> I managed to delete this post in a migration some time ago. I have not been able to recover it. I've gotten some e-mails from people reporting the 404, so I'm putting it back online by writing a small summary of what was originally in it.</em></p>
+
+<p>See it in action on the <a href="http://f.augustl.com/2011/unobtrusive_google_maps/">demo page</a>.</p>
+
+<p>There's also a drop-in <a href="https://github.com/augustl/unobtrusive-google-maps">jQuery plugin</a>.</p>
+
+<p>The technique works with any framework, though.</p>
+
+<h2>A summary, sort of.</h2>
+
+<p>Google Maps is relatively resource hungry. On desktops you hardly notice the load time of a Google Map, but on notebooks and smartphones you do.</p>
+
+<p>Instead of loading full JavaScript Google Map, use the <a href="http://code.google.com/apis/maps/documentation/staticmaps/">Google Static Maps API</a> to load a plain flat JPEG image. When the user clicks/taps that image, replace the image with a full JavaScript Google Map. That way, you get nice and fast page load speeds, and a full featured map when the user interacts with it.</p>
+
+<p>See the demo and the code above for details.</p>

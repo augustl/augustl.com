@@ -1,0 +1,19 @@
+date: 2007.11.21
+title: First Rails patch
+
+<p>Made a rails patch that improves the behavior of some form helper methods. I&#8217;m proud!</p> 
+ 
+<p>The syntax of the select helpers is annoying! It is</p>
+
+<pre><code>collection_select(:category_id, @categories, 'id', 'title', {}, :class => "cool")</code></pre>
+ 
+<p>Two option hashes! Noone likes that, <a href="http://groups.google.com/group/rubyonrails-core/browse_thread/thread/976230070a08978a">not even Jeremy Kemper</a> (first follow-up). I made my first evah patch, and submitted it!</p>
+
+<p><a href="http://dev.rubyonrails.org/ticket/10233">http://dev.rubyonrails.org/ticket/10233</a></p> 
+<p>It lets you:</p>
+
+<pre><code>collection_select(:category_id, @categories, 'id', 'title', :html => {:class => "cool"})</code></pre>
+
+<p>Just like <code>form_for</code>. And it avoids <code>with_options</code> getting screwed up, too.</p>
+ 
+<p>It&#8217;s even backwards compatible, thanks to some haxx <tt class="inline_code">*args</tt>-parsing.</p> 

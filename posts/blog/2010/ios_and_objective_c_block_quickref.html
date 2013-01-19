@@ -1,0 +1,100 @@
+date: 2010.12.8
+title: iOS and Objective-C block quickref
+
+<p>This is a reference/cheat sheet of Objective-C blocks, introduced in iOS 4.0 and OS X Snow Leopard.</p>
+
+<p>I keep forgetting the syntax, especially for writing methods that takes blocks. I hope you'll find this quickref useful, I certainly will.</p>
+
+
+<h2>Passing blocks</h2>
+
+<pre><code>// The very simplest case.
+[foo someMethod:^{
+    // Any code here.  
+}];
+
+// A block that takes arguments.
+[foo someMethod:^(NSString *something, BOOL somethingElse) {
+    // something an somethingElse can be used just like function arguments.
+}];</code></pre>
+
+<h2>Taking blocks</h2>
+
+<pre><code>// Take a block with no arguments
+- (void)someMethod:(void(^)())block;
+
+// Take a block with arguments
+- (void)someMethod:(void(^)(NSString *test, id anyObject))block;
+
+// Any return type is OK.
+- (void)someMethod:(BOOL(^)())block;
+- (void)someMethod:(NSRange *(^)())block;
+
+// Call a block
+- (void)someMethod:(void(^)(NSString *test))block {
+    block(@"Yep");
+}
+</code></pre>
+
+<p>The syntax can be described as:</p>
+
+<pre><code>a(^)(b);
+a = Return type
+b = Arguments
+</code></pre>
+
+<h2>DRY block signatures</h2>
+
+<p>You can create a type for your block signature, if you're using the same signature many places.
+
+<pre><code>typedef BOOL (^MyCustomBlock)(NSString *something);
+
+- (void)myMethod:(MyCustomBlock)block {
+    BOOL result = block(@"whatever");
+}
+
+[foo myMethod:^(NSString *string){
+    return [string isEqualToString:@"give you up"]
+}];
+</code></pre>
+
+<h2>Inferring return type</h2>
+
+<p>The compiler will infer the return type of a block for unspecified return types, making return type specification optional. In the examples above, we have never specified the return type. This is how block creation looks with an explicit return type.</p>
+
+<pre><code>[foo someMethod:BOOL^{ return YES; }];
+
+// Inferred return type, for good measure.
+[foo someMethod:^{ return YES; }];
+</code></pre>
+
+<h2>Using blocks returned from methods</h2>
+
+<p>This actually have a use case; storing blocks in a <code>NSArray</code> or similar.</p>
+
+<pre><code>// Assuming "callbacks" is an NSMutableArray instance variable.
+- (void)registerCallback:(BOOL(^)())callback {
+    [_listeners addObject:[[callback copy] autorelease]];
+}
+
+- (void)runCallbacks {
+    int i = [_listeners count];
+    while (i--) {
+        BOOL (^block)() = [_listeners objectAtIndex:i];
+        BOOL state = block();
+        // And so on...
+    }
+}
+</code></pre>
+
+<p>As we can see, the return type isn't inferrable in this case.</p>
+
+<p>The reason for copying the block in <code>registerCallback:</code> is that the block can be (and most likely is) on the stack when we get it. Copying it moves it to the heap.</p>
+
+<h2>Recommended reads</h2>
+
+<ul>
+  <li><a href="http://thirdcog.eu/pwcblocks/">Joachim Bengtsson's awesome reference</a>, you should read it from cover to cover.</li>
+  <li><a href="http://cocoawithlove.com/2009/10/how-blocks-are-implemented-and.html">Cocoa with Love on how blocks are implemented</a>.</li>
+  <li><a href="http://pragmaticstudio.com/blog/2010/9/15/ios4-blocks-2">Blocks design patterns</a>, article by Pragmatic Programmers.</li>
+</ul>

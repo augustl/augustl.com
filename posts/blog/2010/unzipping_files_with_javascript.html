@@ -1,0 +1,6 @@
+date: 2010.2.1
+title: Unzipping files with JavaScript
+
+<p>I released two new javascript libraries yesterday, both related to reading the contents of Zip files. <a href="http://github.com/augustl/js-unzip">JSUnzip</a> reads the Zip container. Zip files are really just that — a container file, not a compression library. Zip can use one of many compression algorithms. The most common is deflate/inflate, which <a href="http://github.com/augustl/js-inflate">JSInflate</a> can uncompress. I did not write JSInflate, I only repackaged a script written by a Masanao Izumo, and wrote a few tests for it.</p>
+
+<p>So what the heck is the use for a Zip reader in javascript? I won&#8217;t tell you the details just yet, so I&#8217;ll boil it down to this: I&#8217;m working on a HTML5 based application, where you can drag Zip packaged files into your browser:, and I needed to unpack and uncompress these files. That also probably sounds pretty useless, but keep in mind that the Zip format is used for more than just Zip files ;)</p>

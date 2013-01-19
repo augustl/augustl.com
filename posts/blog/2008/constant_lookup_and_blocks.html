@@ -1,0 +1,54 @@
+date: 2008.8.19
+title: Constant lookup and blocks
+
+<pre><code>class HelperHandler
+  def foo_exists
+    Foo.exists
+  end
+  
+  module Foo
+    def self.exists
+      puts "Foo does indeed exist"
+    end
+  end
+end
+
+
+h = HelperHandler.new
+h.foo_exists
+# => "Foo does indeed exist"
+</code></pre>
+
+<p>No surprises here. This, however, is quite surprising:</p>
+
+<pre><code>class HelperHandler
+  def initialize(&block)
+    instance_eval(&block)
+  end
+end
+
+HelperHandler.new do
+  foo_exists
+  # => "Foo does indeed exist"
+  Foo.exists
+  # => NameError: uninitialized constant Foo
+end
+</code></pre>
+
+<p>Doing <code>instance_eval</code> is quite common in Ruby libraries. Sinatra, for example, which is what this website is built on, uses it. It evals the block in the context of the instance in question.</p>
+
+<p>Calling the method worked, but referring to the <code>Foo</code> constant is not OK.</p>
+
+<p>That's because Ruby doesn't care about <code>instance_eval</code> when it comes to constants. Constants are looked up in the calling scope. Nothing you can do about it.</p>
+
+<p>Unless you want to be evil and use strings.</p>
+
+<pre><code>class HelperHandler
+  def initialize(evil)
+    eval(evil)
+  end
+end
+
+HelperHandler.new "Foo.exists"
+# => Foo does indeed exist
+</code></pre>

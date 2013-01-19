@@ -1,0 +1,111 @@
+date: 2008.9.10
+title: Method arguments
+
+<p>An introduction to the stuff your mom and dad didn't tell you about giving arguments to methods.</p>
+
+<h2>The asterisk</h2>
+
+<p>Capture x amount of arguments.</p>
+
+<pre><code>def silly_list(*args)
+  args.join(' ') + '.'
+end
+
+silly_list 'My', 'hovercraft', 'is', 'full', 'of', 'eels'
+"My hovercraft is full of eels."
+</code></pre>
+
+<p>You can also do it the other way around, when calling a method. This will pass each item in the array as a separate argument to the method.</p>
+
+<pre><code>def say_a_name(first, last)
+  puts "#{last}, #{first}"
+end
+
+name = ['John', 'McClaine']
+say_a_name(*name)
+# => "McClaine, John"
+
+name = ['John', 'Leethal', 'McClaine']
+say_a_name(*name)
+# => ArgumentError: wrong number of arguments (3 for 2)
+</code></pre>
+
+<h2>The ampersand</h2>
+
+<p>Capture the block.</p>
+
+<pre><code>def can_has_block(&block)
+  puts block.inspect
+end
+
+can_has_block
+# => nil
+
+can_has_block { "Here is a block" }
+# => #<Proc:0x0008f138@-:8>
+</code></pre>
+
+<p>You can also do it the other way around, when calling a method. This will pass the proc to the method as if you were giving it a normal block. The last two calls are identical:</p>
+
+<pre><code>a_proc = Proc.new { puts "I am a proc" }
+
+def call_the_block
+  yield
+end
+
+call_the_block { puts "I am a block" }
+# => I am a block
+call_the_block { a_proc.call }
+# => "I am a proc"
+call_the_block(&a_proc)
+# => "I am a proc"
+</code></pre>
+
+<p>And then, of course, without the ampersand Ruby treats the proc as any other object passed as an argument.</p>
+
+<pre><code>call_the_block(a_proc)
+# => ArgumentError: wrong number of arguments (1 for 0)
+</code></pre>
+
+
+<h2>Both?</h2>
+
+<p>Of course! Let's use every trick in the book.</p>
+
+<pre><code>def another_map(*args, &block)
+  args.map(&block)
+end
+
+another_map('hello', 'there') {|i| i.upcase }
+# => ["HELLO", "THERE"]
+</code></pre>
+
+<h2>Yield</h2>
+
+<p>Don't forget yield, though. These two calls are identical.</p>
+
+<pre><code>def say_hello(&block)
+  block.call
+end
+
+def say_hello
+  yield
+end
+</code></pre>
+
+<p>In fact, <code>yield</code> is much better, as Ruby doesn't have to instantize a <code>Proc</code> object.</p>
+
+<h2>Default values</h2>
+
+<p>You probably knew this already.</p>
+
+<pre><code>def a_default_value(value = {})
+  value
+end
+
+a_default_value
+# => {}
+
+a_default_value("hello!")
+# => "hello!"
+</code></pre>

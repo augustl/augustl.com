@@ -1,0 +1,60 @@
+date: 2007.12.10
+title: Upgrading to Rails 2.0
+
+<p>Here&#8217;s how one upgrades to Rails 2.0.</p>
+ 
+<h2>Upgrading the gem</h2>
+ 
+<p>This depends on what version of Rails currently running.</p>
+
+<h3>If you&#8217;re on any version prior to 1.2.6</h3>
+
+<p>Upgrade your app to 1.2.6. Instead of messing around with installing/upgrading gems, freeze a version of 1.2.6 to your app. Freezing means putting the entire rails framework in vendor/rails, using that instead of the installed gem. It requires that <a href="http://subversion.tigris.org/">Subversion</a> is installed on your system.</p>
+
+<p><tt>rake rails:freeze:edge <span class="caps">TAG</span>=rel_1-2-6</tt></p>
+
+<p>Then move on to the next section.</p>
+
+<h3>When you&#8217;re on 1.2.6</h3>
+
+<p>Make sure your app runs smoothly with this version, and that you don&#8217;t get any deprecation warnings  or errors whatsoever.</p>
+ 
+<p>If you have written tests, just run them. If everything passes, you&#8217;re probably O.K. If you didn&#8217;t write tests, you&#8217;ll have to browse through your entire app by hand (and hope you don&#8217;t miss anything). Have fun.</p>
+ 
+<p>If no errors occurred, move on.</p>
+ 
+<h3>Upgrading the actual gem.</h3>
+ 
+<p>To upgrade the Rails gem, all you need to do is this:</p>
+ 
+<p><tt>gem install rails -y</tt></p>
+
+<p>The <tt>-y</tt> means that it will include all dependencies, which is <tt class="inline_code"><span class="co">ActionController</span></tt>, <tt class="inline_code"><span class="co">ActiveRecord</span></tt> and so on.</p>
+
+<h2>The tricky part!</h2>
+
+<p>This is when people get confused. When the server boots, you&#8217;ll either get the error message from hell, or you&#8217;ll get it when you try to access stuff in your app.</p>
+
+<h3>Upgrading the generated files</h3>
+
+<p>When the app was generated with the <tt>rails</tt> command back in the 1.x days, it generated a bunch of directories and files (doh). These files are, however, still 1.x files, and needs to be 2.0-ed.</p>
+
+<p>To upgrade the Rails &#8220;skeleton&#8221; to 2.0, re-run the <tt>rails</tt>-command on the app. This will overwrite the 1.x files to the 2.0 files.</p>
+
+<p>First, make backups of any changed files, which most likely includes <tt>app/controllers/application.rb</tt>, <tt>config/environment.rb</tt> and so on. Then, run the command.</p>
+
+<p><tt>rails .</tt></p>
+
+<p>(Yes, the dot (.) is there, and has a space between itself an the <tt>rails</tt> command.)</p>
+
+<p>It&#8217;ll start working, and then ask what to do as soon as it finds a file that already exists (which it obviously will pretty early on). A simple <tt>a</tt> is a good answer here, as that will have it overwrite all the existing files with new 2.0 files, no questions asked. At least it was polite enough to ask the first time, yah!</p>
+
+<p>So, with that done, a new <tt>config/initializers</tt> directory has been added, and the app is using the new 2.0 cookie session store, which is much more efficient than the file store 1.x used by default.</p>
+
+<h3>Re-adding the old stuff</h3>
+
+<p>This step blanked out the skeleton. Manually merge the stuff that was in them back to the newly generated files. As in, don&#8217;t copy everything that was in <tt>application.rb</tt> into the newly generated <tt>application.rb</tt>. That would be pointless, as the defaults set by 2.0 would have been removed. Make sure the stuff that&#8217;s in there stays, and <em>append</em> the old stuff &#8211; don&#8217;t <em>replace</em> it with the old stuff. Yah.</p>
+
+<h2>And then, have fun with errors</h2>
+
+<p>This guide sucks, and probably won&#8217;t work for you. Have fun!</p>

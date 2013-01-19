@@ -1,0 +1,11 @@
+<h1>Archive</h1>
+
+<p>Back to the <a href="/">homepage</a>.</p>
+
+<% @post_years.each do |year, posts| %>
+  <h2><%= year %></h2>
+
+  <% posts.each do |post| %>
+    <p><a href="<%= post.url %>"><%= post.title %></a> (<%= post.display_date %>)</p>
+  <% end %>
+<% end %>

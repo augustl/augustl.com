@@ -1,0 +1,91 @@
+date: 2010.1.16
+title: Dynamic session expiration time in Rails 3
+
+<h2>Update: new syntax</h2>
+
+<pre><code>cookies[:thing] = {:value => {:normal => "session stuff"}, :expires => 2.hours.from_now}
+
+# Signed cookies are encrypted with the apps secret_token.
+cookies.signed[:login] = {:value => @user.id, :expires => 1.day.from_now}
+
+# These calls are equivalent.
+cookies[:foo] = {:value => "bar", :expires => 20.years.from_now}
+cookies.permanent[:foo] = "bar"
+</code></pre>
+
+<p>Following is the outdated and obsolete original version of this post.</p>
+
+<div class="obsolete">
+
+<p>I created a <a href="http://github.com/augustl/session-persistence">plugin for remember me checkboxes in Rails 3</a>. This post explains how the plugin works.</p>
+
+<h2>Remember me</h2>
+
+<p>Dynamic session expiration is a fancy name for &#8220;Remember me&#8221; checkboxes on login forms. When unchecked, the session resets when the browser is closed. When checked, the session will last for a given time period (30 minutes, 2 weeks, 1 year, whatever), and when the user visits your site, the countdown resets.</p>
+
+<p>This is how you set coookie expiration time in Rails 3:</p>
+
+<pre><code>env["rack.session.options"][:expire_after] = 10.minutes</code></pre>
+
+<p>This alone won&#8217;t do, though.</p>
+
+<h2>Cookie limitations</h2>
+<p>Setting <code>:expire_after</code> will set the <code>expires</code> attribute on the cookie. This causes the cookie to persist to the given date even when the browser is closed, while a normal cookie without <code>expires</code> will last as long as the browser is open.</p>
+
+<p>Here&#8217;s our problem: When we change something in the <code>session</code> of our Rails app, the cookie needs to be updated. This is done by creating a entirely new cookie to replace the old one. The reason this is a problem is, <a href="http://stackoverflow.com/questions/2076792">as I learned recently</a>, that browsers will only send the raw cookie data to our Rails app, leaving out the meta data such as the <code>expires</code> of the cookie.</p>
+
+<p>In other words, when we change something in our <code>session</code>, we lose track of when the cookie was supposed to expire. There is no way for Rails to know what the original <code>expires</code> was, since the browser doesn&#8217;t send that information to our Rails app.</p>
+
+<h2>Workaround</h2>
+
+<p>The simple answer is to use <a href="http://github.com/augustl/session-persistence">my plugin</a>. Here&#8217;s what my plugin does, under the hood.</p>
+
+<p>When we log in, we set the expiration time in our session.</p>
+
+<pre><code>def create
+  session[:remember_for] = 1.week
+  # Perform regular login..
+end</code></pre>
+
+<p>In our application controller, we create an after filter that will pass this session variable to our new cookie.</p>
+
+<pre><code>after_filter :persist_session
+ 
+def persist_session
+  if session[:remember_for]
+    env["rack.session.options"][:expire_after] = session[:remember_for]
+  end
+end</code></pre>
+
+<p>When we want to log out, just have to delete the session key, and the session will return to normal.</p>
+
+<pre><code>def destroy
+  session.delete(:remember_for)
+end</code></pre>
+
+<p>The after filter in the application controller will run before Rails creates the new cookie. This means that out <code>:remember_for</code> from the old cookie will get passed on to the new cookie before it is replaced.</p>
+
+<p>Win!</p>
+
+<h2>Full example, using the plugin</h2>
+
+<pre><code>class SessionsController < ApplicationController
+  def create
+    session_expires_after = 1.day if params[:remember_me]
+    
+    user = User.authenticate(params[:username], params[:password])
+    if user
+      session[:user_id] = user.id
+      # redirect_to ...
+    else
+      # ...
+    end
+  end
+
+  def destroy
+     session_expires_now # unsets the session key
+     session.delete(:user_id)
+     # redirect_to ...
+  end
+end</code></pre>
+</div>

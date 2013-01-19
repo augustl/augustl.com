@@ -1,0 +1,94 @@
+date: 2010.1.6
+updated: 2010.1.7
+title: Ruby Net::HTTP cheat sheet
+
+<p><strong>Update</strong>: <a href="http://github.com/augustl/net-http-cheat-sheet">It&#8217;s on GitHub now</a>.</p>
+
+<hr/>
+
+<p>I always have to look up how to use <code>Net::HTTP</code>, and I never find what I&#8217;m looking for. Behold, a cheat sheet!</p>
+
+<h2>A basic request</h2>
+
+<pre><code>require "net/https"
+require "uri"
+
+uri = URI.parse("http://google.com")
+http = Net::HTTP.new(uri.host, uri.port)
+request = Net::HTTP::Get.new(uri.request_uri)
+request.initialize_http_header({"User-Agent" => "My Ruby Script"})
+
+response = http.request(request)
+puts response.code
+# => 301
+puts response["location"] # All headers are lowercase
+# => http://www.google.com/</code></pre>
+
+<h2><span class="caps">URI</span></h2>
+
+<pre><code>uri = URI.parse("http://mysite.com/some_api")
+uri = URI.parse("https://mysite.com/thing?foo=bar")
+
+# URI will also guess the correct port
+URI.parse("http://foo.com").port # => 80
+URI.parse("https://foo.com/").port # => 443
+
+# Full reference
+uri = URI.parse("http://foo.com/this/is/everything?query=params")
+# p (uri.methods - Object.methods).sort
+p uri.scheme        # => "http"
+p uri.host          # => "foo.com"
+p uri.port          # => 80
+p uri.request_uri   # => "/this/is/everything?query=params"
+p uri.path          # => "/this/is/everything"
+p uri.query         # => "query=params"
+
+# There are setters as well
+uri.port = 8080
+uri.host = "google.com"
+uri.scheme = "ftp"
+p uri.to_s
+# => "ftp://google.com:8080/this/is/everything?query=param"</code></pre>
+
+<h2>Everything else</h2>
+
+<pre><code>http = Net::HTTP.new(uri.host, uri.port)
+http.open_timeout = 3 # in seconds
+http.read_timeout = 3 # in seconds
+
+# The request.
+request = Net::HTTP::Get.new(uri.request_uri)
+
+# All the HTTP 1.1 methods are available.
+Net::HTTP::Get
+Net::HTTP::Post
+Net::HTTP::Put
+Net::HTTP::Delete
+Net::HTTP::Head
+Net::HTTP::Options
+
+request.body = "Request body here."
+request.initialize_http_header({"Accept" => "*/*"})
+request.basic_auth("username", "password")
+
+response = http.request(request)
+response.body
+response.status
+response["header-here"] # All headers are lowercase</code></pre>
+
+<h2><span class="caps">SSL</span></h2>
+
+<pre><code># Normal ssl
+http.use_ssl = true
+http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+# SSL .pem certs
+pem = File.read("/path/to/my.pem")
+http.use_ssl = true
+http.cert = OpenSSL::X509::Certificate.new(pem)
+http.key = OpenSSL::PKey::RSA.new(pem)
+http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+
+# Check for SSL dynamically. If your URI is https and you don't specify a
+# port, the port will be 443, which is the correct SSL port.
+http.use_ssl = (uri.port == 443)</code></pre>

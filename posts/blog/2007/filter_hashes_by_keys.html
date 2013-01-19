@@ -1,0 +1,22 @@
+date: 2007.11.22
+title: Filter hashes by keys
+
+<p>Hash + enumerable = annoying, but negative rejects lets you achieve this filtering thingie.</p> 
+
+<p>I find the enumerable stuff in hash annoying. Hash#select returns arrays and stuff, I hate it.</p>
+ 
+<p>I needed to filter a hash by keys.</p> 
+ 
+<pre><code>h = {:hai => "lolz", :burz => "barz", :maz => "garfer"}
+puts h.filter(:hai, :burz)
+# => {:hai=>"lolz", :burz=>"barz"}</code></pre>
+ 
+<p><code>.reject</code> was the only enumerable thingie I found that returned a hash and isn&#8217;t destructive (such as <code>delete_all</code>), so this is what I ended up doing:</p>
+
+<pre><code>class Hash
+  def filter(*args)
+    reject {|k, v| !args.include?(k) }
+  end
+end</code></pre>
+
+<p>Works well.</p> 

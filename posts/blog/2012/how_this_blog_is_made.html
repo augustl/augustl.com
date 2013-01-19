@@ -1,0 +1,18 @@
+date: 2012.05.17
+title: How this blog is made
+
+<p>Tl;dr: I use wget and GNU sed to convert a dynamic webapp into static HTML, served by Apache.</p>
+
+<hr>
+
+<p>You can use this method with any dynamic web app. I happen to have written mine in Clojure, but you can use Rails or Unfiltered or whatever you want, as long as all the content is the same for all visitors to your blog.</p>
+
+<p>This site is served as static generated HTML, much like Jekyll and others. But I don't want to have to write my web page in a specific way just to be able to serve it as static HTML. So I wrote a short script to convert my dynamic web page to static HTML files.</p>
+
+<pre><code>wget -e robots=off -P static -nv -k -p -E -nH -r -l 0 http://localhost:3000
+find static -name '*.html' -exec sed -i 's%index.html%%g' {} \;
+rsync -zvr --delete static/ augustl.com:www/augustl.com/</code></pre>
+
+<p>This will create a directory structure that is aware of directory indexes on Apache, so <code>/blog/2012/my-post-title/index.html</code> will be the name of the generated files so that Apache serves it when accessed by <code>/blog/2012/my-post-title</code>. wget will link directly to those html files by default, so the sed oneliner removes that part of the links.</p>
+
+<p>The only requirement is that your links have a slash at the end. If not, wget will generate <code>/blog/2012/my-post-title.html</code>, which is not what I want.</p>

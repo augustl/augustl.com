@@ -1,0 +1,34 @@
+date: 2007.11.24
+title: Simple human input boolean parser
+
+<p>Parsing human input &#8211; &#8220;yes&#8221;, &#8220;no&#8221;, &#8220;t&#8221; and so on &#8211; and converts it to a boolean, with a simple interface.</p> 
+
+<p>Converts human input to a boolean. Used this in a keyword search thingie of mine, whene users could go <tt>published:true</tt>, <tt>published:yes</tt>, <tt>published:0</tt> and so on, and have the booleans parsed properly.</p>
+
+<pre><code>TRUE_VALUES = %w( yes y true t 1 )
+FALSE_VALUES = %w( no n false f 0 )
+
+class String
+  def to_boolean
+    case self.downcase.strip
+    when *TRUE_VALUES
+      true
+    when *FALSE_VALUES
+      false
+    end
+  end
+end</code></pre>
+
+<p>Adapt the constants to your needs. Any unmatched value would simply return nil.</p> 
+ 
+<pre><code>"yes".to_boolean
+# => true
+
+"no".to_boolean
+# => false
+
+"1".to_boolean
+# => true
+
+"kitten".to_boolean
+# => nil</code></pre>
