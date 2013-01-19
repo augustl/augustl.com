@@ -2,6 +2,7 @@ require "./lib/post"
 
 Post.all.each do |post|
   proxy post.url + ".html", "/post.html" do
+    post.reload!
     @post = post
   end
 end
