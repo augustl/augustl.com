@@ -48,10 +48,4 @@ class Post
       self.class.escape_html($1)
     end
   end
-
-  def to_html
-    title_html = "<h1>" + @title + "</h1>"
-    timestamp_html = '<p class="timestamp">Published ' + @display_date + '</p>'
-    '<div id="article" class="article">' + title_html + timestamp_html + @body + "</div>"
-  end
 end
