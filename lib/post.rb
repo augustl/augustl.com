@@ -42,7 +42,7 @@ class Post
     end
 
     @body = html[num_header_chars..-1].gsub(/\<code\>(.*?)\<\/code\>/m) do
-      self.class.escape_html($1)
+      "<code>" + self.class.escape_html($1) + "</code>"
     end
   end
 
