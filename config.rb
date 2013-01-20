@@ -1,4 +1,5 @@
 require "./lib/post"
+require "sanitize"
 
 Post.all.each do |post|
   proxy post.url + ".html", "/post.html" do

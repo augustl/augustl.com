@@ -1,3 +1,5 @@
+require "sanitize"
+
 class Post
   attr_reader :url
   attr_reader :body

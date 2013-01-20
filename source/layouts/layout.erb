@@ -5,7 +5,7 @@
     <% if yield_content(:title).blank? %>
       <title>August Lilleaas' blog</title>
     <% else %>
-      <title><%= yield_content(:title) %> (August Lilleaas' blog)</title>
+      <title><%= Sanitize.clean(yield_content(:title)) %> (August Lilleaas' blog)</title>
     <% end %>
     <%= stylesheet_link_tag "screen" %>
   </head>
