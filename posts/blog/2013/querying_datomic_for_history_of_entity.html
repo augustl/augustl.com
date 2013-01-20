@@ -1,0 +1,93 @@
+date: 2013.01.20
+title: Querying Datomic for history of entity
+
+<p>The main reason for choosing Datomic for our project was our requirement to have a page that lists all the changes that ever occurred to a specific entity. This turned out to be a bit more tricky than I anticipated, but after I finally wrapped my head around the basics, the solution ended up being quite elegant.</p>
+
+<p>The first step is to get a hold of all the transactions related to the entity in question. This is done with a query on <code>(datomic.api/history db)</code>, a special version of the database containing the full history of assertions and retractions.</p>
+
+<pre><code>(:require ['datomic.api :as 'd])
+
+(d/q
+ '[:find ?e ?a ?v ?tx ?added
+   :in $ ?e
+   :where
+   [?e ?a ?v ?tx ?added]]
+  (datomic.api/history db)
+  123123)</code></pre>
+
+<p>This is the generic query to find them all. This query returns the datoms in the history for the specified entity only.</p>
+
+<p>My actual query was a bit different though. I had the entity ID, and needed to find all datoms that touched a referred attribute for that entity. So simply finding all transactions for my entity would not suffice. Here's a short summary of my schema:</p>
+
+<pre><code> ;; Attendants
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :attendant/public-id
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :attendant/attributes
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/many
+  :db.install/_attribute :db.part/db}
+
+ ;; Attendant attributes
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :attendant-attr/value
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :attendant-attr/schema-attr
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db.install/_attribute :db.part/db}</code></pre>
+
+<p>The entity I'm tracking is the attendant, but the attributes of an attendant isn't stored directly on the attendant entity. The attributes are a reference, in order to join the attribute values to the schema-attr for the event the attendant belongs to. The user of the system is able to specify, per event, the attributes that are available to an attendant, so this join maintains data integrity.</p>
+
+<p>Here's the actual query we run:</p>
+
+<pre><code>(d/q
+ '[:find ?tx ?attr ?added
+   :in $ ?attendant
+   :where
+   [?attendant :attendant/attributes ?attr]
+   [?attr _ _ ?tx ?added]]
+  (d/history db)
+  123123)</code></pre>
+
+<p>This gets all the transactions that touches the attribute <code>:attendant/attributes</code> for the specified attendant.</p>
+
+<p>And this is where the fun begins.</p>
+
+<p>The next step is to take the tuples of entity IDs we get from the query, and turn it into a full changeset of entities we can use to display the list of changes to the user. Essentially, we want to return a list of maps, where each map contains the timestamp of the change, and the actual list of changes. We also need to handle all the cases: an attribute being created for the first time, and attribute changing from something to something else, and an attribute being removed entirely. As a word of caution, this means we have to be careful when we create the actual transactions for our attendant, and only create transactions for the attributes that actually change, and make sure we retract facts when fields are blanked out. What we're about to do wouldn't be possible if the blanking out of a field simply blanked out the attribute in the database. We need to have a clean transaction history.</p>
+
+<p>We extract the entities for the changeset with a <code>map</code> over the result of the query above.</p>
+
+<pre><code>(map
+ (fn [[tx attr added]]
+   (let [tx-db (d/as-of db tx)]
+     {:tx (d/entity tx-db tx)
+      :attr (if added
+              (d/entity tx-db attr)
+              (d/entity (d/as-of db (dec (d/tx-t tx))) attr))
+      :added added}))
+ result-of-transaction-query)</code></pre>
+
+<p>It's important to make sure you use the database as of the transaction inside the map. If you just use <code>db</code> as of now (specifically, the same db as you used when querying for all the transactions just before), you'll get the entities as of <em>now</em>, which you don't want. So in the map, we make sure to always use <code>(db/as-of db tx)</code> when we retrieve entities, so we get the entity as of that transaction. This "small" detail caused me lots of pain and trouble when implementing this feature, so make sure you get it right.</p>
+
+<p>I haven't explained what <code>added</code> actually means. In the history db we queried for transactions, <code>?added</code> is a boolean that tells us whether the datom was an assertion or a retraction.</p>
+
+<p>If the datom was an <strong>assertion</strong> to the database, the entity is just the entity as of the transaction.</p>
+
+<p>If the datom was a <strong>retraction</strong>, the entity as of the transaction will (perhaps surprisingly) not have any attributes other than the entity id. When we show the details of the change to the user, we want to show what the old values for the entity were, so we need to know what the entity looked like prior to deletion. Thankfully, Datomic doesn't delete any old data, even when we retract entities from the database. So to get the values, we simply get the entity as of the transaction <em>before</em> the transaction where the entity was retracted. <code>d/tx-t</code> is used to turn our transaction entity id into a timestamp, and <code>dec</code> decrements it by one. So our call to <code>d/as-of</code> gets the instant just before the transaction, leaving us with the database as it was the moment before our transaction occurred.</p>
+
+<p>Note: I'm not entirely sure how safe this is; it's probably better to somehow get the transaction entity ID from before. For all I know, there was a large amount of writes going on at the time of our transaction, so the <code>dec</code> of the transaction instant might be inaccurate.</p>
+
+<p>Phew! We now have a list of <code>{:tx tx-entity :attr attr-entity :added true/false}</code>. I'll leave it as an exercise to the reader to morph this list into something you can show to your users. Essentially, you need to group by <code>>:tx</code>, sort by the transactions <code>(:db/txInstant tx)</code> (all transactions automatically gets a timestamp associated with them by Datomic), and traverse the data to figure out which combination of <code>added</code> you have in order to determine whether the transaction added, updated or removed the entity.</p>
+
+<p>We're really happy with Datomic so far. We haven't hit production yet, so I'm sure this query will be tweaked even further (we already know we want to add more stuff, such as tracking the user that made the change). But the fact that this feature is just a query away is very convenient indeed.</p>
