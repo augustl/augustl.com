@@ -4,8 +4,8 @@ rss_warning: true
 
 <p><strong>Tldr:</strong> Use a hidden native scrollbar for scrolling, use JavaScript to read it's current position, move the custom scrollbar based on the position of the native scrollbar. Mouse wheel, page up/down, physical scrolling on Macs, etc, works just as expected.</p>
 
-<link rel="stylesheet" type="text/css" href="/posts/custom-scrollbar/custom_scroll_bar.css"></link>
-<link rel="stylesheet" type="text/css" href="/posts/custom-scrollbar/step_styles.css"></link>
+<link rel="stylesheet" type="text/css" href="/static/posts/custom-scrollbar/custom_scroll_bar.css"></link>
+<link rel="stylesheet" type="text/css" href="/static/posts/custom-scrollbar/step_styles.css"></link>
 
 <p>Noscript clients gets a normal native overflow scroll.</p>
 
@@ -111,4 +111,4 @@ rss_warning: true
 <p>We hook the scroll event of <code>.custom_scroll_bar</code> and set it's <code>scrollLeft</code> and <code>scrollTop</code> properties to <code>0</code>. That way we avoid horizontal scrolling when dragging and selecting text.</p>
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
-<script type="text/javascript" src="/posts/custom-scrollbar/custom_scroll_bar.js"></script>
+<script type="text/javascript" src="/static/posts/custom-scrollbar/custom_scroll_bar.js"></script>

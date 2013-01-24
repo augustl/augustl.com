@@ -1,0 +1,41 @@
+.custom_scroll_bar {
+    width: 400px;
+    height: 200px;
+    border: 5px solid #ccc;
+    overflow: hidden;
+    position: relative;
+}
+
+.custom_scroll_bar_handle {
+    top: 0;
+    right: 0;
+    position: absolute;
+    width: 10px;
+    height: 15px;
+    background: #c00;
+    cursor: pointer;
+}
+
+.custom_scroll_bar_handle:hover {
+    background: #f00;
+}
+
+.custom_scroll_bar .native {
+    height: 200px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.custom_scroll_bar.retained .native {
+    width: 200%;
+}
+
+.custom_scroll_bar .content {
+    overflow: hidden;
+    padding-left: 10px;
+    padding-right: 20px;
+}
+
+.custom_scroll_bar.retained .content {
+    width: 370px;
+}
