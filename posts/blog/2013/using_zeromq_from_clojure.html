@@ -1,0 +1,55 @@
+date: 2013.01.26
+title: Using ZeroMQ from Clojure
+
+<p>I'm quite the JVM noob with only 6 months of Clojure experience, and no prior JVM experience. After some hacking and tweaking, I managed to figure out how to use ZeroMQ from Clojure via Leiningen (the build tool). ZeroMQ is a native library that is packaged in a Java API via JNI, so the steps required weren't obvious to me.</p>
+
+<p>These steps are slightly opinionated, but they should be easily modifiable if your oppinion differs from mine.</p>
+
+<h2>Step 0: Install ZeroMQ</h2>
+
+<p>Do it! My development box is currently a Mac running OS X, so I used Homebrew. Your package manager of choice probably has a package for ZeroMQ you can use.</p>
+
+<h2>Step 1: Configure and build JZMQ</h2>
+
+<pre>git clone git://github.com/zeromq/jzmq.git
+cd jzmq
+./autogen.sh
+./configure --prefix=$HOME/myproject/jzmq-2.1.0-SNAPSHOT
+make
+make install</pre>
+
+<p>The actual path you specify with --prefix should be to the same folder as where you intend to put your Leiningen project. You'll see why that is in a second.</p>
+
+<p>These steps are also basically copied from the README at <a href="https://github.com/zeromq/jzmq">https://github.com/zeromq/jzmq</a>.</p>
+
+<h2>Step 2: Install the jar you just built into your local maven repo</h2>
+
+<pre>mvn install:install-file -DgroupId=org.zeromq -DartifactId=jzmq \
+-Dversion=2.1.0-SNAPSHOT -Dpackaging=jar \
+-Dfile=$HOME/myproject/jzmq-2.1.0-SNAPSHOT/share/java/zmq.jar </pre>
+
+<p>Leiningen hates free floating jars, but installing the jar into your local maven repo (typically ~/.m2) fools Leiningen into thinking it isn't actually a free floating jar.</p>
+
+<p>Note that this jar has a relationship to the dynamic libraries you built with the "make" above, so you can't put this jar into a shared repository. The jar is local to your machine.</p>
+
+<h2>Step 3: Set up Leiningen</h2>
+
+<pre>(defproject myproject "1.0.0"
+  :dependencies [[org.clojure/clojure "1.4.0"]
+                 [org.zeromq/jzmq "2.1.0-SNAPSHOT"]]
+  :profiles {:dev {:jvm-opts ["-Djava.library.path=../jzmq-2.1.0-SNAPSHOT/lib"]}}
+  ...)</pre>
+
+<p>As you can see, we assume you put JZMQ into the same folder as your leiningen project, by referring to it via "../". This has two benefits:</p>
+
+<p><strong>You don't hardcode the absolute path into your project.clj.</strong> The actual path of a default JZMQ install will differ from system to sytem. Some might have it in /usr/local, some in $HOME/.brew/whatever, and so on. With a relative setup, you don't enforce any specific directory structure other than requiring that zeromq is in the same folder as your Leiningen project.</p>
+
+<p><strong>You get the specific version of JZMQ your project requires.</strong> If you use an absolute path, say /usr/local, you risk getting a different version of JZMQ than you intended, since you might have installed it into /usr/local via a package manager that might or might not install the version you expect it to.</p>
+
+<h2>Step 4: Use it!</h2>
+
+<pre>lein repl
+...
+user=&gt; (import [org.zeromq ZMQ ZMQ$Context ZMQ$Socket])
+org.zeromq.ZMQ$Socket
+user=&gt;</pre>
