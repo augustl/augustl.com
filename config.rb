@@ -18,9 +18,6 @@ page "/archive.html" do
   @post_years = Post.all.group_by {|p| p.timestamp.year }
 end
 
-page "/favicon.ico" do
-end
-
 
 # helpers do
 #   def some_helper
