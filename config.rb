@@ -18,6 +18,9 @@ page "/archive.html" do
   @post_years = Post.all.group_by {|p| p.timestamp.year }
 end
 
+page "/atom.xml", :layout => false do
+  @posts = Post.all[0..19]
+end
 
 # helpers do
 #   def some_helper
