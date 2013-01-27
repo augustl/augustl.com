@@ -12,8 +12,8 @@
         <name>August Lilleaas</name>
       </author>
       <link href="http://augustl.com<%= post.url %>" />
-      <id>urn:augustl-com:feed:post:<%= post.url %></id>
-      <content><%= Post.escape_html(post.body) %></content>
+      <id>urn:augustl-com:feed:post:<%= post.id %></id>
+      <content type="html"><%= Post.escape_html(post.body) %></content>
     </entry>
   <% end %>
 </feed>

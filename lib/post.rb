@@ -48,6 +48,10 @@ class Post
     end
   end
 
+  def id
+    url.gsub("/", ":")
+  end
+
   def title
     @headers["title"].strip
   end
