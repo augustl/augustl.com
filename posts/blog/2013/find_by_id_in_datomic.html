@@ -1,0 +1,79 @@
+date: 2013.03.10
+title: Finding by ID (primary key) in Datomic
+
+<p>Datomic has no essential type for entities, so how do you <strong>find the user with id X</strong> with Datomic?</p>
+
+<h2>Finding by internal Datomic entity ID</h2>
+
+<p>All entities in datomic gets the attribute <code>:db/id</code>, which is Datomic's own primary key attribute. You might be surprised that <code>(d/eid 123)</code> for an entity id that doesn't exists doesn't return nil.</p>
+
+<pre><code>(require ['datomic.api :as 'd])
+
+(def db (d/db my-datomic-connection))
+(def non-existing-id 123123)
+(d/entity db non-existing-id)
+;; Returns an actual entity
+;; Even if there's no entity with id 123123</code></pre>
+
+<p>To actually find an entity by ID, you need to run a query.</p>
+
+<pre><code>;; Assuming an entity with id 123 exists
+
+(d/q '[:find ?eid :in $ ?eid :where [?eid]] db 123)
+;; HashSet [[123]]
+
+(d/q '[:find ?eid :in $ ?eid :where [?eid]] db non-existing-id)
+;; HashSet [[]]</code></pre>
+
+<p>Also, just for fun, we can create a reproducible example that doesn't depend on having an actual Datomic database around, since Datomic is able to query any data strucutre that consists of a list of lists.</p>
+
+<pre><code>;; This is what an actual Datomic DB actually looks like.
+(def my-mock-db [
+  [123 :name "Test"]
+  [123 :email "test@test.com"]
+  [456 :name "Foo"]
+  [456 :email "Hello"]])
+
+;; A "normal" query, for good measure.
+(d/q '[:find ?person :in $ ?name :where [?person :name ?name]] my-mock-db "Test")
+;; HashSet [[123]]
+
+(d/q '[:find ?eid :in $ ?eid :where [?eid]] my-mock-db 123)
+;; HashSet [[123]]
+
+(d/q '[:find ?eid :in $ ?eid :where [?eid]] my-mock-db 999)
+;; HashSet [[]]</code></pre>
+
+<p>However, how do we know that we get an entity of the type we want? Datomic entities doesn't actually have a type, they're just entities with attributes, so we're at a loss.</p>
+
+<h2>Using manual "public ID" attributes</h2>
+
+<p>I like to have a public ID field per entity type in my system. Again, Datomic entities has no type, so this is all on us, Datomic doesn't care.</p>
+
+<p>I use a string type that's set to unique. Setting it to unique is obviously important. You could also use the built-in UUID type if you want to, but I find it more convenient to just work with strings.</p>
+
+<pre><code>;; Inserting data
+(d/transact
+  my-datomic-conn
+  [{:person/name "Test"
+    :person/email "test@test.com"
+    :person/public-id (str (java.util.UUID/randomUUID))
+    :db/id (d/tempid :db.part/user}])
+
+;; ...
+
+(d/q
+ '[:find ?person
+   :in $ ?pub-id
+   :where
+   [?person :person/public-id ?pub-id]]
+ db
+ person-id)</code></pre>
+
+<p>Benefits:</p>
+
+<ul>
+  <li>You get an entity type system for free. If you use a Datomic ID, how do you query for people entities only for <tt>GET /people/123</tt>?</li>
+  <li>Datomic entity IDs stay internal, meaning you don't have to worry about possible entity ID changes when you import/export the database.</li>
+  <li>You don't have to convert from a string type to a numeric type when you get the entity ID from a URL. Not a very big deal, but since it's a very common use case I'd say it counts.</li>
+</ul>
