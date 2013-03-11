@@ -1,0 +1,81 @@
+date: 2013.03.11
+title: Asynchronous and flexible modal popups in AngularJS
+
+<p>This post is a description of the technique I'm using to show modeal popups in AngularJS.</p>
+
+<p>The end result is a <code>&lt;div&gt;</code> in the body that contains an AngularJS enabled template. That's it. There's no actual rendering of a popup, such as keeping the popup centred on the page, drawing a transparent background above the rest of the page, etc.</p>
+
+<p>Here's the full tl;dr of the code.</p>
+
+<pre><code>// You need to fetch $compile from the dependency injector
+
+// This is how you create a raw AngularJS template. You can use
+// anything you want here, such as ng-repeat, etc etc
+var popupTempmlate = document.createElement("div");
+popupTempmlate.setAttribute("ng-include", "'/my/template.html'");
+
+// We give the popup a new scope, inherited from the current one.
+var popupScope = $scope.$new();
+popupScope.myConfigurationOrWhatever = true;
+var popupLinker = $compile(popupTemplate);
+var popupElement = popupLinker(popupScope);
+
+// popupElement is now a div that contains your template,
+// fully AngularJS enabled. How you display it as a popup
+// is up to you.
+myShowPopupFunction(popupElement);
+
+popupScope.$on("finished", function () {
+  myHidePopupFunction(popupElement);
+
+  // Avoid leaks and nasty stuff. Destroying the scope when
+  // the popup is hidden is absolutely vital.
+  popupScope.$destroy();
+});</code></pre>
+
+<p>You get a DOM element that is your popup contents. It's up to you how you display it. The contents of the popup is a fully "Angularized" template, where you can do all the usual AngularJS stuff.</p>
+
+<h2>Adding a controller</h2>
+
+<p>I like to make my templates self-contained, and declare the controller in them. In this example, the file <tt>/my/template.html</tt> could contain the following:</p>
+
+<pre><code>This is the file: /my/template.html
+
+&lt;div ng-controller="MyController"&gt;
+   .. stuff ...
+   {{ 5 + 5 }}
+&lt;/div&gt;</code></pre>
+
+<p>Since the <code>popupTempmlate</code> is just a regular AngularJS template, you're also free to set ng-controller there, in a div that wraps the ng-include.</p>
+
+<h2>The <code>"finished"</code> event</h2>
+
+<p>I typically have a close button in my popup that emits the <code>"finished"</code> event. When this event is emitted, the code that displayed the popup will hide it.</p>
+
+<p>It's also important to destroy the scope that was created with <code>$scope.$new();</code> to avoid leaks. The popup controller might add watch statements and other things, that will be nuked when you <code>$destroy()</code> the scope. So pairing the hiding code with the teardown code makes sense, so it's impossible/difficult to hide the popup without also destroying the scope.</p>
+
+<h2>Why the extra scope?</h2>
+
+<p>ng-include will create a new scope for us. Why do we need the extra <code>popupScope</code>?</p>
+
+<p>The answer is teardown and garbage collection. As mentioned above, our popup might add watch statements and do other nasty side effecty things. And we don't actually have direct access to the scope created by ng-include. So we create our own scope that we can control, that will destroy all its child scopes - the ng-include scope and any ng-controller scopes, and so on.</p>
+
+<h2>What is <code>$compile</code>?</h2>
+
+<p>This is angular terminology. Compile takes an AngularJS template in the form of DOM elements. Calling compile on a DOM element parses the DOM as an AngularJS template and returns a linker. The linker is a reusable function that takes a scope and returns a DOM element that hooks up the template and the scope. This allows you to use a linker with any scope, as many times as you want. This is essentially how directives work, and it's also the reason directives have a "link" method.</p>
+
+<p>To get a hold of <code>$compile</code>, just use the normal dependency injection techniques.</p>
+
+<pre><code>MyApp.controller("MyController" ,
+  ["$scope", "$compile", function ($scope, $compile) {
+    $scope.showAPopup = function () {
+      // Insert code from above to show popup.
+    };
+  }]);
+
+// Template
+&lt;a ng-click="showAPopup()"&gt;&lt;/a&gt;</code></pre>
+
+<h2>Go render some popups!</h2>
+
+<p>This technique lets you have as many popups as you want on a single page, and it lets you render the popups any way you want to. You don't have to, say, put the popup HTML in your angular template, and ng-hide it until you want to show it. The popup is only initialized when you want to, and you can display it with any API that takes a DOM element and displays it as a popup (hint: most jQuery plugins out there).</p>
