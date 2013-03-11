@@ -35,7 +35,10 @@ title: Finding by ID (primary key) in Datomic
   [456 :email "Hello"]])
 
 ;; A "normal" query, for good measure.
-(d/q '[:find ?person :in $ ?name :where [?person :name ?name]] my-mock-db "Test")
+(d/q '[:find ?person
+       :in $ ?name
+       :where [?person :name ?name]]
+     my-mock-db "Test")
 ;; HashSet [[123]]
 
 (d/q '[:find ?eid :in $ ?eid :where [?eid]] my-mock-db 123)
