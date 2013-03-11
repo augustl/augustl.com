@@ -11,8 +11,8 @@ title: Asynchronous and flexible modal popups in AngularJS
 
 // This is how you create a raw AngularJS template. You can use
 // anything you want here, such as ng-repeat, etc etc
-var popupTempmlate = document.createElement("div");
-popupTempmlate.setAttribute("ng-include", "'/my/template.html'");
+var popupTemplate = document.createElement("div");
+popupTemplate.setAttribute("ng-include", "'/my/template.html'");
 
 // We give the popup a new scope, inherited from the current one.
 var popupScope = $scope.$new();
@@ -46,7 +46,7 @@ popupScope.$on("finished", function () {
    {{ 5 + 5 }}
 &lt;/div&gt;</code></pre>
 
-<p>Since the <code>popupTempmlate</code> is just a regular AngularJS template, you're also free to set ng-controller there, in a div that wraps the ng-include.</p>
+<p>Since the <code>popupTemplate</code> is just a regular AngularJS template, you're also free to set ng-controller there, in a div that wraps the ng-include.</p>
 
 <h2>The <code>"finished"</code> event</h2>
 
