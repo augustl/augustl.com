@@ -5,7 +5,7 @@ title: Finding by ID (primary key) in Datomic
 
 <h2>Finding by internal Datomic entity ID</h2>
 
-<p>All entities in datomic gets the attribute <code>:db/id</code>, which is Datomic's own primary key attribute. You might be surprised that <code>(d/eid 123)</code> for an entity id that doesn't exists doesn't return nil.</p>
+<p>All entities in datomic gets the attribute <code>:db/id</code>, which is Datomic's own primary key attribute. You might be surprised that <code>(d/entity db 123)</code> for an entity id that doesn't exists doesn't return nil.</p>
 
 <pre><code>(require ['datomic.api :as 'd])
 
