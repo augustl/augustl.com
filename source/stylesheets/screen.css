@@ -237,3 +237,24 @@ ul.inline-dots li:after {
 ul.inline-dots li:last-child:after {
     content: "";
 }
+
+.image-block {
+    text-align: center;
+    margin: 40px 60px;
+}
+
+.image-block-caption {
+    text-align: left;
+    color: #999;
+    font-style: italic;
+}
+
+blockquote {
+    padding-top: 1em;
+    font-size: 20px;
+    font-style: italic;
+    color: #666;
+    border-color: #ccc;
+    border-style: solid;
+    border-width: 2px 0;
+}

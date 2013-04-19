@@ -1,0 +1,77 @@
+date: 2013.04.19
+title: Truly concurrent user interfaces
+
+<p>Tl;dr: <a href="https://github.com/augustl/concui">github.com/augustl/concui</a> is a research project where I attempt to invent a 100% functional and concurrency friendly user interface library, written in Clojure and making heavy use of STM, immutability and persistent data structures.</p>
+
+<h2>The mutable object oriented UI</h2>
+
+<p>User interface programming is arguably one of the best fits for object orientation. Having a <code>View</code> object that is extended by <code>Control</code> which is extended by <code>Button</code> is very intuitive. Button events triggering methods on the instance representing it makes sense. <a href="http://www.infoq.com/presentations/Value-Values">Place oriented programming</a> applies well to user interfaces, since you don't care about old values; a user interface is not an information system.</p>
+
+<p>All user interface librares are mutable at their core. You have view objects. A view has children. A view can listen to events. Events bubble up the tree of views. This is identical in iOS, QT, Android, HTML5, Flex, and so on. There are some attempts to make user interfaces functional, but to my knowledge, they all operate on top of this mutable data structure that is the UI (or the DOM, in the case of HTML5).</p>
+
+<p>This causes some essential limitations. Coordinating multiple threads via locks is inconvenient, there's simply too much state in a large nested tree to be able to handle that in a sensible way. This is why we need to have one single thread for all the UI operations, both setting new values on our objects, and performing the actual rendering.</p>
+
+<p>Things like double buffering or multiple graphic cards are not getting around this limitation either. Double buffering means using two buffers for each render cycle, so that when the render cycle is over, the off-screen buffer that was rendered to is swapped with the on-screen buffer, causing instant instead of gradual updates to the screen for each frame. Multiple graphic cards typically share the workload by rendering 50% of the scene for every frame. In other words: there's no concurrency to be had in rendering operations, as an essential limitation in the mutability of the view hierarchy.</p>
+
+<p>This makes multi threaded UI programming very inconvenient. If you're in OO land, you typically don't take the time to create threads for all your business logic, you just do it in your UI thread, it's probably fast enough. You'll get the occasional lockup of the UI under heavy load, and when it becomes a problem, it's up to you to figure out how to do the threading and synchronize the new states back to the UI thread.</p>
+
+<h2>Functional at the low levels</h2>
+
+<p><em>Note: I'm using Android > 3 as my reference here. I haven't investigated in detail how similar other UI libraries are to Android.</em></p>
+
+<p>Every time a frame is drawn, 60 times per second, the entire screen is cleared and redrawn from scratch. This might sound a bit crazy to you. <em>Is there really no caching??</em> It's important to understand that at the very lowest level, something needs to say which color a pixel should be. OpenGL is only slightly higher level than this, and OpenGL commands is what it all boils down to in the end. While UI libraries typically let you do things like moving a view 2 pixels to the right, OpenGL doesn't. You need to first draw whatever was behind the view in the gap that is created from moving the view. Then the new view needs to be drawn, there's no &quot;move this view two pixels to the right&quot; in OpenGL. There's just &quot;draw texture&quot;, &quot;set color and draw line&quot;, and so on. Things like shadows on views and the fact that any view might move at any time makes it difficult to cache draw results in an efficient manner. This is why it's faster to just reissue all the commands for every frame. This goes to show how insanely fast OpenGL is. It's usually faster to just reissue all the OpenGL commands 60 times every second than it is to cache the results in various bitmaps or OpenGL textures.</p>
+
+<p>There are some things that are expensive, though: generating the list of OpenGL commands to call in the first place. Here's the flow in Android > 3:</p>
+
+<div class="image-block">
+  <img src="/static/posts/concurrent_ui/android_render_flow.png">
+  <div class="image-block-caption">From http://www.youtube.com/watch?v=v9S5EO7CLjo - a great introduction to the rendering stack in Android > 3</div>
+</div>
+
+<p>The <code>draw()</code> method of a <code>View</code> is a bunch of Java method calls that essentially ends up being serialized to raw OpenGL commands, and cached. The <code>draw()</code> method is not called again until the view changes something that needs it to recalculate the OpenGL commands it needs to issue.  Then, these commands are merged into what OpenGL calls a display list, which is essentially a set of OpenGL commands, optimized as the current driver sees fit, turned into one OpenGL command. This causes the rendering of a single view to boil down to just a single Java method call, which is why it's OK to do it 60 times per second for each view.</p>
+
+<p>(Aside: this is one of the reasons &quot;hardware accellerated&quot; animation is fast. Most animation can be expressed as an OpenGL transformation matrix on top of an existing OpenGL draw list, which is much faster than a bunch of Java method calls and calculations and rasterization in software)</p>
+
+<p><strong>This is a great fit for a functional programming style</strong>. The core rendering flow has no intricate state! To render a frame we essentially take view hierarchy as a value and return a rendered bitmap (texture) to the screen. The actual rendering function will use the OpenGL state machine, but as <a href="http://clojure.org/transients">the Clojure docs for transients</a> say:</p>
+
+<blockquote>
+  <p>If a tree falls in the woods, does it make a sound?</p>
+  <p>If a pure function mutates some local data in order to produce an immutable return value, is that ok?</p>
+</blockquote>
+
+<h2>A new model</h2>
+
+<p>A user interface is best represented as a tree structure. But does it have to be mutable? As we've seen, a functional process is highly applicable for user interface rendering.</p>
+
+<p>In the new model, we store the user interface as a persistent Clojure data structure. This data structure is managed via the Clojure STM, so we can get a consistent perception of the world without locking and mutexes. A renderer runs in a separate thread. 60 times a second (configurable, of course), it reads this data structure and renders it, using OpenGL.</p>
+
+<p>You can create as many threads as you want in addition to this. Since you use the Clojure STM to update the UI tree structure, this is very hassle free and without the typical time complexities of a traditional mutable system. It's also not your problem to figure out how to use multiple threads and synchronize the state - Clojure handles all of this for you!</p>
+
+<p>The actual data structure is private to the renderer. We provide a transaction based API of facts (very similar to that of <a href="http://www.datomic.com/">Datomic</a>) to 1) abstract away the internals of the data structure 2) make it more convenient to work with and 3) provide an API to consistently update the state of multiple views as a single atomic operation.</p>
+
+<pre><code>(def rdr (r/create-renderer))
+
+;; Set the background color of the entire frame
+@(r/transact rdr [[:renderer/bg-color (r/color 1 0 0)]])
+
+;; Coordinated change of multiple views
+@(r/transact rdr [[:view/attr my-view-id :pos-x 20]
+                  [:view/attr other-view-id :pos-x 50]])</code></pre>
+
+<p>I won't explain the details of what exactly <code>my-view-id</code> is; take a look at <a href="https://github.com/augustl/concui/tree/e0e54b953335770003dc2b57a1ab0c0ed5e7e1bc">the code on Github</a> if you want to know more.</p>
+
+<p>But what we're left with is a persistent data structure representing the view, and a nice API on top of it to atomically update the UI state. There's no manual coordination of state required. Since both reads and writes are 100% atomic and consistent, you're guaranteed that the renderer won't render <code>my-view-id</code> at the new position 20 and <code>other-view-id</code> at its old position.</p>
+
+<h2>What it's not</h2>
+
+<p>This is by no means intended to be practical. You will almost certainly not use this library to create your next JVM (or Dalvik) based UI app. It's purely a research project. Since it has its own OpenGl based data structure, sharing existing UI components in an existing UI framework (like Android built in buttons and text views, and so on) is difficult.</p>
+
+<p>If it turns out that concui provides a usable method for building user interfaces, and if we have 100 core machines in the next few years, we might start to see some vendors ship UI frameworks using similar approaches. But until then, you're better off using <a href="http://pedestal.io/">Pedestal</a>, or any of the other functional UI libraries that tread the mutable DOM as I/O.</p>
+
+<p>Also, concui is not a web framework. It runs on the JVM, powered by Clojure, issuing OpenGL commands to hardware. A Clojurescript + WebGL version could probably be made, but that's not a goal for me since the web is very single threaded of nature.</p>
+
+<h2>What's to come</h2>
+
+<p>One of the biggest unknowns is the lack of coordination between the view data structure and what's actually visible on the screen at the current time. You can at any time read the UI data structure, but you won't be able to know if that UI has actually rendered on the screen yet, since rendering happens on a separate thread. So interesting (and perhaps beneficial) side effects of uncoordinated timing will likely occur. Perhaps there will be some kind of coordination eventually. After all, all that's really needed is to keep the persistent data structure representing the view hierarchy at the time of rendering around, since Clojure provides superb time management through it's immutable values. But the existence of two data structures might cause more problems than it solves. Only time will tell. This is why I call concui a research project!</p>
+
+<p>I'll be working on concui with the goal of submitting a proposal to Clojure/conj 2013 before the deadline in mid June. Hopefully I'll have something interesting before then, I'd love to show this to the Clojure crowd, and I have high hopes that this project will provide actual useful and unique research to the world of user interface programming.</p>
