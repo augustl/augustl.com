@@ -69,7 +69,7 @@ title: Truly concurrent user interfaces
 
 <p>I won't explain the details of what exactly <code>my-view-id</code> is; take a look at <a href="https://github.com/augustl/concui/tree/e0e54b953335770003dc2b57a1ab0c0ed5e7e1bc">the code on Github</a> if you want to know more.</p>
 
-<p>But what we're left with is a persistent data structure representing the view, and a nice API on top of it to atomically update the UI state. There's no manual coordination of state required. Since both reads and writes are 100% atomic and consistent, you're guaranteed that the renderer won't render <code>my-view-id</code> at the new position 20 and <code>other-view-id</code> at its old position.</p>
+<p>But what we're left with is a persistent data structure representing the view, and a nice API on top of it to atomically update the UI state. There's no manual coordination of state required. Since both reads and writes are 100% atomic and consistent (again, thanks to the Clojure STM), you're guaranteed that the renderer won't render <code>my-view-id</code> at the new position 20 and <code>other-view-id</code> at its old position.</p>
 
 <h2>What it's not</h2>
 
