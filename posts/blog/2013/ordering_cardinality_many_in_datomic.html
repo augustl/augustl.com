@@ -1,0 +1,60 @@
+date: 2013.05.04
+title: Ordering of <code>:db.cardinality/many</code> attributes in Datomic
+
+<p>In this post, I assume you already know about Datomic, how to use it, and the difference of the two settings for <code>:db/cardinality</code> on an attribute.</p>
+
+<h2>Tree structures and ordering</h2>
+
+<p><code>:db/cardinality.many</code> values are sets. One of the big differences between Datomic and in a typical RDBMS, is that Datomic uses tree structures for pretty much everything. In a RDBMS you typically get insertion order when querying without specifying what to sort on, but Datomic can't do that since a tree structure isn't ordered in the same way. </p>
+
+<p>Your business logic might require ordering, though, so to achieve this you need to add a <code>:position</code> attribute to your entities. So the question becomes: how to we consistently and safely manage this <code>:position</code> attribute in a way that ensures we don't get inconsistent values in a multi-peer world?</p>
+
+<h2>Transaction functions to the rescue</h2>
+
+<p>In any situation where multi-peer consistensy is required, a <a href="http://docs.datomic.com/database-functions.html">transaction function</a> is the solution. Most of the developers I've spoken to that aren't familiar with Datomic despises the idea of storing and executing code on the database server. But since I'm in Clojure land in my system, and the transactor is too, it doesn't really feel as foreign as PLSQL might do, and since Datomic is free of time complexities, maintaining and synchronizing changes in the transaction functions is pretty much hassle free.</p>
+
+<p>Here's an example of a transaction entry that adds a transaction function for ordering to the transactor.</p>
+
+<pre><code> {:db/id #db/id[:db.part/user]
+  :db/ident :append-position-in-scope
+  :db/doc "Atomically adds to the end of a list of sorted cardinality/many lists"
+  :db/fn #db/fn {:lang "clojure"
+                 :params [db scope-id scope-attr new-id pos-attr]
+                 :code (let [children (scope-attr (datomic.api/entity db scope-id))
+                             highest-pos (reduce max 0 (map pos-attr children))]
+                         [[:db/add new-id pos-attr (inc highest-pos)]])}}
+</code></pre>
+
+<p>The entities at work here is a &quot;todo list&quot; that has a <code>:db/cardinality.many</code> attribute called <code>:todolist/items</code>.</p>
+
+<p><code>children</code> essentially translates to <code>(:todolist/items todolist-entity)</code>, and then we calculate the highest <code>:position</code>, <code>pos-attr</code>, currently in the list and increments that by one.</p>
+
+<p>On the peer side, we can now create a transaction for adding a new todo item and setting its position to be at the end of the list.</p>
+
+<pre><code>[{:todoitem/text "This needs to be done"
+ :db/id new-todo-item-tempid}
+ [:append-position-in-scope todolist-eid :todolist/items new-todo-item-tempid :position]]</code></pre>
+
+<p>Since the Datomic transactor ensures consistency, the transaction function is guaranteed to expand to a <code>:position</code> value of the currently highest position in the list plus one. There's absolutely no risk of race conditions here.</p>
+
+<h2>Filling gaps</h2>
+
+<p>The other function I have for working with sorted sets is a function that I use when I delete an individual item, to fill in the gaps.</p>
+
+<pre><code> {:db/id #db/id[:db.part/user]
+  :db/ident :reset-position-in-scope
+  :db/doc "Goes through existing positions and sequentializes them"
+  :db/fn #db/fn {:lang "clojure"
+                 :params [db scope-id scope-attr retracted-eid sorted-attr]
+                 :code (let [children (scope-attr (datomic.api/entity db scope-id))
+                             sorted-children (sort-by sorted-attr children)
+                             without-retracted (filter #(not= (:db/id %) retracted-eid)
+                                                       sorted-children)]
+                         (map-indexed
+                          (fn [idx entity]
+                           [:db/add scope-id sorted-attr idx])))}}
+</code></pre>
+
+<p>When a positioned entity is deleted, it would normally leave a gap in the position attribute. This function goes through all of what's left and sets the positions to 0 and up, with zero gaps. Note that this creates facts for _all_ the remaining entities. It could probably be improved to only state facts for the items from retracted-eid and below.</p>
+
+<p>Since this is always used when an entity is retracted, we need to pass in the entity that is being retracted as well, so we can remove it from the set. The transaction gets the database as of before the transaction commits, so even if we have a retract entity command in the transaction, this function won't know. So we manually remove that from the list.</p>
