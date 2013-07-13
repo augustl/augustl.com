@@ -258,3 +258,11 @@ blockquote {
     border-style: solid;
     border-width: 2px 0;
 }
+
+.highlight .c1 {  /* Comments */
+    color: red;
+}
+
+.highlight .s { /* Strings */
+    color: #369;
+}

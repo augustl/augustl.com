@@ -1,4 +1,5 @@
-require "sanitize"
+require "nokogiri"
+require "open3"
 
 class Post
   attr_reader :url
@@ -18,6 +19,40 @@ class Post
       .gsub(/</, '&lt;')
       .gsub(/>/, '&gt;')
       .gsub(/"/, '&quot;')
+  end
+
+  def self.parse_html_attrs(attrs)
+    if attrs.blank?
+      return {}
+    else
+      Nokogiri::HTML("<div#{attrs}></div>").css("div")[0].attributes.inject({}) do |prev, curr|
+        key = curr[0]
+        value = curr[1]
+        prev[key] = value.value
+        prev
+      end
+    end
+  end
+
+  def self.format_code(code, lang)
+    if lang
+      formatted = nil
+      Open3.popen3("pygmentize", "-l", lang, "-f", "html", "-P", "nowrap=true") do |stdin, stdout, stderr, wait_thr|
+        stdin.write(code)
+        stdin.close_write
+
+        lines = []
+        until (line = stdout.gets).nil?
+          lines.push(line)
+        end
+
+        formatted = lines.join("")
+      end
+
+      "<code class=\"highlight\">#{formatted}</code>"
+    else
+      "<code>" + escape_html(code) + "</code>"
+    end
   end
 
   def initialize(cwd, path)
@@ -43,8 +78,11 @@ class Post
       end
     end
 
-    @body = html[num_header_chars..-1].gsub(/\<code\>(.*?)\<\/code\>/m) do
-      "<code>" + self.class.escape_html($1) + "</code>"
+    @body = html[num_header_chars..-1].gsub(/\<code(.*?)\>(.*?)\<\/code\>/m) do
+      match_data = $~
+      attrs = self.class.parse_html_attrs(match_data[1])
+      code = match_data[2]
+      self.class.format_code(code, attrs["data-lang"])
     end
   end
 
