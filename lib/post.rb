@@ -1,5 +1,6 @@
 require "nokogiri"
 require "open3"
+require "parallel"
 
 class Post
   attr_reader :url
@@ -75,7 +76,8 @@ class Post
   end
 
   def self.parse_body(body)
-    separate_on(body, /\<code(.*?)\>(.*?)\<\/code\>/m).map do |chunk|
+    chunks = separate_on(body, /\<code(.*?)\>(.*?)\<\/code\>/m)
+    Parallel.map(chunks, :in_threads => chunks.length) do |chunk|
       case chunk
       when String
         chunk

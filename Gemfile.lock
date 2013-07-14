@@ -55,6 +55,7 @@ GEM
       sprockets-sass (~> 1.0.0)
     multi_json (1.7.7)
     nokogiri (1.5.6)
+    parallel (0.7.1)
     rack (1.5.2)
     rack-test (0.6.2)
       rack (>= 1.0)
@@ -88,4 +89,5 @@ PLATFORMS
 DEPENDENCIES
   middleman (~> 3.1.0)
   nokogiri (~> 1.5.0)
+  parallel (~> 0.7.0)
   sanitize (~> 2)
