@@ -55,11 +55,38 @@ class Post
     end
   end
 
+  def self.separate_on(str, re, result = [])
+    match_data = str.match(re)
+    if match_data
+      result.push(match_data.pre_match)
+      result.push(match_data)
+      separate_on(match_data.post_match, re, result)
+    else
+      result.push(str)
+      result
+    end
+  end
+
   def initialize(cwd, path)
     @path = path
     @cwd = cwd
     @url = "/" + @path[0...-(File.extname(@path).length)]
     reload!
+  end
+
+  def self.parse_body(body)
+    separate_on(body, /\<code(.*?)\>(.*?)\<\/code\>/m).map do |chunk|
+      case chunk
+      when String
+        chunk
+      when MatchData
+        attrs = parse_html_attrs(chunk[1])
+        code = chunk[2]
+        format_code(code, attrs["data-lang"])
+      else
+        raise ArgumentError.new("Unexpected chunk #{chunk.class}.")
+      end
+    end.join("")
   end
 
   def reload!
@@ -78,12 +105,7 @@ class Post
       end
     end
 
-    @body = html[num_header_chars..-1].gsub(/\<code(.*?)\>(.*?)\<\/code\>/m) do
-      match_data = $~
-      attrs = self.class.parse_html_attrs(match_data[1])
-      code = match_data[2]
-      self.class.format_code(code, attrs["data-lang"])
-    end
+    @body = self.class.parse_body(html[num_header_chars..-1])
   end
 
   def id
