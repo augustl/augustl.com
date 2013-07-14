@@ -2,10 +2,7 @@ require "./lib/post"
 require "sanitize"
 
 Post.all.each do |post|
-  proxy post.url + ".html", "/post.html" do
-    post.reload!
-    @post = post
-  end
+  proxy(post.url + ".html", "/post.html", :locals => {:post => post})
 end
 
 ignore "/post.html"
