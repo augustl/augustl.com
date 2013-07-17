@@ -263,6 +263,12 @@ blockquote {
     color: red;
 }
 
-.highlight .s { /* Strings */
+.highlight .k {  /* Builtins (?) */
+    color: green;
+    font-weight: bold;
+}
+
+.highlight .s,
+.highlight .ss { /* Strings, keywords */
     color: #369;
 }
