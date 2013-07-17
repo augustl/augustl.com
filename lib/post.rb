@@ -47,7 +47,7 @@ class Post
           lines.push(line)
         end
 
-        formatted = lines.join("")
+        formatted = lines.join("").rstrip
       end
 
       "<code class=\"highlight\">#{formatted}</code>"
