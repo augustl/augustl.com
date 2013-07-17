@@ -1,0 +1,58 @@
+date: 2013.07.17
+title: Datomic: Direct index lookup
+
+<p>A couple of years ago, I read about someone whose MySQL performance bottleneck was SQL parsing. Most of the queries were straightforward primary key lookups, so the author wrote code that called InnoDB (MySQL's storage engine) directly and removed the bottleneck. I thought this was really cool, and I feel like I've reached a small milestone today for doing the same thing myself, only in Datomic.</p>
+
+<p>In our system, we have a querying API that lists <em>everything</em> if an empty query is passed. This means we need to ask datomic for potentially 1000s of entities, and also make it happen in a reasonable amount of time. In the future, we we'll probably be more clever and lazily load stuff, but I wanted to see if there was a quick fix, since lazy loading in the UI takes a lot of work to get right.</p>
+
+<p>Here's the old code:</p>
+
+<pre><code data-lang="clojure">(require '[datomic.api :as d])
+
+(map
+  (fn [public-id]
+    (d/entity
+      db
+      (ffirst
+        (d/q
+          '[:find ?attendant
+            :in $ ?pub-id
+            :where
+            [?attendant :attendant/public-id ?pub-id]]
+          db
+          pub-id))))
+  public-ids)</code></pre>
+
+<p>The attribute <code>:attendant/public-id</code> is a string attribute where we insert Datomic squuids. We only expose these IDs to the outside world, the Datomic entity IDs stay internal to Datomic.</p>
+
+<p>In the extreme cases, 2600 such public IDs is what we mapped over, resulting in 2600 queries being performed. This took about <strong>1 second</strong>, and was not acceptable. The solution is to not query at all, but just look up the value in the Datomic index. This ended up taking about <strong>0.1 seconds</strong>, so a ten-fold performance increase. Not bad at all! Here's the updated code:</p>
+
+<pre><code data-lang="clojure">;; Yields exactly the same output as the above query
+(map
+  (fn [public-id]
+    (d/entity db (:e (first (d/datoms db :avet :attendant/public-id public-id)))))
+  public-ids)
+</code></pre>
+
+<p>Datomic has multiple indexes, and all of them are full copies of the data. So looking things up in an index is the only thing you need to do in order to access the data, and this is what the Datomic query engine does under the hood anyway, since all your data in the database is available to you as an immutable (and lazy) value.</p>
+
+<p>The code to <code data-lang="clojure">d/datoms</code> flows as following:</p>
+
+<ol>
+  <li>Pass the datomic db whose indexes we want to look up.</li>
+  <li>Pass the index to use. We want the <code data-lang="clojure">:avet</code> index. (Attribute, value, entity, transaction)
+    <ul><li>The following arguments are the <em>components</em> to look up in the index.</li></ul>
+  </li>
+  <li>The first entry in <code data-lang="clojure">:avet</code> is <code data-lang="clojure">:a</code>. So we pass <code data-lang="clojure">:attendant/public-id</code>, the attribute we want to look up.</li>
+  <li>The second entry in <code data-lang="clojure">:avet</code> is <code data-lang="clojure">:v</code>. So we pass <code data-lang="clojure">public-id</code>, the value we want to look up.</li>
+</ol>
+
+<p>This will give us a raw seq of facts. Since we know that the attribute <code data-lang="clojure">:attendant/public-id</code> is set to unique, we can just get the <code data-lang="clojure">(first)</code> one.</p>
+
+<p>Aside: We could also just have passed one component, the attribute, and gotten back a sequence of facts for all facts for that attribute.</p>
+
+<p>When we have our fact, we extract the entity ID from it. The fact is map-like, so all we need to do is <code data-lang="clojure">(:e fact)</code>.</p>
+
+<p>Then we proceed as normal, and look up the full aggregated entity just as we do with the entity IDs we get from Datomic query results.</p>
+
+<p>So there you go! Again, we should probably be more clever and lazy load stuff, but we just wanted a quick fix, and a ten-fold performance increase is more than good enough for now.</p>
