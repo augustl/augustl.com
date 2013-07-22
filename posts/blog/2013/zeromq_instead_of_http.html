@@ -306,6 +306,12 @@ new Point(15, 21)</code></pre>
 
 <p>I've never actually done this myself, so I won't show you the code for it. I'll leave the implementation details as an exercise for the reader. The concepts are clear, though. Since we've seen that it's really easy to compose REQ/REP and DEALER/ROUTER, all it should take is another node that sits between the REQ clients and the REP servers and routes and deals requests to multiple servers. Alternatively, just bind the DEALER we already have on the server and connect a bunch of REP sockets directly to it. But be aware, that would result in one TCP connection per REP socket.</p>
 
+<h2>Authentication</h2>
+
+<p>I've only used ZeroMQ for internal services that are behind firewalls, so I haven't needed to add any form of auth. My advice for authentication would be to mimic HTTP. I would allow full access to the service itself, but in the routing, have a precondition that checks if an auth token of some sort is present in the request. If the request fails to authenticate, respond with status 403 or something along those lines.</p>
+
+<p>Work is underway in ZeroMQ 3 for providing encrypted transports, too, so you don't have to manually encrypt your messages to be MITM safe if you're dispatching messages across a network you don't trust.</p>
+
 <h2>Some notes on the Clojure code</h2>
 
 <p>We're doing a lot of Java interop, and in my code I like to use the <code>(doto)</code> macro a lot. Instead of this:</p>
