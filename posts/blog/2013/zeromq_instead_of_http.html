@@ -154,10 +154,6 @@ new Point(15, 21)</code></pre>
 
 <p>OK, now for the actual code.</p>
 
-<p>We have a function that defines a connection. We create a single connection for our process, and pass it around when we want to make requests. We create a new REQ socket for each request, and use use <code data-lang="clojure">"inproc://"</code> to send messages to the ROUTER. The ROUTER then forwards the message to the DEALER (via ZMQQueue as before). The DEALER connects via TCP to our actual server.</p>
-
-<p>A function that wraps around a single request is created, <code>with-req-sock</code>. It takes the connection, and a higher order function that is passed the new REQ socket. When this function returns, the REQ socket is destroyed.</p>
-
 <pre><code data-lang="clojure">(defn connect
   [server-url]
   (let [ctx (ZMQ/context 1)
@@ -188,6 +184,10 @@ new Point(15, 21)</code></pre>
     (try
       (handler socket)
       (finally (.close socket)))))</code></pre>
+
+<p>We have a function that defines a connection. We create a single connection for our process, and pass it around when we want to make requests. We create a new REQ socket for each request, and use use <code data-lang="clojure">"inproc://"</code> to send messages to the ROUTER. The ROUTER then forwards the message to the DEALER (via ZMQQueue as before). The DEALER connects via TCP to our actual server.</p>
+
+<p>A function that wraps around a single request is created, <code>with-req-sock</code>. It takes the connection, and a higher order function that is passed the new REQ socket. When this function returns, the REQ socket is destroyed.</p>
 
 <p>Let's put this code to use and do five requests in parallel.</p>
 
