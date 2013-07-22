@@ -177,7 +177,6 @@ new Point(15, 21)</code></pre>
   (.term (get connection :ctx)))
 
 (defn with-req-sock
-  "Wraps around a first class function that gets a REQ socket passed to it."
   [connection handler]
   (let [socket (.socket (get connection :ctx) ZMQ/REQ)]
     (.connect socket (get connection :worker-url))
