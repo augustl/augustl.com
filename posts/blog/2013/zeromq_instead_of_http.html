@@ -1,5 +1,6 @@
 date: 2013.07.22
 title: ZeroMQ instead of HTTP, for internal services
+listed: false
 
 <p>This article describes how to use ZeroMQ for RPC calls to internal services. HTTP is the canonical choice for public facing services. But for RPC to internal services in systems composed of many small parts, you're probably better off using ZeroMQ instead of HTTP.</p>
 
@@ -88,7 +89,7 @@ t.start()</code></pre>
           ;; res is a byte[] containing whatever the REP socket replied with.
           (println (String. res))))))))</code></pre>
 
-<p>There are actually many lessions to learn in this small example.</p>
+<p>There are actually many lessons to learn in this small example.</p>
 
 <ul>
   <li>Look, no broker! Again, ZeroMQ is not a traditional message queue, it's a socket library. (But with some message queue like semantics, read on!)</li>
@@ -289,9 +290,9 @@ t.start()</code></pre>
 
 (defn respond
   [req]
-  (app {:request-method (keyword (.toLowerCase (:method req)))
-        :uri (:path req)
-        :body (:body req)}))</code></pre>
+  (app {:request-method (keyword (.toLowerCase (get req :method)))
+        :uri (get req :path)
+        :body (get req :body)}))</code></pre>
 
 <p>Words cannot describe how awesome this is. <em>With just a couple of lines of code, we're invoking a HTTP stack from something that isn't HTTP at all.</em></p>
 
