@@ -205,14 +205,14 @@ t.start()</code></pre>
             (println (String. res)))))))))
 </code></pre>
 
-<p>We have a function that defines a connection. We create a single connection for our process, and pass it around when we want to make requests. We create a new REQ socket for each request, and use use <code data-lang="clojure">"inproc://"</code> to send messages to the ROUTER. The ROUTER then forwards the message to the DEALER (via ZMQQueue as before). The DEALER connects via TCP to our actual server.</p>
+<p><code data-lang="clojure">(connect server-url)</code> creates new connections. We create a single connection for our process, and pass it around when we want to make requests. We create a new REQ socket for each request, and use use <code data-lang="clojure">"inproc://"</code> to send messages to the ROUTER. The ROUTER then forwards the message to the DEALER (via ZMQQueue as before). The DEALER connects via TCP to our actual server.</p>
 
 <p>A few things to note:</p>
 
 <ul>
   <li>The output should be interleaved in your terminal if you run this code. That's because both the requests and replies happens concurrently.</li>
   <li>Again, no state is shared between threads other than the inproc url, all we really do is sending ZeroMQ messages between them.</li>
-  <li>As already noted, we could REQ directly against the server, but that means we would need to perform a full TCP connection per request. In this setup, our DEALER is the sole tcp connection, everything else is inproc. We endd up with concurrent requests running over the same TCP connection. The DEALER doesn't really care about the types of messages, so it can send 5 requests, get 2 replies, send 2 more requests, and so on. The ROUTER sockets takes care of sending the messages to the correct place, based on the internal socket IDs.</li>
+  <li>As already noted, we could REQ directly against the server, but that means we would need to perform a full TCP connection per request. In this setup, our DEALER is the sole tcp connection, everything else is inproc. We end up with concurrent requests running over the same TCP connection. The DEALER doesn't really care about the types of messages, so it can send 5 requests, get 2 replies, send 2 more requests, and so on. The ROUTER sockets takes care of sending the messages to the correct place, based on the internal socket IDs.</li>
   <li>As the code shows, we can now create multiple REQ sockets in separate threads and perform requests. Typically, you create a new REQ for each incoming request, using <code>(with-req-sock)</code>.</li>
 </ul>
 
