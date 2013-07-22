@@ -336,6 +336,20 @@ new Point(15, 21)</code></pre>
   ;; ...
   (.start (Thread. (fn [] (.run queue)))))</code></pre>
 
+<p>Or even fewer names, and inlined the entire thing.</p>
+
+<pre><code>(let [ctx (ZMQ/context 1)]
+  ;; ...
+  (.start
+   (Thread.
+    (fn []
+     (doto
+       (ZMQQueue.
+         ctx
+         (doto (.socket ctx ZMQ/ROUTER) (.bind "tcp://127.0.0.1:1337"))
+         (doto (.socket ctx ZMQ/DEALER) (.bind "inproc://responders")))
+       (.run))))))</code></pre>
+
 <p><code>doto</code> takes a Java object as the first argument, and all the other following arguments are assumed to be lists (in Clojure, a list is a function call) and inserts this instance as the 2nd element in the list, i.e. the first argument to the function. So while the code looks like we call bind on a string, it's actually called on the instance pased to the first argument - the socket instances created by the call to socket on the ctx. This is convenient for creating an instance of something, calling a bunch of methods with side effects on it, and return that instance, without having to create a named variable for the instance.</p>
 
 <p>I've also chosen to use <code data-lang="clojure">(get my-map :a-key)</code> instead of the more idiomatic <code data-lang="clojure">(:a-key my-map)</code>. It might be confusing for people unfamiliar with Clojure that keywords are also callable polymorphic functions, that does map lookups if the first argument is a map.</p>
