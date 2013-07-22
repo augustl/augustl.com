@@ -99,7 +99,7 @@ new Point(15, 21)</code></pre>
 
 <p>ZeroMQ allows for in process message passing, and this is what we'll use to achieve concurrent replies. We'll create multiple thread with one REP socket for each thread, and use a new thread with a new socket to connect these into one blob. There will be no cross thread state stuff, the only "state" we pass between threads will be ZeroMQ messages.</p>
 
-<p>To achieve this, we create a socket with the type DEALER. We bind this to the inproc protocol, and connect the actual REP sockets to this DEALER. When the DEALER socket receives messages, it will pass it on to one of the REP sockets, keep track of which REP sockets are busy. When a REP socket replies, it will do so to the DEALER, which will just forward the message as is. This setup allows for one top level socket that forwards messages for a multitude of REP sockets.</p>
+<p>To achieve this, we create a socket with the type DEALER. We bind this to the <code data-lang="clojure">"inproc://"</code> protocol, and connect the actual REP sockets to this DEALER. When the DEALER socket receives messages, it will pass it on to one of the REP sockets, keep track of which REP sockets are busy. When a REP socket replies, it will do so to the DEALER, which will just forward the message as is. This setup allows for one top level socket that forwards messages for a multitude of REP sockets.</p>
 
 <p>In front of the DEALER we also put a ROUTER. In all the examples i nthis post we will be doing concurrent requests with multiple REQ sockets over one single TCP connection. But if we want to support multiple TCP connections to our server, which we almost certainly want, we need a ROUTER.</p>
 
@@ -141,7 +141,7 @@ new Point(15, 21)</code></pre>
 <ul>
   <li>The <code>ZMQQueue</code> is a built in convenience function that passes all messages to the other socket and vice versa. In our setup, that means that all messages from the ROUTER is sent to the DEALER, and all messages from the DEALER is sent to the ROUTER, without us having to write the code to make that happen.</li>
   <li>The call <code data-lang="clojure">(.run queue)</code> will block the current thread, which is why we have a separate thread for it.</li>
-  <li>The order of bind/connect matters for the inproc protocol. This is only true for inproc; tcp, as we saw above, can connect first, then bind. inproc is much more effecient than TCP (for obvious reasons) so that is preferred for in-process comms.</li>
+  <li>The order of bind/connect matters for the <code data-lang="clojure">"inproc://"</code> protocol. This is only true for inproc; <code data-lang="clojure">"tcp://"</code>, as we saw above, can connect first, then bind. inproc is much more effecient than TCP (for obvious reasons) so that is preferred for in-process comms.</li>
 </ul>
 
 <h3>Iteration 3: Adding concurrent requests</h3>
@@ -154,7 +154,7 @@ new Point(15, 21)</code></pre>
 
 <p>OK, now for the actual code.</p>
 
-<p>We have a function that defines a connection. We create a single connection for our process, and pass it around when we want to make requests. We create a new REQ socket for each request, and use use inproc to send messages to the ROUTER. The ROUTER then forwards the message to the DEALER (via ZMQQueue as before). The DEALER connects via TCP to our actual server.</p>
+<p>We have a function that defines a connection. We create a single connection for our process, and pass it around when we want to make requests. We create a new REQ socket for each request, and use use <code data-lang="clojure">"inproc://"</code> to send messages to the ROUTER. The ROUTER then forwards the message to the DEALER (via ZMQQueue as before). The DEALER connects via TCP to our actual server.</p>
 
 <p>A function that wraps around a single request is created, <code>with-req-sock</code>. It takes the connection, and a higher order function that is passed the new REQ socket. When this function returns, the REQ socket is destroyed.</p>
 
