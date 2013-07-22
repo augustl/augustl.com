@@ -9,7 +9,7 @@ listed: false
 <ul>
   <li>Multiple concurrent RPC calls over the same TCP connection. With HTTP, you're limited to sequential calls (keep-alive). This is a big one.</li>
   <li>No manual connection management. This isn't impossible to do with HTTP, and is mostly a library problem, but AFAIK few libraries exist that lets you do this right with HTTP.</li>
-  <li>Supports multiple server processes responding to requests. This could also be done with a HTTP load balancer, though.</li>
+  <li>Supports multiple server processes responding to requests. No HTTP load balancer needed.</li>
   <li>No manual retry handling. Can stop the server, do a RPC, then start the server, then get a response - the message is queued, instead of delivered directly.</li>
 </ul>
 
