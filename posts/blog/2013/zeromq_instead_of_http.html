@@ -182,20 +182,17 @@ t.start()</code></pre>
   (.term (get connection :ctx)))
 
 (defn with-req-sock
+  "Takes the connection and a higher order function that is passed a new REQ
+   socket. When this function returns, the REQ socket is destroyed."
   [connection handler]
   (let [socket (.socket (get connection :ctx) ZMQ/REQ)]
     (.connect socket (get connection :worker-url))
     (try
       (handler socket)
-      (finally (.close socket)))))</code></pre>
+      (finally (.close socket)))))
 
-<p>We have a function that defines a connection. We create a single connection for our process, and pass it around when we want to make requests. We create a new REQ socket for each request, and use use <code data-lang="clojure">"inproc://"</code> to send messages to the ROUTER. The ROUTER then forwards the message to the DEALER (via ZMQQueue as before). The DEALER connects via TCP to our actual server.</p>
-
-<p>A function that wraps around a single request is created, <code>with-req-sock</code>. It takes the connection, and a higher order function that is passed the new REQ socket. When this function returns, the REQ socket is destroyed.</p>
-
-<p>Let's put this code to use and do five requests in parallel.</p>
-
-<pre><code data-lang="clojure">(def connection (connect "tcp://127.0.0.1:1337"))
+;; Usage
+(def connection (connect "tcp://127.0.0.1:1337"))
 
 (dotimes [n 5]
   (.start
@@ -205,7 +202,10 @@ t.start()</code></pre>
         (fn [sock]
           (.send sock (.getBytes (str "Hello, " n)) 0)
           (let [res (.recv sock 0)]
-            (println (String. res)))))))))</code></pre>
+            (println (String. res)))))))))
+</code></pre>
+
+<p>We have a function that defines a connection. We create a single connection for our process, and pass it around when we want to make requests. We create a new REQ socket for each request, and use use <code data-lang="clojure">"inproc://"</code> to send messages to the ROUTER. The ROUTER then forwards the message to the DEALER (via ZMQQueue as before). The DEALER connects via TCP to our actual server.</p>
 
 <p>A few things to note:</p>
 
