@@ -320,7 +320,9 @@ t.start()</code></pre>
 
 <h2>Some notes on the Clojure code</h2>
 
-<p>We're doing a lot of Java interop, and in my code I like to use the <code>(doto)</code> macro a lot. Instead of this:</p>
+<p>I have this crazy idea that I should make the code as readable as possible to people that are unfamiliar with Clojure in general. So I do some non-ideomatic stuff. All I probably achieved with this was to alienate the people that actually read the article - Clojure programmers. Oh well.</p>
+
+<p>We're doing a lot of Java interop, and in my code I like to use the <code>(doto)</code> macro. Instead of this:</p>
 
 <pre><code data-lang="clojure">(let [ctx (ZMQ/context 1)
       router-socket (.socket ctx ZMQ/ROUTER)
