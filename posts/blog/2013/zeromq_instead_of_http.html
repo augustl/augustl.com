@@ -47,9 +47,9 @@ new Point(15, 21)</code></pre>
 
 <p>This first example is something you would never do in production code, since it has no concurrency. But it demonstrates some important ZeroMQ concepts in a small and isolated snippet, on which we will improve iteratively until it does what we want.</p>
 
-<p>We will create two sockets. One is the REQ socket. ZeroMQ sockets has different APIs depending on their type. If you try to send two messages in a row from a REQ socket, you'll get an error. You have to send, then wait for a reply, until you can send again.</p>
+<p>We will create two sockets. One is the REQ (request) socket. ZeroMQ sockets has different APIs depending on their type. If you try to send two messages in a row from a REQ socket, you'll get an error. You have to send, then wait for a reply, until you can send again.</p>
 
-<p>The other socket is a REP socket. It has a similar but mirrored API. If the first thing you do on a REP socket is to send data, you'll get an error. You have to start by waiting for a message, and only when you receive one you send a message. Then you have to wait for another message.</p>
+<p>The other socket is a REP (reply) socket. It has a similar but mirrored API. If the first thing you do on a REP socket is to send data, you'll get an error. You have to start by waiting for a message, and only when you receive one you send a message. Then you have to wait for another message.</p>
 
 <p>This API makes it easy to do RPC, as ZeroMQ will handle all the details for us. All we need to do is to wait for a response and reply on REP, and send a request and wait for a response on REQ.</p>
 
