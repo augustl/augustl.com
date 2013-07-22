@@ -8,15 +8,15 @@ end
 ignore "/post.html"
 
 page "/" do
-  @posts = Post.all[0..9]
+  @posts = Post.all_listed[0..9]
 end
 
 page "/archive.html" do
-  @post_years = Post.all.group_by {|p| p.timestamp.year }
+  @post_years = Post.all_listed.group_by {|p| p.timestamp.year }
 end
 
 page "/atom.xml", :layout => false do
-  @posts = Post.all[0..19]
+  @posts = Post.all_listed[0..19]
 end
 
 # helpers do

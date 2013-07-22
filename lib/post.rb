@@ -14,6 +14,10 @@ class Post
     end
   end
 
+  def self.all_listed
+    all.find_all(&:listed?)
+  end
+
   def self.escape_html(html)
     html
       .gsub(/&(?!\w+;)/, '&amp;')
@@ -116,6 +120,10 @@ class Post
 
   def title
     @headers["title"].strip
+  end
+
+  def listed?
+    @headers["listed"].try(:strip) != "false"
   end
 
   def timestamp
