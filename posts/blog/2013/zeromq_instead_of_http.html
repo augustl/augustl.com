@@ -140,7 +140,7 @@ new Point(15, 21)</code></pre>
 
 <ul>
   <li>The <code>ZMQQueue</code> is a built in convenience function that passes all messages to the other socket and vice versa. In our setup, that means that all messages from the ROUTER is sent to the DEALER, and all messages from the DEALER is sent to the ROUTER, without us having to write the code to make that happen.</li>
-  <li>The call <code data-lang="clojure">(.run queue)</code> will block the current thread, which is why we have a separate thread for it.</li>
+  <li>Invoking .run on the ZMQQueue will block the current thread, which is why we have a separate thread for it.</li>
   <li>The order of bind/connect matters for the <code data-lang="clojure">"inproc://"</code> protocol. This is only true for inproc; <code data-lang="clojure">"tcp://"</code>, as we saw above, can connect first, then bind. inproc is much more effecient than TCP (for obvious reasons) so that is preferred for in-process comms.</li>
 </ul>
 
