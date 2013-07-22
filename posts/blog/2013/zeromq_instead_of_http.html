@@ -45,7 +45,7 @@ new Point(15, 21)</code></pre>
 
 <h3>Iteration 1: requests and replies, no concurrency</h3>
 
-<p>This first example is pretty useless in and of itself, but it demonstrates some important ZeroMQ concepts in a small and isolated snippet on which we will improve iteratively until it does what we want.</p>
+<p>This first example is something you would never do in production code, since it has no concurrency. But it demonstrates some important ZeroMQ concepts in a small and isolated snippet, on which we will improve iteratively until it does what we want.</p>
 
 <p>We will create two sockets. One is the REQ socket. ZeroMQ sockets has different APIs depending on their type. If you try to send two messages in a row from a REQ socket, you'll get an error. You have to send, then wait for a reply, until you can send again.</p>
 
