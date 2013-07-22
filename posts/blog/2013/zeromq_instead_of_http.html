@@ -1,0 +1,274 @@
+date: 2013.07.22
+title: ZeroMQ instead of HTTP
+listed: false
+
+<p>This article describes how to use ZeroMQ for RPC calls to internal services. HTTP is the canonical choice for public facing services. But for RPC to internal services in systems composed of many small parts, you're probably better off using ZeroMQ instead of HTTP.</p>
+
+<p>In summart, the benefits ZeroMQ offers over HTTP are:</p>
+
+<ul>
+  <li>Multiple concurrent RPC calls over the same TCP connection. With HTTP, you're limited to sequential calls (keep-alive). This is a big one.</li>
+  <li>No manual connection management. This is mostly a library problem, but few libraries exist that lets you do this right with HTTP.</li>
+  <li>Supports multiple server processes responding to requests. This could also be done with a HTTP load balancer, though.</li>
+  <li>No manual retry handling. Can stop the server, do a RPC, then start the server, then get a response - the message is queued, instead of delivered directly.</li>
+</ul>
+
+<p>This post is long, since it assumes the reader is unfamiliar with ZeroMQ. Let's dive in!</p>
+
+<h2>A ZeroMQ tutorial</h2>
+
+<p>ZeroMQ is badly named. It's not a message queue, there's no server or broker you need to download and run.</p>
+
+<p>ZeroMQ is <strong>a networking library</strong>. You create sockets of different types (REQ, REP, DEALER, ROUTER, PUB, SUB, ...), connect these sockets to eachother in various interesting ways, and send messages to these sockets. The type of socket determines how the messages are routed and delivered.</p>
+
+<h3>Example 1: RPC, no concurrency</h3>
+
+<p>In this example, we create a single REQ and a single REP socket. The REQ socket posts the message <code data-lang="clojure">(str "Hello ," n)</code>, where <code>n</code> is 0&hellip;4. The REQ socket has no concurrency, and performs requests in sequence. The REP socket is set up to echo the request it gets in with the text <code data-lang="clojure">" - echoed"</code> appended to it.</p>
+
+<pre><code data-lang="clojure">
+;; Very small REQ/REP setup, to demonstrate the basics.
+;; One request at a time, no concurrency.
+
+;; Quick Clojure tutorial!
+(.toUpperCase "a string") ;;  Java method call on string instance. Returns "A STRING"
+(.getBytes "a string" "UTF8") ;; Java method call with one argument. Returns byte[].
+(Point. 15 21) ;; Calls the constructor and creates a new instance of Point
+
+(.start
+ (Thread.
+  (fn []
+    (let [sock (.socket (ZMQ/context 1) ZMQ/REP)]
+      (.bind sock "tcp://127.0.0.1:1337")
+      (while true
+        ;; Block until we receive a message
+        (let [req (.recv sock 0)]
+          ;; req is a byte[]. Do whatever you want with it!
+          ;; We echo the req back to the client.
+          (.send sock (.getBytes (str (String. req) " - echoed!")) ZMQ/NOBLOCK)))))))
+
+(.start
+ (Thread.
+  (fn []
+    (let [sock (.socket (ZMQ/context 1) ZMQ/REQ)]
+      (.connect sock "tcp://127.0.0.1:1337")
+      (dotimes [n 5]
+        ;; Perform a request
+        (.send sock (.getBytes (str "Hello, " n)) 0)
+        ;; Block until we receive a response
+        (let [res (.recv sock 0)]
+          ;; res is a byte[] containing whatever the REP socket replied with.
+          (println (String. res))))))))</code></pre>
+
+<p>There are actually many lessions to learn in this small example.</p>
+
+<ul>
+  <li>We're assuming that the messages are strings with our JVM's default encoding. But to ZeroMQ they are just bytes.</li>
+  <li>The order of bind/connect does not matter. If it did, we had to ensure that we didn't connect REQ until after we bound REP. For ZeroMQ sockets, the actual connection is hidden from us. If we post a message and we're not connected, the message is queued locally on the REQ socket until it manages to connect. Try it! Put a <code data-lang="clojure">(Thread/sleep 1000)</code> before the bind and notice how it still works.</li>
+  <li>A single ZeroMQ socket can not be used concurrently or in parallel in different threads.</li>
+  <li>If we attempt to call <code data-lang="clojure">(.send sock msg flags)</code> two times in a row, we'd get an error. Again, sockets are not concurrent, and a REQ socket can only process one request at a time.</li>
+  <li>The concurrency limitation in ZeroMQ isn't actually about threads. You <em>can</em> use the same socket in different threads, if that's your thing. You just need to make sure that you don't put the socket in an invalid state, such as doing two sends in a row on a REQ socket.</li>
+</ul>
+
+<h3>Example 2: RPC, concurrent replies.</h3>
+
+<p>We want to set up a server that can reply to multiple requests, not just one at a time. The ROUTER keeps track of all the REQ sockets that connects to it, and when it gets replies back, it uses the ZeroMQ metadata protocols to  keep track of which message belongs where. This allows us to have multiple REQ sockets connect to our server. The DEALER is responsible for keeping track of the state of the REP sockets and ensuring it delivers messages to one isn't currently busy replying, if any. Then we create one REP socket per thread, and connect it to the dealer using the inproc (in process) protocol. We create a ZMQQueue, which is a built-in utility to automatically pass messages between sockets. Any message from the ROUTER is passed to the DEALER, and vice versa.</p>
+
+<pre><code data-lang="clojure">(defn my-response-handler
+  "Takes a req (bytes), returns the response (also bytes)."
+  [req]
+  (.getBytes (str (String. req) " - echoed!")))
+
+(let [ctx (ZMQ/context 1)
+      worker-url "inproc://responders"
+      router-socket (.socket ctx ZMQ/ROUTER)
+      dealer-socket (.socket ctx ZMQ/DEALER)]
+  (.bind router-socket "tcp://127.0.0.1:1337")
+  (.bind dealer-socket worker-url)
+  (dotimes [n 10]
+    (.start
+     (Thread.
+      (fn []
+        (let [sock (.socket ctx ZMQ/REP)]
+          (.connect sock worker-url)
+          (while true
+            (let [req (.recv sock 0)]
+              (.send sock (my-response-handler req) ZMQ/NOBLOCK))))))))
+  (.start
+   (Thread.
+    (fn [] (.run (ZMQQueue. ctx router-socket dealer-socket))))))
+</code></pre>
+
+<p>You can replace this code with the REP thread in the previous example, and it will still work. Except now, we have ten threads responding to requests.</p>
+
+<p>A few things to note</p>
+
+<ul>
+  <li>The call <code data-lang="clojure">(.start queue)</code> will block the current thread, which is why we create it in a separate thread.</li>
+  <li>The order of bind/connect matters for the inproc protocol. For all the network protocols (such as tcp) the order <em>doesn't</em> matter, as we saw above. inproc is much more effecient than TCP (for obvious reasons) so that is preferred for in process comms.</li>
+</ul>
+
+<h3>Example 3: RPC, concurrent replies and requests.</h3>
+
+<p>I'm going to assume you're in an environment where blocking requests are OK. My use case have always been Java HTTP servlet responders that needs to call out to internal services via ZeroMQ.</p>
+
+<p>We create a connectin that consists of a DEALER that connects to the server, a ROUTER that we can connect multiple REQ sockets to, and a queue to automatically pass messages between these two sockets. A convenience function, <code>with-req-sock</code>, creates a new REQ socket that performs the request via inproc to the ROUTER.</p>
+
+<pre><code data-lang="clojure">(defn connect
+  [server-url]
+  (let [ctx (ZMQ/context 1)
+        worker-url (str "inproc://" (java.util.UUID/randomUUID))
+        queue-thread (Thread.
+                      (fn []
+                        (let [client-sock (.socket ctx ZMQ/DEALER)
+                              worker-sock (.socket ctx ZMQ/ROUTER)]
+                          (.connect client-sock server-url)
+                          (.bind worker-sock worker-url)
+                          (.run (ZMQQueue. ctx  client-sock worker-sock)))))]
+    (.start queue-thread)
+    {:ctx ctx
+     :worker-url worker-url
+     :queue-thread queue-thread}))
+
+(defn disconnect
+  "Useful for tests etc. Pass the map returned by `connect` above."
+  [connection]
+  (.interrupt (get connection :queue-thread))
+  (.term (get connection :ctx)))
+
+(defn with-req-sock
+  "Should be a macro, but I don't want to melt your mind too much here."
+  [connection handler]
+  (let [socket (.socket (get connection :ctx) ZMQ/REQ)]
+    (.connect socket (get connection :worker-url))
+    (try
+      (handler socket)
+      (finally (.close socket)))))
+
+(def connection (connect "tcp://127.0.0.1:1337"))
+
+(dotimes [n 5]
+  (.start
+   (Thread.
+    (fn []
+      (with-req-sock connection
+        (fn [sock]
+          (.send sock (.getBytes (str "Hello, " n)) 0)
+          (let [res (.recv sock 0)]
+            (println (String. res)))))))))</code></pre>
+
+<p>A few things to note:</p>
+
+<ul>
+  <li>We could REQ directly against the server, but that means we would need to perform a full TCP connection per request. By only doing the TCP stuff on <code>(connect)</code> and using inproc the rest of the time, we get to use the same TCP connection for all our requests.</li>
+  <li>ZeroMQ's DEALER and ROUTER setup allows concurrent requests and replies on the same TCP connection. The individual messages simply gets an ID that is later looked up when routing to the individual REQ and REP sockets. This means that the tcp connection might transmit 5 responses, 2 requests, then one response, then 4 more requests, etc.</li>
+  <li>As the code shows, we can now create multiple REQ sockets in separate threads and perform requests. Typically, you create a new REQ for each incoming request, using <code>(with-req-sock)</code>.</li>
+</ul>
+
+<h2>Implementing actual RPC</h2>
+
+<p>So far, all you've learned is how to use ZeroMQ to send messages back and forth. We've seen that we can send any number of request and replies concurrently on one TCP connection. We can start a client, do a request, <em>then</em> start the server, and everything will work, even though we don't have a broker. We don't have to manage connections and there's no manual retry handling.</p>
+
+<p>But what about actually doing RPC? The question becomes: so far we've been sending bytes and echoed them. What should we do to send something useful here?</p>
+
+<p>I've chosen to stay close to HTTP here. I like the method, path and body semantics. Similar to HTTP, I always respond, but some times I respond with error codes. Since ZeroMQ likes bytes, I decided to use SMiLE as the data format, which is JSON-like in that it knows how to encode maps, lists, sets and strings into something that can be decoded later. It's a so called "binary" format, so it can also do raw bytes, and there won't be any string encoding issues, so it's a good fit for the byte-focused ZeroMQ.</p>
+
+<h3>Performing requests</h3>
+
+<p>Here's how I perform a request to list all the users in my system:</p>
+
+<pre><code data-lang="clojure">(defn do-rpc
+  ([sock method path] (do-rpc sock method path nil))
+  ([sock method path body]
+     (let [msg (cheshire.core/generate-smile
+                {:method method :path path :body body})]
+       (.send sock msg 0)
+       (let [res (.recv sock 0)]
+         (cheshire.core/parse-smile res true)))))
+
+(with-req-sock connection
+  (fn [sock]
+    (println (do-rpc sock "GET" "/users"))))</code></pre>
+
+<p>This sends a request with a "json" map that contains the keys method, path and body. This is the obvious part, and should be straightforward to grok. The hard part is to figure out how to respond.</p>
+
+<h3>Responding to requests</h3>
+
+<p>We're going to re-implement the <code>my-response-handler</code> from above into something that reads in the SMiLE encoded requests and responds with SMiLE encoded responses.</p>
+
+<pre><code data-lang="clojure">(defn respond
+  [req]
+  (if (and (= (:method req) "GET") (= (:path req) "/users"))
+    {:status 200 :body [{:id 1 :name "August"}]}))
+
+(defn my-response-handler
+  [raw-req]
+  (try
+    (let [req (cheshire.core/parse-smile raw-req true)]
+      (if-let [response (respond req)]
+        (cheshire.core/generate-smile response)
+        (cheshire.core/generate-smile {:status 404})))
+    (catch Exception e
+      (cheshire.core/generate-smile {:status 500}))))</code></pre>
+
+<p>We pass the request as is after SMiLE parse and manually if our way through the request. The responder function returns a data structure, that the actual response handler converts into SMiLE and that eventually gets passed to the REP socket. If we for some reason get an exception, we respond with a status code 500.</p>
+
+<p>We finally have a working RPC setup! This code does everything we need. We perform HTTP-like requests and get HTTP-like responses. We even stole the status codes from HTTP. We still need a few things, though, such as actually looking stuff up in a database, and using some kind of sane routing system.</p>
+
+<h3>Using some kind of sane routing system.</h3>
+
+<p>We don't want to have to manually if-test our way through the routing part of responding to HTTP requests. Since our requests are so HTTP-like, why don't we use a HTTP routing library for this? That's exactly what we're going to do.</p>
+
+<p>For this example, I'm going to use Compojure, one of the most commonly used method/path matchers in the Clojure ecosystem. Since everything is just functions and data, sit back and watch as functional programming blows your mind.</p>
+
+<pre><code data-lang="clojure">(defroutes app
+  (GET "/users" []
+       {:status 200 :body [{:id 1 :name "August"}]})
+  (GET "/users/:user-id" [user-id]
+       (if (= 1 user-id)
+         {:status 200 :body {:id 1 :name "August"}})))
+
+(defn respond
+  [req]
+  (app {:request-method (keyword (.toLowerCase (:method req)))
+        :uri (:path req)
+        :body (:body req)}))</code></pre>
+
+<p>Compojure creates a function, app, that takes a request and returns a response. In Ring, the standard HTTP toolkit in Clojure, both requests and responses are represented as maps. All we need to do is to translate our format into the format that Ring understands. The response is OK as is.</p>
+
+<p>That was not a lot of tedious work, was it?</p>
+
+<h2>Multiple servers</h2>
+
+<p>I've never actually done this myself, so I won't show you the code for it. I'll leave the implementation details as an exercise for the reader. The concepts are clear, though. Since we've seen that it's really easy to compose REQ/REP and DEALER/ROUTER, all it should take is another node that sits between the REQ clients and the REP servers and routes and deals requests to multiple servers. Alternatively, just bind the DEALER we already have on the server and connect a bunch of REP sockets directly to it. But be aware, that would result in one TCP connection per REP socket.</p>
+
+<h2>Some notes on the Clojure code</h2>
+
+<p>We're doing a lot of Java interop, and in my code I like to use the <code>(doto)</code> macro a lot. Instead of this:</p>
+
+<pre><code data-lang="clojure">(let [ctx (ZMQ/context 1)
+      router-socket (.socket ctx ZMQ/ROUTER)
+      dealer-socket (.socket ctx ZMQ/DEALER)]
+  (.bind router-socket "tcp://127.0.0.1:1337")
+  (.bind dealer-socket "inproc://responders")
+  ;; ...
+  )</code></pre>
+
+<p>We could have written this:</p>
+
+<pre><code data-lang="clojure">(let [ctx (ZMQ/context 1)
+      router-socket (doto (.socket ctx ZMQ/ROUTER) (.bind "tcp://127.0.0.1:1337"))
+      dealer-socket (doto (.socket ctx ZMQ/DEALER) (.bind "inproc://responders"))]
+  ;; ...
+  )</code></pre>
+
+<p>Which means we could have created a whole lot less names in that code, and created our ROUTER/DEALER pair and the queue like so:</p>
+
+<pre><code>(let [ctx (ZMQ/context 1)
+      queue (ZMQQueue.
+              ctx
+              (doto (.socket ctx ZMQ/ROUTER) (.bind "tcp://127.0.0.1:1337"))
+              (doto (.socket ctx ZMQ/DEALER) (.bind "inproc://responders")))]
+  ;; ...
+  (.start (Thread. (fn [] (.run queue)))))</code></pre>
+
+<p><code>doto</code> takes a Java object as the first argument, and all the other following arguments are assumed to be lists (in Clojure, a list is a function call) and inserts this instance as the 2nd element in the list, i.e. the first argument to the function. So while the code looks like we call bind on a string, it's actually called on the instance pased to the first argument - the socket instances created by the call to socket on the ctx. This is convenient for creating an instance of something, calling a bunch of methods with side effects on it, and return that instance, without having to create a named variable for the instance.</p>
