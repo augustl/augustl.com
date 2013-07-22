@@ -222,7 +222,7 @@ t.start()</code></pre>
 
 <p>But what about actually doing RPC? So far we've been sending bytes and echoed them. We want a way to invoke multiple procedures, and also send data with out procedure calls. What should we do to send something useful here?</p>
 
-<p>Let's just mimic HTTP! I like the method, path and body semantics, so let's keep that. Similar to HTTP, we'll always respond, but some times with error codes - there's no "null" response. Since ZeroMQ likes bytes, we can use SMiLE as the data format, which is JSON-like in that it knows how to encode maps, lists, sets and strings into something that can be decoded later. It's a so called "binary" format, so it can also do raw bytes, and there won't be any string encoding issues.</p>
+<p>Let's just mimic HTTP! I like the method, path and body semantics, so let's keep that. Similar to HTTP, we'll always respond, but some times with error codes - there's no "null" response. Since ZeroMQ likes bytes, we can use SMILE as the data format, which is JSON-like in that it knows how to encode maps, lists, sets and strings into something that can be decoded later. It's a so called "binary" format, so it can also do raw bytes, and there won't be any string encoding issues.</p>
 
 <h3>Performing requests</h3>
 
@@ -247,14 +247,14 @@ t.start()</code></pre>
 
 <p>Since we're very HTTP like, implementing a rudimentary request handler only takes a few small steps.</p>
 
-<p>We're going to re-implement the <code>my-response-handler</code> from above into something that reads in the SMiLE encoded requests and responds with SMiLE encoded responses.</p>
+<p>We're going to re-implement the <code>my-response-handler</code> from above into something that reads in the SMILE encoded requests and responds with SMILE encoded responses.</p>
 
 <pre><code data-lang="clojure">(defn respond
   [req]
   (if (and (= (get req :method) "GET") (= (get req :path) "/users"))
     {:status 200 :body [{:id 1 :name "August"}]}))
 
-;; This function used to echo. We now parse and generate SMiLE.
+;; This function used to echo. We now parse and generate SMILE.
 (defn my-response-handler
   [raw-req]
   (try
@@ -265,7 +265,7 @@ t.start()</code></pre>
     (catch Exception e
       (cheshire.core/generate-smile {:status 500}))))</code></pre>
 
-<p>If respond returns non-nil, assume it's a valid response and SMiLE encode it. If respond returns nil, return status 404. Just like HTTP, because why not! If any of this throws an exception, we'll respond with status 500. Again, just like HTTP.</p>
+<p>If respond returns non-nil, assume it's a valid response and SMILE encode it. If respond returns nil, return status 404. Just like HTTP, because why not! If any of this throws an exception, we'll respond with status 500. Again, just like HTTP.</p>
 
 <p>While this is slightly more interesting than an echo server, we don't want to manually do RPC routing with if tests. We want to utilize some kind of library to be able to set up different request handlers with as little repetition as possible.</p>
 
