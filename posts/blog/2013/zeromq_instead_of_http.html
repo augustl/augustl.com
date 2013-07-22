@@ -31,7 +31,12 @@ listed: false
 
  ;; Calls the constructor and creates a new instance of Point
 (Point. 15 21)
-new Point(15, 21)</code></pre>
+new Point(15, 21)
+
+;; Create a new thread and start it
+(.start (Thread. (fn [] ...)))
+Thread t = new Thread(aClojureFunctionHere)
+t.start()</code></pre>
 
 <h2>A ZeroMQ tutorial</h2>
 
