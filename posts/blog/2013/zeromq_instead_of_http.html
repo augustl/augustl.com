@@ -43,7 +43,7 @@ new Point(15, 21)</code></pre>
 
 <p>Don't think of ZeroMQ as an alternative to ActiveMQ or RabbitMQ, think of ZeroMQ as a nuculear powered mutant ninja networking and sockets library.</p>
 
-<h3>Example 1: requests and replies, no concurrency</h3>
+<h3>Iteration 1: requests and replies, no concurrency</h3>
 
 <p>This first example is pretty useless in and of itself, but it demonstrates some important ZeroMQ concepts in a small and isolated snippet on which we will improve iteratively until it does what we want.</p>
 
@@ -93,7 +93,7 @@ new Point(15, 21)</code></pre>
   <li>A single ZeroMQ socket can not be used concurrently in different threads. In fact, the limitation isn't really about threads, but about state. As explained above, we can't do two send in a row on REQ, that'll just throw an error. So you <em>can</em> use a single socket in multiple threads. But read on to figure out an alternative to shared mutable state hell.</li>
 </ul>
 
-<h3>Example 2: Adding concurrent replies</h3>
+<h3>Iteration 2: Adding concurrent replies</h3>
 
 <p>We'll keep our request code for now, but we'll replace the single thread that does one reply at a time.</p>
 
@@ -142,7 +142,7 @@ new Point(15, 21)</code></pre>
   <li>The order of bind/connect matters for the inproc protocol. This is only true for inproc; tcp, as we saw above, can connect first, then bind. inproc is much more effecient than TCP (for obvious reasons) so that is preferred for in-process comms.</li>
 </ul>
 
-<h3>Example 3: Adding concurrent requests</h3>
+<h3>Iteration 3: Adding concurrent requests</h3>
 
 <p>We now have multiple threads doing replies. It's time to replace the single REQ socket with something more clever that lets us achieve concurrency.</p>
 
