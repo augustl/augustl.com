@@ -15,7 +15,7 @@ title: Ordering of <code>:db.cardinality/many</code> attributes in Datomic
 
 <p>Here's an example of a transaction entry that adds a transaction function for ordering to the transactor.</p>
 
-<pre><code> {:db/id #db/id[:db.part/user]
+<pre><code data-lang="clojure"> {:db/id #db/id[:db.part/user]
   :db/ident :append-position-in-scope
   :db/doc "Atomically adds to the end of a list of sorted cardinality/many lists"
   :db/fn #db/fn {:lang "clojure"
@@ -31,7 +31,7 @@ title: Ordering of <code>:db.cardinality/many</code> attributes in Datomic
 
 <p>On the peer side, we can now create a transaction for adding a new todo item and setting its position to be at the end of the list.</p>
 
-<pre><code>[{:todoitem/text "This needs to be done"
+<pre><code data-lang="clojure">[{:todoitem/text "This needs to be done"
  :db/id new-todo-item-tempid}
  [:append-position-in-scope todolist-eid :todolist/items new-todo-item-tempid :position]]</code></pre>
 
@@ -41,7 +41,7 @@ title: Ordering of <code>:db.cardinality/many</code> attributes in Datomic
 
 <p>The other function I have for working with sorted sets is a function that I use when I delete an individual item, to fill in the gaps.</p>
 
-<pre><code> {:db/id #db/id[:db.part/user]
+<pre><code data-lang="clojure"> {:db/id #db/id[:db.part/user]
   :db/ident :reset-position-in-scope
   :db/doc "Goes through existing positions and sequentializes them"
   :db/fn #db/fn {:lang "clojure"

@@ -58,7 +58,7 @@ title: Truly concurrent user interfaces
 
 <p>The actual data structure is private to the renderer. This is because manually maintaining a huge tree structure is a bit of a hassle, and the fact that we don't actually have a tree structure, but a collection of maps - one for all the views, one where the key is a view ID and the value is a list of child views for that view. This makes updates deep down the tree structure O(1). We provide a transaction based API of facts (very similar to that of <a href="http://www.datomic.com/">Datomic</a>) to 1) abstract away the internals of the data structure 2) make it more convenient to work with and 3) provide an API to consistently update the state of multiple views as a single atomic operation.</p>
 
-<pre><code>(def rdr (r/create-renderer))
+<pre><code data-lang="clojure">(def rdr (r/create-renderer))
 
 ;; Set the background color of the entire frame
 @(r/transact rdr [[:renderer/bg-color (r/color 1 0 0)]])

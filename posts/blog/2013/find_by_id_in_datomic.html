@@ -7,7 +7,7 @@ title: Finding by ID (primary key) in Datomic
 
 <p>All entities in datomic gets the attribute <code>:db/id</code>, which is Datomic's own primary key attribute. You might be surprised that <code>(d/entity db 123)</code> for an entity id that doesn't exists doesn't return nil.</p>
 
-<pre><code>(require ['datomic.api :as 'd])
+<pre><code data-lang="clojure">(require ['datomic.api :as 'd])
 
 (def db (d/db my-datomic-connection))
 (def non-existing-id 123123)
@@ -17,7 +17,7 @@ title: Finding by ID (primary key) in Datomic
 
 <p>To actually find an entity by ID, you need to run a query.</p>
 
-<pre><code>;; Assuming an entity with id 123 exists
+<pre><code data-lang="clojure">;; Assuming an entity with id 123 exists
 
 (d/q '[:find ?eid :in $ ?eid :where [?eid]] db 123)
 ;; HashSet [[123]]
@@ -27,7 +27,7 @@ title: Finding by ID (primary key) in Datomic
 
 <p>Also, just for fun, we can create a reproducible example that doesn't depend on having an actual Datomic database around, since Datomic is able to query any data strucutre that consists of a list of lists.</p>
 
-<pre><code>;; This is what an actual Datomic DB actually looks like.
+<pre><code data-lang="clojure">;; This is what an actual Datomic DB actually looks like.
 (def my-mock-db [
   [123 :name "Test"]
   [123 :email "test@test.com"]
@@ -55,7 +55,7 @@ title: Finding by ID (primary key) in Datomic
 
 <p>I use a string type that's set to unique. Setting it to unique is obviously important. You could also use the built-in UUID type if you want to, but I find it more convenient to just work with strings.</p>
 
-<pre><code>;; Inserting data
+<pre><code data-lang="clojure">;; Inserting data
 (d/transact
   my-datomic-conn
   [{:person/name "Test"

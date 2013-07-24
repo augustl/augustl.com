@@ -7,7 +7,7 @@ title: Asynchronous and flexible modal popups in AngularJS
 
 <p>Here's the full tl;dr of the code.</p>
 
-<pre><code>// You need to fetch $compile from the dependency injector
+<pre><code data-lang="javascript">// You need to fetch $compile from the dependency injector
 
 // This is how you create a raw AngularJS template. You can use
 // anything you want here, such as ng-repeat, etc etc
@@ -39,12 +39,12 @@ popupScope.$on("finished", function () {
 
 <p>I like to make my templates self-contained, and declare the controller in them. In this example, the file <tt>/my/template.html</tt> could contain the following:</p>
 
-<pre><code>This is the file: /my/template.html
+<pre><code data-lang="html">// This is the file: /my/template.html
 
-&lt;div ng-controller="MyController"&gt;
+<div ng-controller="MyController">
    .. stuff ...
    {{ 5 + 5 }}
-&lt;/div&gt;</code></pre>
+</div></code></pre>
 
 <p>Since the <code>popupTemplate</code> is just a regular AngularJS template, you're also free to set ng-controller there, in a div that wraps the ng-include.</p>
 
@@ -66,15 +66,15 @@ popupScope.$on("finished", function () {
 
 <p>To get a hold of <code>$compile</code>, just use the normal dependency injection techniques.</p>
 
-<pre><code>MyApp.controller("MyController" ,
+<pre><code data-lang="javascript">MyApp.controller("MyController" ,
   ["$scope", "$compile", function ($scope, $compile) {
     $scope.showAPopup = function () {
       // Insert code from above to show popup.
     };
-  }]);
+  }]);</code></pre>
 
-// Template
-&lt;a ng-click="showAPopup()"&gt;&lt;/a&gt;</code></pre>
+<pre><code data-lang="html">// Template
+<a ng-click="showAPopup()"></a></code></pre>
 
 <h2>Go render some popups!</h2>
 

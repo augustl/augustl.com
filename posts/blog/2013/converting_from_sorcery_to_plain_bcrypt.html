@@ -9,7 +9,7 @@ title: Converting from Sorcery (Rails plugin) to plain BCrypt
 
 <p>This is the Clojure code I ended up with:</p>
 
-<pre><code>(BCrypt/checkpw (str password old-rails-salt) old-rails-password-hash)</code></pre>
+<pre><code data-lang="clojure">(BCrypt/checkpw (str password old-rails-salt) old-rails-password-hash)</code></pre>
 
 <p><code>old-rails-salt</code> is the contents of the <code>User#salt</code> from the Rails app. Also, <code>old-rails-password-hash</code> is the contents of the <code>User#crypted_password</code>.</p>
 
@@ -19,7 +19,7 @@ title: Converting from Sorcery (Rails plugin) to plain BCrypt
 
 <p>The full code:</p>
 
-<pre><code>(defn valid-password?
+<pre><code data-lang="clojure">(defn valid-password?
   [user password]
   (if-let [old-rails-salt (:old_rails_salt user)]
     (BCrypt/checkpw (str password old-rails-salt) (:password_hash user))
