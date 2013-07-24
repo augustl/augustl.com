@@ -268,7 +268,8 @@ blockquote {
     color: red;
 }
 
-.highlight .k {  /* Builtins (?) */
+.highlight .k,
+.highlight .kd {  /* Builtins (?) */
     color: green;
     font-weight: bold;
 }
