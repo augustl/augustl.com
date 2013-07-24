@@ -123,7 +123,7 @@ pre code {
     white-space: pre;
 }
 
-pre, p code, pre code {
+pre, p code, ul code, ol code, pre code {
     background-color: #eee;
 }
 
