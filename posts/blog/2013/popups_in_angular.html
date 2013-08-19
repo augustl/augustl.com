@@ -75,7 +75,15 @@ popupScope.$on("finished", function () {
 <pre><code data-lang="javascript">MyApp.controller("MyController" ,
   ["$scope", "$compile", function ($scope, $compile) {
     $scope.showAPopup = function () {
-      // Insert code from above to show popup.
+      // Same as the code block at the beginning of this post.
+      var popupTpl = document.createElement("div");
+      popupTpl.setAttribute("ng-include", "'/my-popup-contents-template.html'");
+      var popupScope = $scope.$new()
+      myShowPopupFunction($compile(popupTpl)(popupScope))
+      popupScope.$on("finished", function () {
+        myHidePopupFunction();
+        popupScope.$destroy();
+      });
     };
   }]);</code></pre>
 
