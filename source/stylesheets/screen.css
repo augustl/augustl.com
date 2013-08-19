@@ -264,6 +264,7 @@ blockquote {
     border-width: 2px 0;
 }
 
+.highlight .c,
 .highlight .c1 {  /* Comments */
     color: red;
 }
@@ -275,6 +276,7 @@ blockquote {
 }
 
 .highlight .s,
+.highlight .s2,
 .highlight .ss { /* Strings, keywords */
     color: #369;
 }
