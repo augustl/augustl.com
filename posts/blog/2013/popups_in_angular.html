@@ -10,13 +10,16 @@ title: Asynchronous and flexible modal popups in AngularJS
 <pre><code data-lang="javascript">// You need to fetch $compile from the dependency injector
 
 // This is how you create a raw AngularJS template. You can use
-// anything you want here, such as ng-repeat, etc etc
+// anything you want here, such as ng-repeat, etc etc.
+// In this case, all we need is an angular template that includes
+// the template we actually want to show inside the popup. This
+// lets Angular handle the loading of the template etc. for us.
 var popupTemplate = document.createElement("div");
-popupTemplate.setAttribute("ng-include", "'/my/template.html'");
+popupTemplate.setAttribute("ng-include", "'/my-popup-contents-template.html'");
 
 // We give the popup a new scope, inherited from the current one.
 var popupScope = $scope.$new();
-popupScope.myConfigurationOrWhatever = true;
+popupScope.someValue = Math.random();
 var popupLinker = $compile(popupTemplate);
 var popupElement = popupLinker(popupScope);
 
@@ -39,11 +42,14 @@ popupScope.$on("finished", function () {
 
 <p>I like to make my templates self-contained, and declare the controller in them. In this example, the file <tt>/my/template.html</tt> could contain the following:</p>
 
-<pre><code data-lang="html">// This is the file: /my/template.html
+<pre><code data-lang="html"><!-- This is the file: /my-popup-contents-template.html -->
 
-<div ng-controller="MyController">
-   .. stuff ...
-   {{ 5 + 5 }}
+<p>Works outside the controller: {{someValue}}</p>
+
+<div ng-controller="MyPopupContentsController">
+   <p>.. stuff ...</p>
+   <p>{{ 5 + 5 }}</p>
+   <p>And works inside the controller: {{someValue}}</p>
 </div></code></pre>
 
 <p>Since the <code>popupTemplate</code> is just a regular AngularJS template, you're also free to set ng-controller there, in a div that wraps the ng-include.</p>
