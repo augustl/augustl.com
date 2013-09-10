@@ -4,6 +4,9 @@ GEM
     activesupport (3.2.12)
       i18n (~> 0.6)
       multi_json (~> 1.0)
+    augusts_fancy_blog_post_parser (0.1.0)
+      nokogiri (~> 1.5.0)
+      parallel (~> 0.7.0)
     chunky_png (1.2.8)
     coffee-script (2.2.0)
       coffee-script-source
@@ -87,7 +90,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  augusts_fancy_blog_post_parser (~> 0)
   middleman (~> 3.1.0)
-  nokogiri (~> 1.5.0)
-  parallel (~> 0.7.0)
   sanitize (~> 2)
