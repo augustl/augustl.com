@@ -104,6 +104,15 @@ a:visited {
     padding-left: 15px;
 }
 
+.moved-post {
+    background: #ff6;
+    padding: 1em;
+    margin-bottom: 1em;
+}
+
+.moved-post a {
+    color: #e60000;
+}
 
 .blog_post_archive_year {
     font-size: 20px;
