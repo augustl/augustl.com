@@ -11,6 +11,9 @@ page "/" do
   @posts = Post.all_listed[0..9]
 end
 
+page "/about.html" do
+end
+
 page "/archive.html" do
   @post_years = Post.all_listed.group_by {|p| p.timestamp.year }
 end

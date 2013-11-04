@@ -33,6 +33,24 @@ h3 {
     margin-bottom: 10px;
 }
 
+.site-header {
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 10px;
+}
+
+.site-header p {
+    margin: 0;
+}
+
+a.large-header-title-text,
+a.large-header-title-text:visited {
+    font-size: 30px;
+    font-weight: bold;
+    margin-right: .5em;
+    text-decoration: none;
+    color: red;
+}
+
 .inline-row > * {
     display: inline-block;
 }
@@ -275,14 +293,6 @@ blockquote {
     border-color: #ccc;
     border-style: solid;
     border-width: 2px 0;
-}
-
-.not-an-ad {
-    font-size: .8em;
-}
-.not-an-ad a {
-    color: #000;
-    text-decoration: underline;
 }
 
 .highlight .c,
