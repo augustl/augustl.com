@@ -33,6 +33,10 @@ h3 {
     margin-bottom: 10px;
 }
 
+.inline-row > * {
+    display: inline-block;
+}
+
 #article p, #article pre {
     margin: 0;
     margin-bottom: 1em;

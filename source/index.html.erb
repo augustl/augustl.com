@@ -1,20 +1,19 @@
 <h1>August Lilleaas</h1>
 
-<ul class="inline-dots">
-  <li><a href="http://github.com/augustl">open source</a></li>
-  <li><a href="http://twitter.com/augustl">twitter</a></li>
-  <li><a href="/atom.xml">RSS</a></li>
-  <li><a href="mailto:august@augustl.com">august@augustl.com</a></li>
-</ul>
+<h2>About me</h2>
 
-<p>I'm a programmer, I <a href="http://kodemaker.no/august">work for Kodemaker</a>, and this is my website.</p>
+<p>I'm August Lilleaas. I <a href="http://kodemaker.no/august">work for Kodemaker</a> as a consultant. I live in Oslo, Norway, with my wife, a cat, and my daughter. I'm a self-taught programmer with a classical piano education from the Norwegian Academy of Music. I'm an advocate for simple solutions and good UX, and I enjoy a good challenge. I consider myself equally experienced in backend and frontend programming, and I've mostly worked with web apps, real-time systems and mobile apps. I used to do Ruby on Rails, but nowadays I'm more comfortable on the JVM, where I prefer to use Clojure, have done a lot of Groovy (via the Grails framework), and try to use Java as little as possible. I consider myself a functional programmer, and I can talk about immutability for hours on end.</p>
 
-<h2>Latest 10 posts</h2>
+<p>I blog about functional databases at <a href="http://dbs-are-fn.com">dbs-are-fn.com</a></p>
+
+<p>I can be found on Twitter as <a href="http://twitter.com/augustl">@augustl</a>, my e-mail is <a href="mailto:august@augustl.com">august@augustl.com</a>, and I have a <a href="http://github.com/augustl">Github account</a>. I hang out on irc.freenode.net as augustl.</p>
+
+<div class="inline-row">
+  <h2>Latest 10 posts</h2>
+  <a href="/archive">All posts</a>
+  <a href="/atom.xml">RSS</a>
+</div>
 
 <% @posts.each do |post| %>
   <p><a href="<%= post.url %>"><%= post.title %></a> (<%= post.display_date %>)</p>
 <% end %>
-
-<h2>All posts</h2>
-
-<p>Go to <a href="/archive">the archive</a>.</p>
