@@ -1,0 +1,56 @@
+date: 2013.12.30
+title: Dependency errors in Grails plugins when updating to Grails 2.3
+
+<p>I had some problems when upgrading a Grails 2.2.1 plugin to Grails 2.3.4. Grails 2.3.4 uses Maven for dependency resolving, so I added this to my BuildConfig.groovy:</p>
+
+<pre><code data-lang="groovy">grails.project.dependency.resolver = "maven"</code></pre>
+
+<p>But it is important to also update this section:</p>
+
+<pre><code data-lang="groovy">repositories {
+    grailsCentral()
+}</code></pre>
+
+<p>To look like this:</p>
+
+<pre><code data-lang="groovy">repositories {
+    grailsCentral()
+    mavenLocal()
+    mavenCentral()
+}</code></pre>
+
+<p>If we don't, we'll get errors like:</p>
+
+<pre>$ grails dependency-report --plain-output
+|Loading Grails 2.3.4
+|Configuring classpath
+Error |
+Resolve error obtaining dependencies: The following artifacts could not be resolved: xalan:serializer:jar:2.7.1, org.grails:grails-bootstrap:jar:2.3.4, org.grails:grails-scripts:jar:2.3.4, org.grails:grails-docs:jar:2.3.4: Could not find artifact xalan:serializer:jar:2.7.1 in grailsCentral (http://repo.grails.org/grails/plugins) (Use --stacktrace to see the full trace)
+Error |
+Resolve error obtaining dependencies: Could not find artifact javax.servlet:javax.servlet-api:jar:3.0.1 in grailsCentral (http://repo.grails.org/grails/plugins) (Use --stacktrace to see the full trace)
+Error |
+Resolve error obtaining dependencies: The following artifacts could not be resolved: javax.servlet:javax.servlet-api:jar:3.0.1, org.codehaus.groovy:groovy-all:jar:2.1.9, org.grails:grails-plugin-rest:jar:2.3.4, org.grails:grails-plugin-databinding:jar:2.3.4, org.grails:grails-plugin-i18n:jar:2.3.4, org.grails:grails-plugin-filters:jar:2.3.4, org.grails:grails-plugin-gsp:jar:2.3.4, org.grails:grails-plugin-log4j:jar:2.3.4, org.grails:grails-plugin-services:jar:2.3.4, org.grails:grails-plugin-servlets:jar:2.3.4, org.grails:grails-plugin-url-mappings:jar:2.3.4, org.grails:grails-plugin-testing:jar:2.3.4, org.spockframework:spock-core:jar:0.7-groovy-2.0, org.grails:grails-test:jar:2.3.4, com.h2database:h2:jar:1.3.173, log4j:log4j:jar:1.2.17, org.grails:grails-resources:jar:2.3.4: Could not find artifact javax.servlet:javax.servlet-api:jar:3.0.1 in grailsCentral (http://repo.grails.org/grails/plugins) (Use --stacktrace to see the full trace)
+Error |
+Resolve error obtaining dependencies: The following artifacts could not be resolved: org.codehaus.groovy:groovy-all:jar:2.1.9, org.grails:grails-plugin-rest:jar:2.3.4, org.grails:grails-plugin-databinding:jar:2.3.4, org.grails:grails-plugin-i18n:jar:2.3.4, org.grails:grails-plugin-filters:jar:2.3.4, org.grails:grails-plugin-gsp:jar:2.3.4, org.grails:grails-plugin-log4j:jar:2.3.4, org.grails:grails-plugin-services:jar:2.3.4, org.grails:grails-plugin-servlets:jar:2.3.4, org.grails:grails-plugin-url-mappings:jar:2.3.4, com.h2database:h2:jar:1.3.173, log4j:log4j:jar:1.2.17, org.grails:grails-resources:jar:2.3.4: Could not find artifact org.codehaus.groovy:groovy-all:jar:2.1.9 in grailsCentral (http://repo.grails.org/grails/plugins) (Use --stacktrace to see the full trace)
+Error |
+Resolve error obtaining dependencies: The following artifacts could not be resolved: org.codehaus.groovy:groovy-all:jar:2.1.9, org.grails:grails-plugin-rest:jar:2.3.4, org.grails:grails-plugin-databinding:jar:2.3.4, org.grails:grails-plugin-i18n:jar:2.3.4, org.grails:grails-plugin-filters:jar:2.3.4, org.grails:grails-plugin-gsp:jar:2.3.4, org.grails:grails-plugin-log4j:jar:2.3.4, org.grails:grails-plugin-services:jar:2.3.4, org.grails:grails-plugin-servlets:jar:2.3.4, org.grails:grails-plugin-url-mappings:jar:2.3.4: Could not find artifact org.codehaus.groovy:groovy-all:jar:2.1.9 in grailsCentral (http://repo.grails.org/grails/plugins) (Use --stacktrace to see the full trace)
+Error |
+The following artifacts could not be resolved: xalan:serializer:jar:2.7.1, org.grails:grails-bootstrap:jar:2.3.4, org.grails:grails-scripts:jar:2.3.4, org.grails:grails-docs:jar:2.3.4: Could not find artifact xalan:serializer:jar:2.7.1 in grailsCentral (http://repo.grails.org/grails/plugins)
+|Run 'grails dependency-report' for further information.
+Error |
+The following artifacts could not be resolved: org.codehaus.groovy:groovy-all:jar:2.1.9, org.grails:grails-plugin-rest:jar:2.3.4, org.grails:grails-plugin-databinding:jar:2.3.4, org.grails:grails-plugin-i18n:jar:2.3.4, org.grails:grails-plugin-filters:jar:2.3.4, org.grails:grails-plugin-gsp:jar:2.3.4, org.grails:grails-plugin-log4j:jar:2.3.4, org.grails:grails-plugin-services:jar:2.3.4, org.grails:grails-plugin-servlets:jar:2.3.4, org.grails:grails-plugin-url-mappings:jar:2.3.4: Could not find artifact org.codehaus.groovy:groovy-all:jar:2.1.9 in grailsCentral (http://repo.grails.org/grails/plugins)
+|Run 'grails dependency-report' for further information.
+Error |
+The following artifacts could not be resolved: org.codehaus.groovy:groovy-all:jar:2.1.9, org.grails:grails-plugin-rest:jar:2.3.4, org.grails:grails-plugin-databinding:jar:2.3.4, org.grails:grails-plugin-i18n:jar:2.3.4, org.grails:grails-plugin-filters:jar:2.3.4, org.grails:grails-plugin-gsp:jar:2.3.4, org.grails:grails-plugin-log4j:jar:2.3.4, org.grails:grails-plugin-services:jar:2.3.4, org.grails:grails-plugin-servlets:jar:2.3.4, org.grails:grails-plugin-url-mappings:jar:2.3.4, com.h2database:h2:jar:1.3.173, log4j:log4j:jar:1.2.17, org.grails:grails-resources:jar:2.3.4: Could not find artifact org.codehaus.groovy:groovy-all:jar:2.1.9 in grailsCentral (http://repo.grails.org/grails/plugins)
+|Run 'grails dependency-report' for further information.
+Error |
+The following artifacts could not be resolved: javax.servlet:javax.servlet-api:jar:3.0.1, org.codehaus.groovy:groovy-all:jar:2.1.9, org.grails:grails-plugin-rest:jar:2.3.4, org.grails:grails-plugin-databinding:jar:2.3.4, org.grails:grails-plugin-i18n:jar:2.3.4, org.grails:grails-plugin-filters:jar:2.3.4, org.grails:grails-plugin-gsp:jar:2.3.4, org.grails:grails-plugin-log4j:jar:2.3.4, org.grails:grails-plugin-services:jar:2.3.4, org.grails:grails-plugin-servlets:jar:2.3.4, org.grails:grails-plugin-url-mappings:jar:2.3.4, org.grails:grails-plugin-testing:jar:2.3.4, org.spockframework:spock-core:jar:0.7-groovy-2.0, org.grails:grails-test:jar:2.3.4, com.h2database:h2:jar:1.3.173, log4j:log4j:jar:1.2.17, org.grails:grails-resources:jar:2.3.4: Could not find artifact javax.servlet:javax.servlet-api:jar:3.0.1 in grailsCentral (http://repo.grails.org/grails/plugins)
+|Run 'grails dependency-report' for further information.
+Error |
+Could not find artifact javax.servlet:javax.servlet-api:jar:3.0.1 in grailsCentral (http://repo.grails.org/grails/plugins)
+|Run 'grails dependency-report' for further information.
+</pre>
+
+<p>I first encountered this error when doing a Grails synchronization in IntelliJ IDEA. I first thought it was a problem with IDEA 13, but I opened up my old IDEA 12 installation and I got the same errors. So I diffed my plugin with a fresh Grails 2.3 and discovered that I missed some repos.</p>
+
+<p>The mavenLocal repo is the important one here. Some jars, like xalan serializer, are bundled within the lib folder of the Grails distribution itself.</p>
