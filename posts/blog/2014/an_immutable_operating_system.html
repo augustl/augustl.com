@@ -1,0 +1,66 @@
+date: 2014.02.02
+title: An immutable operating system
+
+<p>An operating system? Really?</p>
+
+<h2>Why an operating system</h2>
+
+<p>Roughly a year ago I got the idea for an OpenGL renderer based on immutable values. I <a href="http://augustl.com/blog/2013/truly_concurrent_user_interfaces/">blogged about it</a>, and it acually got a little  bit of attention on Hacker News and reddit. A few people even e-mailed me.</p>
+
+<p>After a lot of hammock time, the idea has evolved into an operating system. The general idea is: what would an operating system look like if all values were immutable?</p>
+
+<h2>An immutable operating system!? The world is mutable!</h2>
+
+<p>Immutable values is actually a perfectly reasonable view of the world. As an observer, you observe the world as time passes. When you want to process something, you take a photograph. This photograph is immutable, and you can spend as much time as you'd like analyzing it.</p>
+
+<p>Back to the operating system. The closest you can get to mutation is a swap operation. You will have something called atoms. All they do is point to an immutable value. You can at any point in time ask for its current immutable value (what is the current state?). You will always get a complete (immutable) value back from the atom, hence the name atom. And you can write to the atom, meaning point the atom to a new immutable value. You can never change a value in place. An atom will have mechanisms for "only update if nobody else has updated since I last read" and so on, so you can have some control.</p>
+
+<p>The observant reader will have noticed that what I just described is the state model in Clojure. So that is what my operating system will have. State will have to be modelled as a succession of immutable values.</p>
+
+<h2>The immutable memory model</h2>
+
+<p>So, a process will have atoms which points to immutable values, and all values are immutable. And by all, I mean all. You will be able to store plain bytes in a value. But these bytes are immutable. Bit shift? New value. "Change" byte 4? New value.</p>
+
+<p>In this model, memory can safely be shared across processes. What's unsafe about passing an immutable value to another process? Nothing. It's completely safe. No defensive copying or protection semantics are needed. Only atoms needs protection. There will probably also be a mechanism for sharing atoms across processes, but the process that created the atom will need to allow it.</p>
+
+<p>Process forking is close to a no-op. In Linux, a fork has very clever (and good) COW semantics so a fork is <em>initially</em> no-op, but as soon as either processes starts to change their memory, copies are made. There's obviously some overhead to this. When values are immutable, though, there's absolutely no overhead and no copying is needed. Immutable is immutable! The only callenge is the atoms, which can either be copied O(N) style (a process will probably only have 10s of atoms), or have Linux style COW semantics.</p>
+
+<p>All of this will break horribly if one can do pointer arithmetic. But the plan is for the system language of this operating system to not have pointers. Pointers are places, and we don't like places. We only want values.</p>
+
+<p>There can be various optimizations, of course. Clojure has transients, which basically means "inside this function, use a mutable value under the hood while building up the value, but make it immutable before it's returned". So for the outside world, the function doesn't really mutate anything other than the mutable value that was only visible internally to the function that was called. I will experiment with automatically detecting this for you. We can also do things like monitoring whether someone else actually has a reference to your list of bytes, and if nobody has, we can mutate the bytes under the hood. Purely as an optimization, completely invisible to the programmer.</p>
+
+<h2>Garbage collection</h2>
+
+<p>A system of immutable values needs garbage collection. This will happen at the operating system level.</p>
+
+<p>A garbage collector that knows that all values are immutable will be rather interesting, I think. Typically, a garbage collector will stop the world (i.e. halt execution) to do heap defragmentation of the old generation. When all values are immutable, though, you can defragment the heap by copying a value to another fragment and just swap the internal pointer to the value.</p>
+
+<p>On a related note, one could even optimize the internal byte encoding values without stopping the world, in a similar copy-and-swap-pointer manner. Suppose we detect that value X in the old generation is a map that hasn't changed for some time. Perhaps we can optimize it to be some kind of struct instead, meaning copying it to a different location in memory but with a different and hopefully more efficient encoding. Nobody but the kernel needs to know, and no execution needs to be stopped.</p>
+
+<h2>Performance</h2>
+
+<p>At no point will design desicions be made to achieve better <a href="http://mechanical-sympathy.blogspot.no/2011/07/why-mechanical-sympathy.html">mechanical sympathy</a>. In fact, it's a specific goal to have as much of the C code in the OS as possible be replacable with hardware. One of my overzealous pretentions dreams are to present this OS to Intel, and have someone in the audience proclaim loudly "finally we can replace traditional RAM with [insert new idea X]!" Or whatever. I'm not a hardware designer. But garbage collected memory of immutable values and atoms, in hardware? Om nom.</p>
+
+<p>This doesn't mean I won't work to get as good performance as possible. Perhaps this OS will even perform better than traditional OS-es at some things, since there's no need for COW and defensive copying, values can be shared freely. And processors already cache code much more efficiently than data, since the processor assumes code is immutable. Perhaps L1 and L2 caches can be much more efficient if the CPU knows which data pages in memory are immutable? Perhaps we can get across the <a href="https://en.wikipedia.org/wiki/Von_Neumann_architecture#Von_Neumann_bottleneck">von Neumann bottleneck</a> by copying data to multiple chips, it's immutable after all and completely safe to copy. Who knows! Time will tell.</p>
+
+<h2>Files</h2>
+
+<p>Haven't thought a lot about this. Frankly I don't use files a lot in my programs, I tend to talk to databases. So I'm thinking that perhaps the durable storage system in the OS could be a key/value database. Perhaps with Datomic-like append only immutability. Or perhaps the file system can and should be an immutable place even in this new fancy immutable OS. Again, who knows.</p>
+
+<h2>The system language</h2>
+
+<p>It will be Lisp. Kind of. I will define a bytecode format for a Lisp, probably similar to EDN. This isn't really compiled bytecode, so perhaps bytecode is the wrong word. The idea is that the AST of a lisp will be encoded with a smart format that isn't just plain text. Plain text sucks. This format will then be read by a JIT compiler (probably LLVM) and compiled to native machine code.</p>
+
+<p>Code will of course also be immutable. So it will be safe to do hot deploys, existing code will keep on running, and new top-level invocations will use the newly hot deployed code.</p>
+
+<p>Not sure if it will be static or dynamic. It will probably be whatever is easiest to prototype.</p>
+
+<p>And once again, it shows that this operating system is very much a derivative work of Clojure. I'm not sure if the system language will be <em>a</em> Clojure (Clojure is already deployed to multiple platforms, JS, JVM, CLR, ...). Once again, who knows.</p>
+
+<h2>I'm probably wrong</h2>
+
+<p>This is the first operating system I've written.</p>
+
+<p>I might be horribly wrong about everything. This is why I'm making it. It's a research project, where no pragmatic goals such as working around buggy firmware will be made. Dare I say: "just a hobby, won't be big and professional like gnu". I don't want to propose talks at conferences about my ideas until I've actually proven to myself that they make sense and aren't completely incorrect.</p>
+
+<p>The learning curve is immense, so there's <a href="https://github.com/augustl/halt/">not a lot of stuff up and running</a> yet. You will probably hear from me again when I've got a basic process and GC env up and running.</p>
