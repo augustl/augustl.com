@@ -1,0 +1,31 @@
+date: 2014.02.02
+title: Erlang R17 gets maps
+
+<p>I consistently rant to my coworkers, so since there's nobody to rant to during the weekends, I've decided to blog more. Nobody reads blog posts unless they're on the home page of Hacker News, and keeping rants away from your Twitter has become a thing. Todays adventure is blogspam about <a href="http://joearms.github.io/2014/02/01/big-changes-to-erlang.html">the map announcement in Erlang R17</a> where my only contribution to the world is to say what Joe already said, but in my own words. This will make me feel important.</p>
+
+<h2>Maps</h2>
+
+<p>Maps are problematic. They are hard to optimize. Because of arbitrary keys, you typically do relatively expensive hashing and lookup procedures instead of doing a record/struct type single instruction lookup. They also fail late. If you spell something wrong you probably won't discover your mistake until the map is used. Erlang R17 solves both these problems.</p>
+
+<p>The solution: a special operator that will fail if the map doesn't already have this key.</p>
+
+<pre><code data-lang="erlang">PersonBase = #{name => nil, age => nil, email => nil}
+
+%% Dangerous! This is a plain "set or update key".
+MyPersonA = PersonBase#{namz => "August"}
+
+%% Safe (will crash). ":=" will fail if the key is not already there.
+MyPersonB = PersonBase#{namz := "August"}
+
+%% Safe
+MyPersonB = PersonBase#{name := "August", age := 27}</code></pre>
+
+<p>A genious solution. We can use a sparse map with nil as all the values as a base for our "type". If you absolutely want to you can still use <code>=></code> to add any value to the map. But if you want safety, just use <code>:=</code> to assign values and you're golden.</p>
+
+<p>This solution lets you fail early. If you misspell a key, you will get the error <em>right there and then</em> when you add the key. This is orders of magnitude better than getting the error later down the line, in the form of a null pointer exception when the map is used.</p>
+
+<p>This also allows for much better performance. When the compiler sees that only the safe operator <code>:=</code> is used for updating a map, it can be 100% confident that the map will contain exactly the same keys as the map we updated. That means the map descriptor can be shared across all the map instances with the same keys. Not only do we use less memory, but we can optimize so that all maps that contains these same keys will get struct/record style fast field access.</p>
+
+<p>My language of choice is Clojure. In Clojure, we tend to use Schema to validate. In practice, Schema validates maps when they're used, and will give you nice errors (key :foo is required) instead of weird null pointer errors. But with Schema, you still fail late. So I would very much like to adopt this into Clojure as well. The validation part is of course just a library, since Clojure has no special syntax. But it would be very nice if the Clojure run-time knew about it so we would get record-like performance for arbitrary maps.</p>
+
+<p>It's also pretty cool that Erlang hasn't gotten maps until now. They don't just thoughtlessly add maps because people want and like maps. The Erlang maintainers are very serious about failing early, and maps have always (until now) been horrible at that. Maps were only added when a solution was found to make them fail early. I'm starting to like the design of Erlang more and more. It reminds me of Hickey's rigorous determination towards immutability in Clojure.</p>
