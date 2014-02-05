@@ -1,9 +1,10 @@
-<div class="inline-row">
-  <h2>Latest 10 posts</h2>
-  <a href="/archive">All posts</a>
-  <a href="/atom.xml">RSS</a>
-</div>
+<h2>Latest 10 posts</h2>
 
 <% @posts.each do |post| %>
   <p><a href="<%= post.url %>"><%= post.title %></a> (<%= post.display_date %>)</p>
 <% end %>
+
+<hr>
+
+<a href="/archive">All posts</a> (<a href="/atom.xml">RSS</a>)
+

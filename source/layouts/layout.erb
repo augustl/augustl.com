@@ -12,9 +12,16 @@
   </head>
   <body class="<%= page_classes %>">
     <div class="site-header">
-      <p><a href="/" class="large-header-title-text">August Lilleaas</a></p>
-      <p>My personal blog. <a href="/about">About me</a></p>
+      <div class="site-content">
+        <ul class="inline-list">
+          <li>The personal blog of August Lilleaas.</li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About me</a></li>
+        </ul>
+      </div>
     </div>
-    <%= yield %>
+    <div class="site-content site-content-main">
+      <%= yield %>
+    </div>
   </body>
 </html>

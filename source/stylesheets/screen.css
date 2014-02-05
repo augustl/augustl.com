@@ -1,8 +1,5 @@
 body {
-    width: 700px;
-    margin: 0 auto;
-    margin-top: 20px;
-    margin-bottom: 100px;
+    margin: 0;
     font-family: Georgia, serif;
     font-size: 15px;
 }
@@ -34,11 +31,33 @@ h3 {
 }
 
 .site-header {
-    padding-bottom: 20px;
+    background-color: #333;
+    color: #fff;
+    padding: 10px 0;
+    font-weight: bold;
+    font-size: 18px;
 }
 
-.site-header p {
+ul.inline-list {
+    list-style-type: none;
     margin: 0;
+    padding: 0;
+    display: inline;
+}
+
+ul.inline-list li {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.site-content {
+    width: 700px;
+    margin: 0 auto;
+}
+
+.site-content-main {
+    margin-top: 20px;
+    margin-bottom: 100px;
 }
 
 a.large-header-title-text,
@@ -48,10 +67,6 @@ a.large-header-title-text:visited {
     margin-right: .5em;
     text-decoration: none;
     color: red;
-}
-
-.inline-row > * {
-    display: inline-block;
 }
 
 #article p, #article pre {
