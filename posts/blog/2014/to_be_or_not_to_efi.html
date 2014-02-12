@@ -1,0 +1,12 @@
+date: 2014.02.12
+title: To be or not to EFI
+
+<p>Current status on the immutable operating system is that I'm working on boot loading with EFI.</p>
+
+<p>About a week ago, I blogged that the whole point of using EFI was to not have to fool around with boot loading, and that I might as well start working on a VM with portability to extracting it into an OS in mind, if I couldn't figure out how to start doing the actual interesting kernel work soon. This is true. The least interesting part of this project, is me learning to do what 100s or 1000s of people have done before me - writing code to boot an x86 platform.</p>
+
+<p>I'm still learning lots of valuable lessions, though, such as various aspects of pointer arithmetic. Apparently, <code>void *p = my_struct; p += 100; my_struct = p;</code> is completely different from <code>my_struct += 100;</code>. Or something like that. Still haven't investigated, for now I'm happy with working code, I'll try to fully understand C and the specs later. All I know at this point is that doing the arithmetic on the struct (which is a pointer, <code>MY_STRUCT_TYPE *my_struct</code>) yields Weird Numbers (tm).</p>
+
+<p>On top of the learning experience, I'm still having <em>lots</em> of fun writing the EFI loader. The next step is to decide on some kind of format, porobably ELF, for my actual kernel, and decide on the assembly API for booting into it. Probably pointing to a well defined data structure in <code>eax</code> and jump to the kenel code. Thanks to osdev on IRC, a super-awesome community, I'm aware of the various different procedures of loading a kernel. Calling a C function is more tedious, since one has to set up a stack. If my kernel entry point is assembly, it's much easier to jump into it if I decide to also make it boot with multiboot, for example.</p>
+
+<p>So EFI it is, at least for now.</p>
