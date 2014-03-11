@@ -1,7 +1,10 @@
 (ns augustl-com.web
   (:require [stasis.core :as stasis]
             [augustl-com.post-parser :as post-parser]
-            [hiccup.page :refer [html5]]))
+            [hiccup.page :refer [html5]]
+            [optimus.assets :as assets]
+            [optimus.optimizations :as optimizations]
+            optimus.export))
 
 (def base-title "August Lilleaas' blog")
 
@@ -40,6 +43,16 @@
      "."]]
    (:title post)))
 
+(defn get-assets
+  []
+  (let [pubdir "resources/public"]
+    (->> (clojure.java.io/as-file pubdir)
+         (file-seq)
+         (filter #(.isFile %))
+         (map (fn [file] {:path (subs (.getPath file) (count pubdir))
+                          :resource (.toURI file)
+                          :last-modified (.lastModified file)})))))
+
 (defn get-home-page
   [posts req]
   (layout-page
@@ -63,5 +76,7 @@
 
 (defn export
   [dir]
-  (stasis/empty-directory! dir)
-  (stasis/export-pages (get-pages) dir))
+  (let [assets (optimizations/none (get-assets) {})]
+    (stasis/empty-directory! dir)
+    (optimus.export/save-assets assets dir)
+    (stasis/export-pages (get-pages) dir {:optimus-assets assets})))
