@@ -12,3 +12,18 @@
 
 # Ignore Sass' cache
 /.sass-cache
+
+# Output folder
+/dist
+
+pom.xml
+*jar
+lib
+classes
+native
+/.lein-failures
+checkouts
+.lein-deps-sum
+.lein-plugins
+.nrepl-port
+target
