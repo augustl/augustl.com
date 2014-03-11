@@ -38,7 +38,7 @@
 (defn parse
   [file]
   (with-open [r (clojure.java.io/reader file :encoding "UTF-8")]
-    (-> {:url (remove-file-extension (subs (.getPath file) 1))
+    (-> {:url (remove-file-extension (subs (.getPath file) 7))
          :headers (parse-headers (take-while (comp not clojure.string/blank?) (line-seq r)))
          :get-body (partial parse-body file)}
         (assoc-pretty-date))))
