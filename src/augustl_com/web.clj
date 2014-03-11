@@ -24,6 +24,23 @@
           [:li [:a {:href "/about"} "About me"]]]]]
        [:div {:class "site-content site-content-main"} page]])))
 
+(defn layout-post
+  [post]
+  (layout-page
+   [:div {:id "article" :class "article"}
+    [:h1 (get-in post [:headers :title])]
+    [:p {:class "timestamp"} "Published " (:pretty-date post)]
+    ((:get-body post))
+    [:hr {:class "post-sep"}]
+    [:p "Questions or comments?"]
+    [:p
+     "Feel free to contact me on Twitter, "
+     [:a {:href "http://twitter.com/augustl"} "@augustl"]
+     ", or e-mail me at "
+     [:a {:href "mailto:august@augustl.com"} "august@augustl.com"]
+     "."]]
+   (:title post)))
+
 (defn get-home-page
   [posts req]
   (layout-page
@@ -46,7 +63,7 @@
     (merge
      (stasis/slurp-directory "resources/public" #".*\.(html|css|js)$")
      {"/" (partial get-home-page posts)}
-     (into {} (map #(vector (:url %) (fn [req] ((:get-body %)))) posts)))))
+     (into {} (map (fn [post] [(:url post) (fn [req] (layout-post post))]) posts)))))
 
 (defn export
   [dir]
