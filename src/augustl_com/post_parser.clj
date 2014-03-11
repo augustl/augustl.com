@@ -36,9 +36,17 @@
   (assoc post :pretty-date (.print pretty-date-formatter (get-in post [:headers :date]))))
 
 (defn parse
-  [file]
+  [dir file]
   (with-open [r (clojure.java.io/reader file :encoding "UTF-8")]
-    (-> {:url (remove-file-extension (subs (.getPath file) 7))
+    (-> {:url (remove-file-extension (subs (.getPath file) (count (.getPath dir))))
          :headers (parse-headers (take-while (comp not clojure.string/blank?) (line-seq r)))
          :get-body (partial parse-body file)}
         (assoc-pretty-date))))
+
+(defn get-posts
+  [dir]
+  (let [dir (clojure.java.io/as-file dir)]
+    (->> (file-seq dir)
+         (filter #(re-find #"\.html$" (.getPath %)))
+         (map #(parse dir %))
+         (sort-by #(get-in % [:headers :date]) #(.compareTo %2 %1)))))

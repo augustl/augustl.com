@@ -1,8 +1,7 @@
 (ns augustl-com.web
   (:require [stasis.core :as stasis]
             [augustl-com.post-parser :as post-parser]
-            [hiccup.page :refer [html5]]
-            [org.satta.glob :refer [glob]]))
+            [hiccup.page :refer [html5]]))
 
 (def base-title "August Lilleaas' blog")
 
@@ -57,11 +56,8 @@
 
 (defn get-pages
   []
-  (let [posts (->> (concat (glob "posts/*/*/*.html") (glob "posts/dump/*/*/*.html"))
-                   (map post-parser/parse)
-                   (sort-by #(get-in % [:headers :date]) #(.compareTo %2 %1)))]
+  (let [posts (post-parser/get-posts "posts")]
     (merge
-     (stasis/slurp-directory "resources/public" #".*\.(html|css|js)$")
      {"/" (partial get-home-page posts)}
      (into {} (map (fn [post] [(:url post) (fn [req] (layout-post post))]) posts)))))
 
