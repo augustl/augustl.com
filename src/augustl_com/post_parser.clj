@@ -4,7 +4,6 @@
            [org.joda.time.format DateTimeFormat]))
 
 (def date-formatter (DateTimeFormat/forPattern "yyyy.MM.dd"))
-;; (February 27, 2014)
 (def pretty-date-formatter (DateTimeFormat/forPattern "MMMM dd, yyyy"))
 
 (defn parse-date
