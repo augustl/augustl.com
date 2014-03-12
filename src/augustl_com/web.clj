@@ -106,6 +106,11 @@
 (defn export
   [dir]
   (let [assets (optimizations/none (get-assets) {})]
+    (println "Cleaning previously generated files")
     (stasis/empty-directory! dir)
+    (println "Saving static assets")
     (optimus.export/save-assets assets dir)
-    (stasis/export-pages (get-pages) dir {:optimus-assets assets})))
+    (println "Exporting all pages")
+    (stasis/export-pages (get-pages) dir {:optimus-assets assets})
+    (println "Voila!")
+    (System/exit 0)))
