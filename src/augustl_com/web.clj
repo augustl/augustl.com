@@ -15,7 +15,7 @@
      (html5
       [:head
        [:meta {:charset "utf-8"}]
-       [:title (if (nil? title) base-title (str title "(" base-title ")"))]
+       [:title (if (nil? title) base-title (str title " (" base-title ")"))]
        [:link {:href "/stylesheets/screen.css" :media "screen" :rel "stylesheet" :type "text/css"}]
        [:link {:href "/atom.xml" :rel "alternate" :title base-title :type "application/atom+xml"}]]
       [:body
@@ -42,7 +42,7 @@
      ", or e-mail me at "
      [:a {:href "mailto:august@augustl.com"} "august@augustl.com"]
      "."]]
-   (:title post)))
+   (get-in post [:headers :title])))
 
 (defn get-assets
   []
