@@ -1,6 +1,6 @@
 My blog!
 
-The URLs don't have html in them, so you need a web server with directory listing.
+The URLs don't have .html in them, so you need a web server with directory listing.
 
 This ensures that your actual index.html files aren't writeable:
 
