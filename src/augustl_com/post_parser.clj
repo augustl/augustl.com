@@ -15,11 +15,11 @@
    (into {} (map  #(let [[k v] (clojure.string/split % #": ?" 2)] [(keyword k) v]) header-lines))
    (update-in [:date] (fn [date] (LocalDate/parse date date-formatter)))))
 
-(defn get-language-from-code-tag-attrs
+(defn parse-raw-html-attrs
   [html-attrs]
   (if html-attrs
     (-> (net.cgrand.tagsoup/parser (java.io.StringReader. (str "<span" html-attrs ">")))
-        first :content first :content first :attrs :data-lang)))
+        first :content first :content first :attrs)))
 
 (defn perform-highlight
   [lang code]
@@ -44,7 +44,7 @@
          matches (->> (re-seq-with-pos #"(?ms)\<code(.*?)\>(.*?)\<\/code\>" html)
                         (pmap #(assoc % :highlighted
                                       (perform-highlight
-                                       (get-language-from-code-tag-attrs (nth (:match %) 1))
+                                       (:data-lang (parse-raw-html-attrs (nth (:match %) 1)))
                                        (nth (:match %) 2)))))
          res []]
     (if (empty? matches)
