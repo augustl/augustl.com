@@ -22,7 +22,7 @@
        [:div {:class "site-header"}
         [:div {:class "site-content"}
          [:ul {:class "inline-list"}
-          [:li "The personal blog of August Lilleaas."]
+          [:li base-title]
           [:li [:a {:href "/"} "Home"]]
           [:li [:a {:href "/about"} "About me"]]]]]
        [:div {:class "site-content site-content-main"} page]])))
