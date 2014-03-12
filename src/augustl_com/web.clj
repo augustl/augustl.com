@@ -1,12 +1,11 @@
 (ns augustl-com.web
   (:require [stasis.core :as stasis]
             [augustl-com.post-parser :as post-parser]
+            [augustl-com.atom-feed :as atom-feed]
             [hiccup.page :refer [html5]]
-            hiccup.core
             [optimus.assets :as assets]
             [optimus.optimizations :as optimizations]
-            optimus.export)
-  (:import [org.joda.time.format ISODateTimeFormat]))
+            optimus.export))
 
 (def base-title "August Lilleaas' blog")
 
@@ -69,38 +68,12 @@
     [:a {:href "/archive"} "All posts"]
     " (" [:a {:href "/atom.xml"} "RSS"] ")")))
 
-(defn post-date-to-atom-date
-  [post]
-  (.print (ISODateTimeFormat/dateTime)
-          (-> post (get-in [:headers :date]) (.toDateTimeAtMidnight))))
-
-(defn get-atom-feed
-  [posts req]
-  (str
-   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-   (hiccup.core/html
-    [:feed {:xmlns "http://www.w3.org/2005/Atom"}
-     [:id "urn:augustl-com:feed"]
-     [:updated (post-date-to-atom-date (first posts))]
-     [:title {:type "text"} base-title]
-     [:link {:href "http://augustl.com/atom.xml" :rel "self"}]
-     (map
-      (fn [post]
-        [:entry
-         [:title (hiccup.core/h (get-in post [:headers :title]))]
-         [:updated (post-date-to-atom-date post)]
-         [:author [:name "August Lilleaas"]]
-         [:link {:href (str "http://augustl.com" (:url post))}]
-         [:id (str "urn:augustl-com:feed:post:" (:id post))]
-         [:content {:type "html"} (hiccup.core/h ((:get-body post)))]])
-      (take 20 posts))])))
-
 (defn get-pages
   []
   (let [posts (post-parser/get-posts "posts")]
     (merge
      {"/" (partial get-home-page posts)
-      "/atom.xml" (partial get-atom-feed posts)}
+      "/atom.xml" (partial atom-feed/get-atom-feed posts base-title)}
      (into {} (map (fn [post] [(:url post) (fn [req] (layout-post post))]) posts)))))
 
 (defn export
