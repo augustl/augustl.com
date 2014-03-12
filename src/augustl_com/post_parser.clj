@@ -42,10 +42,10 @@
   [html]
   (loop [curr 0
          matches (->> (re-seq-with-pos #"(?ms)\<code(.*?)\>(.*?)\<\/code\>" html)
-                        (pmap #(assoc % :highlighted
-                                      (perform-highlight
-                                       (:data-lang (parse-raw-html-attrs (nth (:match %) 1)))
-                                       (nth (:match %) 2)))))
+                      (pmap #(assoc % :highlighted
+                                    (perform-highlight
+                                     (:data-lang (parse-raw-html-attrs (nth (:match %) 1)))
+                                     (nth (:match %) 2)))))
          res []]
     (if (empty? matches)
       (clojure.string/join (conj res (subs html curr)))
