@@ -46,13 +46,7 @@
 
 (defn get-assets
   []
-  (let [pubdir "resources/public"]
-    (->> (clojure.java.io/as-file pubdir)
-         (file-seq)
-         (filter #(.isFile %))
-         (map (fn [file] {:path (subs (.getPath file) (count pubdir))
-                          :resource (.toURI file)
-                          :last-modified (.lastModified file)})))))
+  (assets/load-assets "public" [#".*"]))
 
 (defn get-home-page
   [posts req]
