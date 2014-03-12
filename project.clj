@@ -12,5 +12,5 @@
                  [optimus "0.14.2"]
                  [enlive "1.1.5"]
                  [clygments "0.1.1"]]
-  :aliases {"export" ["run" "-m" "augustl-com.export/export" "dist"]
-            "server" ["run" "-m" "augustl-com.dev-server/run" "4567"]})
+  :aliases {"export" ["run" "-m" "augustl-com.cli/export" "dist"]
+            "server" ["run" "-m" "augustl-com.cli/run" "4567"]})
