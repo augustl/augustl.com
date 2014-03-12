@@ -1,11 +1,8 @@
 (ns augustl-com.web
-  (:require [stasis.core :as stasis]
-            [augustl-com.post-parser :as post-parser]
+  (:require [augustl-com.post-parser :as post-parser]
             [augustl-com.atom-feed :as atom-feed]
             [hiccup.page :refer [html5]]
-            [optimus.assets :as assets]
-            [optimus.optimizations :as optimizations]
-            optimus.export))
+            [optimus.assets :as assets]))
 
 (def base-title "August Lilleaas' blog")
 
@@ -78,15 +75,3 @@
       "/about" get-about-page
       "/atom.xml" (partial atom-feed/get-atom-feed posts base-title)}
      (into {} (map (fn [post] [(:url post) (fn [req] (layout-post post))]) posts)))))
-
-(defn export
-  [dir]
-  (let [assets (optimizations/none (get-assets) {})]
-    (println "Cleaning previously generated files")
-    (stasis/empty-directory! dir)
-    (println "Saving static assets")
-    (optimus.export/save-assets assets dir)
-    (println "Exporting all pages")
-    (stasis/export-pages (get-pages) dir {:optimus-assets assets})
-    (println "Voila!")
-    (System/exit 0)))
