@@ -55,6 +55,21 @@
     [:a {:href "/archive"} "All posts"]
     " (" [:a {:href "/atom.xml"} "RSS"] ")")))
 
+(defn get-archive-page
+  [posts req]
+  (layout-page
+   (list
+    [:h1 "Archive"]
+    (map
+     (fn [[year posts]]
+       (list
+        [:h2 year]
+        (map
+         (fn [post]
+           [:p [:a {:href (:url post)} (get-in post [:headers :title])] " (" (:pretty-date post) ")"])
+         posts)))
+     (group-by #(-> % :headers :date (.getYear)) posts)))))
+
 (defn get-about-page
   [req]
   (layout-page
@@ -73,5 +88,6 @@
     (merge
      {"/" (partial get-home-page posts)
       "/about" get-about-page
+      "/archive" (partial get-archive-page posts)
       "/atom.xml" (partial atom-feed/get-atom-feed posts base-title)}
      (into {} (map (fn [post] [(:url post) (fn [req] (layout-post post))]) posts)))))
