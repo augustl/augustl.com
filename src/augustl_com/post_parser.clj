@@ -70,22 +70,16 @@
        (butlast)
        (clojure.string/join ".")))
 
-(defn assoc-pretty-date
-  [post]
-  (assoc post :pretty-date (.print pretty-date-formatter (get-in post [:headers :date]))))
-
-(defn assoc-id
-  [post]
-  (assoc post :id (clojure.string/replace (:url post) #"/" ":")))
-
 (defn parse
   [dir file]
   (with-open [r (clojure.java.io/reader file :encoding "UTF-8")]
-    (-> {:url (remove-file-extension (subs (.getPath file) (count (.getPath dir))))
-         :headers (parse-headers (take-while (comp not clojure.string/blank?) (line-seq r)))
-         :get-body (partial parse-body file)}
-        (assoc-pretty-date)
-        (assoc-id))))
+    (let [url (remove-file-extension (subs (.getPath file) (count (.getPath dir))))
+          headers (parse-headers (take-while (comp not clojure.string/blank?) (line-seq r)))]
+      (-> {:url url
+           :headers headers
+           :get-body (partial parse-body file)
+           :id (clojure.string/replace url #"/" ":")
+           :pretty-date (.print pretty-date-formatter (:date headers))}))))
 
 (defn get-posts
   [dir]
