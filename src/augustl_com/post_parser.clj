@@ -9,15 +9,11 @@
 (def date-formatter (DateTimeFormat/forPattern "yyyy.MM.dd"))
 (def pretty-date-formatter (DateTimeFormat/forPattern "MMMM dd, yyyy"))
 
-(defn parse-date
-  [date-str]
-  (LocalDate/parse date-str date-formatter))
-
 (defn parse-headers
   [header-lines]
   (->
    (into {} (map  #(let [[k v] (clojure.string/split % #": ?" 2)] [(keyword k) v]) header-lines))
-   (update-in [:date] (fn [date] (parse-date date)))))
+   (update-in [:date] (fn [date] (LocalDate/parse date date-formatter)))))
 
 (defn get-language-from-code-tag-attrs
   [html-attrs]
