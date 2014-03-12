@@ -68,11 +68,20 @@
     [:a {:href "/archive"} "All posts"]
     " (" [:a {:href "/atom.xml"} "RSS"] ")")))
 
+(defn get-about-page
+  [req]
+  (layout-page
+   (list
+    [:h1 "About me"]
+    [:p "Hi, I'm August Lilleaas. I " [:a {:href "http://kodemaker.no"} "work for Kodemaker"] " as a consultant. I live in Oslo, Norway, with my wife, a cat, and my daughter. My only education is a half-finished bachelor's degree in classical piano from the Norwegian Academy of Music."]
+    [:p "I'm on Twitter as " [:a {:href "http://twitter.com/augustl"} "@augustl"] ", my e-mail is " [:a {:href "mailto:august@augustl.com"} "august@augustl.com"] " and I have some stuff on " [:a {:href "http://github.com/augustl"} "Github"] "."])))
+
 (defn get-pages
   []
   (let [posts (post-parser/get-posts "posts")]
     (merge
      {"/" (partial get-home-page posts)
+      "/about" get-about-page
       "/atom.xml" (partial atom-feed/get-atom-feed posts base-title)}
      (into {} (map (fn [post] [(:url post) (fn [req] (layout-post post))]) posts)))))
 
