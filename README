@@ -1,0 +1,7 @@
+My blog!
+
+The URLs don't have html in them, so you need a web server with directory listing.
+
+This ensures that your actual index.html files aren't writeable:
+
+   RewriteRule ^(.*)index\.html$ - [R=404,L]
