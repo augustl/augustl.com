@@ -9,6 +9,8 @@
                  [ring/ring-jetty-adapter "1.2.1"]
                  [joda-time "2.3"]
                  [hiccup "1.0.5"]
-                 [optimus "0.14.2"]]
+                 [optimus "0.14.2"]
+                 [enlive "1.1.5"]
+                 [clygments "0.1.1"]]
   :aliases {"build-site" ["run" "-m" "augustl-com.web/export" "dist"]
             "server" ["run" "-m" "augustl-com.dev-server/run" "4567"]})
