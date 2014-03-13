@@ -7,7 +7,7 @@
             [optimus.strategies :refer [serve-live-assets]]
             optimus.export))
 
-(def optimize optimizations/none)
+(def optimize optimizations/all)
 
 (defn run
   [port]
