@@ -1,7 +1,5 @@
 (ns augustl-com.post-parser
-  (:require clj-time.format
-            [clojure.core.reducers :as r]
-            net.cgrand.tagsoup
+  (:require net.cgrand.tagsoup
             [clygments.core :as pygments])
   (:import [org.joda.time LocalDate]
            [org.joda.time.format DateTimeFormat]))
