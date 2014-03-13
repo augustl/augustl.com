@@ -10,7 +10,7 @@
 (defn parse-headers
   [header-lines]
   (->
-   (into {} (map #(let [[k v] (clojure.string/split % #": ?" 2)] [(keyword k) v]) header-lines))
+   (into {} (map #((juxt (comp keyword first) second) (clojure.string/split % #": ?" 2)) header-lines))
    (update-in [:date] (fn [date] (LocalDate/parse date date-formatter)))))
 
 (defn parse-raw-html-attrs
