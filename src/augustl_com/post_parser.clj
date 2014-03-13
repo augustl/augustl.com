@@ -73,11 +73,11 @@
   (with-open [r (clojure.java.io/reader file :encoding "UTF-8")]
     (let [url (remove-file-extension (subs (.getPath file) (count (.getPath dir))))
           headers (parse-headers (take-while (comp not clojure.string/blank?) (line-seq r)))]
-      (-> {:url url
-           :headers headers
-           :get-body (partial parse-body file)
-           :id (clojure.string/replace url #"/" ":")
-           :pretty-date (.print pretty-date-formatter (:date headers))}))))
+      {:url url
+       :headers headers
+       :get-body (partial parse-body file)
+       :id (clojure.string/replace url #"/" ":")
+       :pretty-date (.print pretty-date-formatter (:date headers))})))
 
 (defn get-posts
   [dir]
