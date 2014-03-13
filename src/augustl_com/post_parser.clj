@@ -51,7 +51,7 @@
         (recur
          (:end match)
          (rest matches)
-         (conj res (subs html curr (:start match)) (:highlighted match))))))
+         (conj res (subs html curr (:start match)) (:highlighted match)))))))
 
 (defn parse-body
   [file]
