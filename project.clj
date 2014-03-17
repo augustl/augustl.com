@@ -11,6 +11,7 @@
                  [hiccup "1.0.5"]
                  [optimus "0.14.2"]
                  [enlive "1.1.5"]
-                 [clygments "0.1.1"]]
+                 [clygments "0.1.1"]
+                 [org.clojure/tools.nrepl "0.2.2"]]
   :aliases {"export" ["run" "-m" "augustl-com.cli/export" "dist"]
             "server" ["run" "-m" "augustl-com.cli/run" "4567"]})

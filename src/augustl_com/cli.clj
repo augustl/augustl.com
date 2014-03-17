@@ -5,12 +5,15 @@
             [optimus.prime :as optimus]
             [optimus.optimizations :as optimizations]
             [optimus.strategies :refer [serve-live-assets]]
-            optimus.export))
+            optimus.export
+            clojure.tools.nrepl.server))
 
 (def optimize optimizations/all)
 
 (defn run
   [port]
+  (let [repl (clojure.tools.nrepl.server/start-server :port 0 :bind "127.0.0.1")]
+    (println "Repl started at" (:port repl)))
   (jetty/run-jetty
    (->
     (stasis/serve-pages augustl-com.web/get-pages)
