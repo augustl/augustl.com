@@ -10,5 +10,6 @@ native
 checkouts
 .lein-deps-sum
 .lein-plugins
+.lein-repl-history
 .nrepl-port
 target
