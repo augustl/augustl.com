@@ -1,0 +1,211 @@
+date: 2014.03.20
+title: JDK8 + Facebook React: Rendering single page apps on the server
+
+<p>I've taken a short break from <a href="https://github.com/augustl/halt/">my OS project</a> in the light of the recent release of JDK8. In this release, a brand spanking new JavaScript engine is built right in. It's called Nashorn, and it's very easy to use, and performs reasonably well (around SpiderMonkey levels).</p>
+
+<p>The goal is to make a single page web app where all the URLs will also be renderable by the server, without requiring JS to run in the browser at all.</p>
+
+<p>This is great for search engines, as they only index your HTML. Typically you'd have to write light versions/duplicates for server-side rendering of your pages, or do something crazy like loading your pages into phantomjs and extract the generated HTML from there.</p>
+
+<p>It's also great for mobile, as you get to see the HTML before the JS takes over. The HTML is always what gets downloaded first, so if you load the HTML, and you loose your 3G connection before the JS can load, you still get to see the content.</p>
+
+<p>Heck, you can even browse <code data-lang="html"><noscript></code>, and still be able to use the single page web app.</p>
+
+<p>Full code: <a href="https://github.com/augustl/react-nashorn-example">github.com/augustl/react-nashorn-example</a></p>
+
+<p>Read on for some juicy deails.</p>
+
+<h2>The power of Facebook React</h2>
+
+<p>Facebook React is a library for working with DOM and HTML. You build up a component tree structure to represent your UI. A React component is just a mix of DOM elements and other components. But a component doesn't generate actual DOM, it generates a virtual DOM, which is basically just plain JS objects. Why is this useful?</p>
+
+<p>First, it enables super-performant DOM updates. To update the DOM, React will generate a completely fresh virtual DOM from your components. React will then use clever and highly performant <a href="http://facebook.github.io/react/docs/reconciliation.html">diffing algorithms</a> between the old and the new virtual DOM, and figure out what changed. At this point, the actual DOM is still untouched. React will now update the actual DOM, based on the diff of the virtual DOMs. This means your components are easy to write - they just re-generate all their virtual DOM when something changes. No need to do fancy state management. The diffing code will do its best (which is pretty damn good) to do efficient DOM updates, and to batch them so you don't get more repaints than absolutely necessary.</p>
+
+<p>Second, the virtual DOM lets React render HTML <em>without involving a browser</em>. You can run React in Node.js, build up a virtual DOM, using the same code as runs in your browser, and then tell React to generate a HTML string from the virtual DOM, skipping diffing and actual real DOM invocations. This is what allows rendering of single page web apps on the server without any code duplication.</p>
+
+<p>So that's what this blog post is about. Except we don't use Node.js, we use Nashorn, the JavaScript runtime that ships with JDK8.</p>
+
+<h2>Enhance!</h2>
+
+<p>Won't we actually render twice? First the HTML from the backend, then our JS loads and renders once again? Yes and no.</p>
+
+<p>Since React is all about diffing, this is handled pretty elegantly. The goal here is to make all URLs renderable by the server. That means that when we enter /about, the server will give us all the HTML from the React component for that URL (read on for the howto). Then our JS will run, and it will also render the React component for /about. In other words, the browser builds up exactly the same component as the server did. When we attach this component to the browser DOM, React will do its diffing and see that nothing needs to happen, since the DOM elements are already there. So because of the diffing architecture of React, we basically get this initial loading for free.</p>
+
+<h2>Quick Clojure tutorial</h2>
+
+<p>I use Cloure for my backends. I could have written the examples in Java or Groovy, but honesly I think a programmer should be able to read Lisp.</p>
+
+<pre><code data-lang="clojure">;; Quick Clojure tutorial, with Java equivalents
+
+ ;;  Java method call on string instance. Returns "A STRING"
+(.toUpperCase "a string")
+"a string".toUpperCase()
+
+ ;; Java method call with one argument. Returns byte[].
+(.getBytes "a string" "UTF8")
+"a string".getBytes("UTF8")
+
+ ;; Calls the constructor and creates a new instance of Point
+(Point. 15 21)
+new Point(15, 21)</code></pre>
+
+<h2>Executing React in Nashorn</h2>
+
+<p>Executing React in Nashorn is as easy as creating a nashorn script engine, and load React into it.</p>
+
+<pre><code data-lang="clojure">
+(import '[javax.script ScriptEngineManager])
+(def nashorn (.getEngineByName (ScriptEngineManager.) "nashorn"))
+(.eval engine "' \\r\\n' == 0") ;; Returns true - a bool, not a string "true"
+(.eval nashorn "var global = this") ;; React expects 'window' or 'global' to be set
+(.eval nashorn (clojure.java.io/reader (java.io.File. "path/to/react.js")))
+(.eval nashorn "var MyComponent = React.createClass({
+  render: function () {
+    return React.DOM.h1(null, 'Hi, ' + this.props.msg)
+  }
+})")
+(.eval nashorn "React.renderComponentToString(MyComponent({msg: 'World!'}))")
+; <h1 data-reactid=".12pv6hptgez" data-react-checksum="-1534324670">Hi, World!</h1>
+</code></pre>
+
+<p>As you can see, evaluating JavaScript in a JVM is super easy now. We just pass strings or readers to the nashorn script engine, and that's all we need to do! It should be obvious how this can be used to render your React app on the server. Just evaluate your React scripts into nashorn and invoke. Read on for the details.</p>
+
+<p>It is also easy to set arbitrary global values, if you want to pass in Java stuff to your JS.</p>
+
+<pre><code data-lang="clojure">
+(.eval nashorn "5 + x", (doto (.createBindings nashorn) (.put "x" (* 2 Math/PI))))
+;; 11.283185307179586
+</code></pre>
+
+<p>Note that this makes any existing global objects unavailable, since they're all stored in the binding.</p>
+
+<p>See <a href="https://github.com/augustl/react-nashorn-example/blob/0cc9d49055b31913e725b5ca9b817b5f59debc31/src/react_nashorn_example/nashorn_utils.clj">nashorn-utils</a> in the example app for some more examples, such as how to create a binding that has existing global vars available but still lets you pass custom one-off values.</p>
+
+<h2>Sharing an app between Nashorn and browser</h2>
+
+<p>Our goal is to have all URLs of the single page web app to be loadable via the server as well. This poses a problem: how do you do the routing in a way that can be executed in both places? When we visit <code>/people/5</code>, how do we ensure that if person with ID 5 doesn't exist, we get a 404 both when loading from the server, and when loading with JS in the browser?</p>
+
+<p>The tricky part is fetching data. We need this to be generic enough so that we can implement the actual fetching with <code data-lang="js">XMLHttpRequest</code> in the browser, and directly from our app when rendering on the backend.</p>
+
+<p>The example app <a href="https://github.com/augustl/react-nashorn-example/blob/0cc9d49055b31913e725b5ca9b817b5f59debc31/resources/public/js/app.js#L56">uses</a> a home brewed very small and silly <a href="https://github.com/augustl/react-nashorn-example/blob/0cc9d49055b31913e725b5ca9b817b5f59debc31/resources/public/js/silly-router.js">routing module</a> that allows this. It specifies properties and URLs, and then it's up to the browser and nashorn to fetch data for these URLs and pass them to the <code data-lang="js">get()</code> method of the route to render the actual component with the properties it requires.</p>
+
+<p>In the browser, we basically do this (<a href="https://github.com/augustl/react-nashorn-example/blob/0cc9d49055b31913e725b5ca9b817b5f59debc31/resources/public/js/run-browser.js">full code</a>):</p>
+
+<pre><code data-lang="js">
+// Browser side
+
+function renderUrl(url) {
+    var match = app.router.match(url);
+    if (match) {
+        fetchDataFromUrls(match.urls, function (props) {
+            React.renderComponent(match.get(props),
+                                  document.getElementById("app"));
+        });
+    } else {
+        renderNotFound();
+    }
+}
+
+renderUrl(location.pathname);
+</code></pre>
+
+
+<p>In nashorn, we do something like this (<a href="https://github.com/augustl/react-nashorn-example/blob/0cc9d49055b31913e725b5ca9b817b5f59debc31/resources/public/js/run-nashorn.js">full code</a>):</p>
+
+<pre><code data-lang="js">
+// Nashorn side
+
+// This is how you access Java from Nashorn
+var apiFetcher = Java.type('react_nashorn_example.js_api_fetcher')
+
+function renderUrl(url) {
+    var match = app.router.match(url); // Passed via bindings (see above)
+    if (match) {
+        var props = apiFetcher.resolveUrls(match.urls);
+        return React.renderComponentToString(match.get(props));
+    }
+}
+</code></pre>
+
+<p>Then in the back-end, we do this:</p>
+
+<pre><code data-lang="clojure">
+(.eval nashorn
+       "renderUrl(url)"
+       (nashorn-utils/bindings-append nashorn {url: "/people/1"}))
+</code></pre>
+
+<p><a href="https://github.com/augustl/react-nashorn-example/blob/0cc9d49055b31913e725b5ca9b817b5f59debc31/src/react_nashorn_example/nashorn_utils.clj#L6">Here</a> is the implementation of bindings-append.</p>
+
+<p>The output will be a string, or nil if no route was found. This allows us to check for that nil, and render with status code 404 as we should.</p>
+
+<p>There's a bit of magic going on on the nashorn side, though. How do we download data? The idea is that the JS is evaluated in the same process as our web app, so we just invoke the API code directly, without doing any HTTP requests. The <code data-lang="js">apiFetcher</code> is a Java class, created with Clojure, and looks something like this (<a href="https://github.com/augustl/react-nashorn-example/blob/0cc9d49055b31913e725b5ca9b817b5f59debc31/src/react_nashorn_example/js_api_fetcher.clj">full code</a>):</p>
+
+<pre><code data-lang="clojure">
+(ns react-nashorn-example.js-api-fetcher
+  (:gen-class
+     :methods [^{:static true} [resolveUrls [java.util.Map] java.util.Map]]))
+
+(defn fetch
+  [urls]
+  (pmap
+   (fn [[prop url]]
+     (if-let [res (api-ring-handler {:request-method :get :uri url})]
+       (when (= (:status res) 200)
+         [prop (:body res)])))
+   urls))
+
+(defn -resolveUrls
+  [urls]
+  (let [res (HashMap.)]
+    (doseq [[prop data] (fetch urls)]
+      (.put res prop data))
+    res))
+</code></pre>
+
+<p>Clojure code admittedly looks a bit weird when it works with Java objects, but it's easier to use plain Java HashMaps from nashorn. An alternative approach is to write this particular code as plain Java, if you prefer that.</p>
+
+<p><code>api-ring-handler</code> is our HTTP handler for the API. Ring is the name of the HTTP stack in Clojure, and since it's based on functions with the request as an argument and the response as a return value, we can just invoke it. No need to perform an actual HTTP request.</p>
+
+<h2>Clicking links</h2>
+
+<p>We want our links to be plain anchor tags with hrefs, so they work even if no JS executes at all. This is pretty easy to achieve. We use HTML5 <code>pushState</code> to change the URL so that it looks like a plain old page reload.</p>
+
+<pre><code data-lang="js">
+var HomePageComponent = React.createClass({
+    gotoAbout: function (e) {
+        e.preventDefault();
+        app.onLocationChangeRequested(this.getAboutPath())
+    },
+    getAboutPath: function () {
+        return "/about";
+    },
+    render: function () {
+        return React.DOM.div(
+            null,
+            React.DOM.h1(null, "This is a component!"),
+            React.DOM.p(
+                null,
+                React.DOM.a({onClick: this.gotoAbout,
+                             href: this.getAboutPath()})));
+    }
+});
+</code></pre>
+
+<p>When the server generates HTML, the onClick and the handlers are irrelevant. So we'll end up getting HTML with plain anchor tags, with plain hrefs.</p>
+
+<p>When the component runs in the browser, the click handlers are invoked. <code>onLocationChangeRequested</code> basically does this:</p>
+
+<pre><code data-lang="js">
+app.onLocationChangeRequested = function (url) {
+    renderUrl(url); // See implementation above
+    history.pushState(null, null, url);
+};</code></pre>
+
+<p>That's all we really need. When JS clicks the link, we don't actually follow it (<code>e.preventDefault()</code>). Instead, we tell our routing stack to render the url, and use <code>history.pushState</code> to change the URL.</p>
+
+<h2>The big tradeoff: Using JS that requires a browser</h2>
+
+<p>If your react components for your single page app uses some 3rd party code that requires a DOM, such as Bootstrap's JS components, jQuery plugins, and what not, you're in for trouble. I'm not an experienced React developer, so I'm not sure how you typically handle that. It doesn't really make sense to render interactive components like a auto complete widget on the server. But it needs to be handled nevertheless, and I'm not sure what the best approach is.</p>
+
+<p>Perhaps React has something built-in that makes this easy, so that when you execute on nashorn, the DOM requiring code doesn't execute. If your components and app are progressively enhanced, you should be all good.</p>
