@@ -72,11 +72,31 @@ title: JDK8 + Facebook React: Rendering single page apps on the server
 
 <p>In other words, exactly zero DOM operations are needed to get our browser side JS in sync with what we rendered on the server. Awesome</p>
 
+<h2>The actual app</h2>
+
+<p>Our app consists of a bunch of React components that are linked up to a URL router. This code is completely browser agnostic, and it has to be, since it should run just fine in our browser and in Nashorn.</p>
+
+<p>I made a very small regex based <a href="https://github.com/augustl/react-nashorn-example/blob/0cc9d49055b31913e725b5ca9b817b5f59debc31/resources/public/js/silly-router.js">routing module</a>. The app itself basically looks like this:</p>
+
+<pre><code data-lang="js">var app = {};
+
+var HomePageComponent = React.createClass({...});
+var PersonShowComponent = React.createClass({...});
+
+app.router = sillyRouter.create([
+  {path: /^\/$/,
+   get: function (props) { return HomePageComponent(props) },
+   urls: function (match) { return {people: "/api/people"}; }},
+  {path: /^\/people\/([^\/]+)$/,
+   get: function (props) { return PersonShowComponent(props); },
+   urls: function (match) { return {person: "/api/people/" + match[1]}; }}
+])</code></pre>
+
 <h2>Gluing it all together</h2>
 
 <p>We still need some glue to make this actually work. The idea is that every part of the single page web app that has a URL, should also be renderrable from the server. That means we need a routing module that can run in both the server and browser environments. This routing system needs to have a pluggable way of fetching data. When we visit /people/1, both the server and the browser needs the data for the person with the ID 1.</p>
 
-<p>The example app <a href="https://github.com/augustl/react-nashorn-example/blob/0cc9d49055b31913e725b5ca9b817b5f59debc31/resources/public/js/app.js#L56">uses</a> a home brewed very small and silly <a href="https://github.com/augustl/react-nashorn-example/blob/0cc9d49055b31913e725b5ca9b817b5f59debc31/resources/public/js/silly-router.js">routing module</a> that allows this. For each URL, the router specifies a list of URLs to fetch. It's then up to nashorn or browser specific code to actually fetch that data. Then, the router is invoked again with the fetched data to get the React component, all wired up and ready for renderring.
+<p>The example app <a href="https://github.com/augustl/react-nashorn-example/blob/0cc9d49055b31913e725b5ca9b817b5f59debc31/resources/public/js/app.js#L56">uses</a> a home brewed very small and silly  that allows this. For each URL, the router specifies a list of URLs to fetch. It's then up to nashorn or browser specific code to actually fetch that data. Then, the router is invoked again with the fetched data to get the React component, all wired up and ready for renderring.
 
 <p>In the browser, we basically do this :</p>
 
@@ -143,22 +163,29 @@ function renderUrl(url) {
 <p>What the heck is <code>app.onLocationChangeRequested</code>? It's what our React components invoke when they want to change pages. We also make sure that our React components has normal anchor tags with normal hrefs on them, so they work fine without JS.</p>
 
 <pre><code data-lang="js">
-var HomePageComponent = React.createClass({
-    gotoAbout: function (e) {
+var PersonLinkComponent = React.createClass({
+    gotoPerson: function (e) {
         e.preventDefault();
-        app.onLocationChangeRequested(this.getAboutPath())
+        app.onLocationChangeRequested(this.getPath());
     },
-    getAboutPath: function () {
-        return "/about";
+    getPath: function () {
+        return "/people/" + this.props.person.id
     },
+    render: function () {
+        return React.DOM.a(
+            {onClick: this.gotoPerson, href: this.getPath()},
+            "Go to person " + this.props.person.name);
+    }
+});
+
+var HomePageComponent = React.createClass({
     render: function () {
         return React.DOM.div(
             null,
-            React.DOM.h1(null, "This is a component!"),
-            React.DOM.p(
-                null,
-                React.DOM.a({onClick: this.gotoAbout,
-                             href: this.getAboutPath()})));
+            React.DOM.h1(null, "The home page!"),
+            this.props.people.map(function (p) {
+                return React.DOM.p({key: p.id}, PersonLinkComponent({person: p}))
+            }));
     }
 });
 </code></pre>
