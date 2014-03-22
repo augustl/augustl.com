@@ -22,7 +22,7 @@
 (defn perform-highlight
   [lang code]
   (str "<code class=\"highlight\">"
-       (pygments/highlight code (or lang "text") :html {:nowrap true})
+       (clojure.string/trim (pygments/highlight code (or lang "text") :html {:nowrap true}))
        "</code>"))
 
 (defn re-seq-with-pos
@@ -43,7 +43,7 @@
                               (perform-highlight
                                (:data-lang (parse-raw-html-attrs (nth (:match %) 1)))
                                (nth (:match %) 2)))
-                      (re-seq-with-pos #"(?ms)\<code(.*?)\>(.*?)\<\/code\>" html))
+                      (re-seq-with-pos #"(?ms)\<code(.*?)\>\s*?(.*?)\s*?\<\/code\>" html))
          res []]
     (if (empty? matches)
       (clojure.string/join (conj res (subs html curr)))
