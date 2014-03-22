@@ -28,7 +28,9 @@ title: JDK8 + Facebook React: Rendering single page apps on the server
 (= true (.eval engine "' \\r\\n' == 0")) ;; true
 </code></pre>
 
-<p>The bridge is very smooth. When we return JS bools, we actually get JVM bools. No strings, no extra parsing required. The same goes for numbers and other types. Nashorn is also pretty fast, rivaling the Sunspider engine. We canalso pass in named values from our Java environment.</p>
+<p>The bridge is very smooth. When we return JS bools, we get proper JVM bools back. The same goes for numbers, strigs and other types. So you don't have to manually serialize values. Nashorn is pretty fast, rivaling the Sunspider engine.</p>
+
+<p>Here's how you pass Java values into the JS env.</p>
 
 <pre><code data-lang="clojure">
 (.eval nashorn "5 + x", (doto (.createBindings nashorn) (.put "x" (* 2 Math/PI))))
