@@ -1,0 +1,38 @@
+date: 2014.04.02
+title: GDB progress
+
+<p>I've been struggling a bit with getting gdb up and running. Without it, everything is in a black box. At this point I'm loading the actual kernel into memory. UEFI boot services have been exited, so I don't have any priting. Printing is a shitty form of feedback anyway, but it's at least something. But without it, you pretty much need a debugger.</p>
+
+<p>But I just managed to do this:</p>
+
+<p align="center"><img src="/static/posts/div/halt_gdb_uefi_bootloader.png" width="650px"></p>
+
+<p>GDB isn't built with osdev in mind. When qemu boots, it boots in 16bit mode, just like normal PCs. The UEFI firmware for qemu will do the 16 -> 32 -> 64 dance. I run qemu with <code>-s -S</code> to create a gdb server and pause immediately before anything starts loading. This is a prerequesite for setting break points in the kernel - we have to attach a debugger and type <code>continue</code> to actually start execution.</p>
+
+<p>But when we do continue, gdb is in 16bit mode, and gdb isn't particularly fond of the architecture changing while it's attached. So what happens is that as soon as we hit a breakpoint, we get</p>
+
+<pre>(gdb) continue
+Continuing.
+Remote 'g' packet reply is too long: 0000000000000000181ff23f0000000008 \
+3dba3e00000000a020ba3e00000000181ff23f000000001819bc3e00000000604bf93f0 \
+0000000a04af93f0000000000000000000000001800000000000000606fba3e00000000 \
+30a0f73e000000000000000000000000000000000000000000000000000000000000000 \
+000000000b7a7b93e000000000602000028000000080000000800000008000000080000 \
+00080000000000000000000000000000000000000000000000000000000000000000000 \
+00000000000000000000000000000000000000000000000000000000000000000000000 \
+00000000000000000000000000007f03000000000000000000000000000000000000000 \
+00000000000000000000000000000000000000000000000000000000000000000000000 \
+00000000000000000000000000000000000000000000000000000000000000000000000 \
+00000000000000000000000000000000000000000000000000000000000000000000000 \
+00000000000000000000000000000000000000000000000000000000000000000000000 \
+00000000000000000000000000000000000000000000000000000000000000000000000 \
+00000000000000000000000000000000000000000000000000000000000000000000000 \
+00000000000000000000000000000000000000000000000000000000000000000000000 \
+000000000000000000000000000000000000801f0000
+</pre>
+
+<p>Yeah..</p>
+
+<p>The solution is to first attach one gdb, and set a breakpoint in the first line of the uefi bootloader main function. Then we attach <em>another</em> gdb, run <code>set architecture i386:x86-64:intel</code>, and quit the initial gdb. What we have now is an attached gdb in 64 bit mode, and the emulated OS in qemu is also in 64bit mode, since that's what uefi does for us when invoking boot loaders.</p>
+
+<p>As always, this is completely irrelevant and uninteresting in regards to <a href="http://augustl.com/blog/2014/an_immutable_operating_system/">my ivory tower architecture post about the OS</a>, and I haven't done anything yet that hasn't been done before. But again, as always, I'm still learning lots of valuable lessions, and having fun. And hopefully I'll be able to procrastinate less now that I actually have a sane debugging environment. Currently working on reading the ELF format that my kernel is in.</p>
