@@ -1,0 +1,12 @@
+date: 2014.05.03
+title: Effin' EFI
+
+<p>I haven't sinked much time into my OS project the last couple of months, but it seems to have ramped up again lately.</p>
+
+<p>I'm hitting a wall in terms of making the EFI boot loader actually execute my operating system. I've spent lots of time learning C, and other interesting and generic and reusable lessons. Now, however, I realize I need to spend time figuring out how to undo everything the EFI runtime set up for me in the first place. So I feel pretty strongly for dumping EFI..</p>
+
+<p>The 16 -> 32 -> 64 dance of plain multiboot seems much more pleasant. I generally prefer to build stuff up from bare bones, rather than using a machete to hack and slash my way through a jungle filled with APIs and environments I didn't manually place there myself. With multiboot, it's just me and the CPU.</p>
+
+<p>As a noob, it seemed pleasant to use EFI to jump straight into a 64 bit environment. But since I find myself tearing it down anyway, to get the ABI I want, and to be able to fully control everything, what's the point? I also used EFI boot time service sto print to the console, but I have a nice GDB setup now. No reason to use EFI, then.</p>
+
+<p>I'll spend some time toying with multiboot. I've failed before, but I know so much more about C, GCC and ASM now that I have a feeling it'll be smoother this time around.</p>
