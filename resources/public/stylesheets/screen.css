@@ -50,6 +50,11 @@ ul.inline-list li {
     margin-right: 10px;
 }
 
+ul.inline-list small {
+    font-size: 11px;
+    font-weight: normal;
+}
+
 .site-content {
     width: 700px;
     margin: 0 auto;

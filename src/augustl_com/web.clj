@@ -21,7 +21,8 @@
          [:ul {:class "inline-list"}
           [:li base-title]
           [:li [:a {:href "/"} "Home"]]
-          [:li [:a {:href "/about"} "About me"]]]]]
+          [:li [:a {:href "/about"} "About me"]]
+          [:li [:small [:a {:href "https://github.com/augustl/augustl.com"} "Blog source code"]]]]]]
        [:div {:class "site-content site-content-main"} page]])))
 
 (defn layout-post
