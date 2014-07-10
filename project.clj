@@ -10,6 +10,7 @@
                  [joda-time "2.3"]
                  [hiccup "1.0.5"]
                  [optimus "0.14.2"]
-                 [org.clojure/tools.nrepl "0.2.2"]]
+                 [org.clojure/tools.nrepl "0.2.2"]
+                 [augusts-fancy-blog-post-parser "0.1.0"]]
   :aliases {"export" ["run" "-m" "augustl-com.cli/export" "dist"]
             "server" ["run" "-m" "augustl-com.cli/run" "4567"]})

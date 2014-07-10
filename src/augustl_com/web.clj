@@ -1,5 +1,5 @@
 (ns augustl-com.web
-  (:require [augustl-com.post-parser :as post-parser]
+  (:require [augusts-fancy-blog-post-parser.core :as post-parser]
             [augustl-com.atom-feed :as atom-feed]
             [hiccup.page :refer [html5]]
             [optimus.assets :as assets]))
