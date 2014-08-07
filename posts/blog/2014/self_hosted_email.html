@@ -1,0 +1,277 @@
+date: 2014.08.06
+title: Self hosted e-mail with Dovecot, dspam and Node.js
+
+<p>I self host my e-mail. When you send a message to <a href="mailto:august@augustl.com">august@augustl.com</a>, the message is delivered directly to my home server. In this post, I describe my setup.</p>
+
+<h2>This is not a copy/paste tutorial</h2>
+
+<p><strong>Warning:</strong> thinking for yourself is required. I'm merely outlining my set-up. You need to figure out the details yourself.</p>
+
+<h2>I don't self host SMTP delivery</h2>
+
+<p>I use the SMTP server of my ISP to deliver e-mail. SMTP is the protocol for delivering and receiving e-mail (I self-host the receiving part only), and setting up e-mail delivery correctly is black magic. There are no limits to the amount of pitfalls that can cause your e-mails to be unwelcome to the large providers such as Gmail and Yahoo. Something as simple as hosting it at home, with a dynamic IP from your ISP, is enough to get yourself blacklisted.</p>
+
+<p>Ideally I'd use an SMTP server in a country without data retention laws. But for what it's worth, in Norway (where I live and where my ISP is from) the data retention laws hasn't been implemented yet.</p>
+
+
+<h2>Receiving e-mail: node.js</h2>
+
+<p>Receiving e-mail over SMTP is definitely <em>not</em> black magic. All you need, is something that understands the SMTP protocol at TCP port 25.</p>
+
+<p>I spent some time looking into using Postfix for receiving e-mail. It's pretty much the largest monolith I've ever encountered, and after spending a couple of evnings being annoyed with config files and shitty defaults, I decided to write my own SMTP server with node.js.</p>
+
+<p>node.js makes programming computers to <a href="https://news.ycombinator.com/item?id=4310723">be like coloring with crayons and playing with duplo blocks</a>. We don't want to deal with the nitty gritty details of SMTP, and we don't need the best performance you could possibly imagine (only one user, remember). We just want something small and easy to write and run.</p>
+
+<h3>My home made SMTP server</h3>
+
+<p>It was surprisingly easy to write my own SMTP server for incoming e-mail. The maildir format is beautiful, and made with ease of programming in mind. Perfect!</p>
+
+<p>Here is all the code for my entire SMTP server, with comments added to explain the details of it:</p>
+
+<pre><code data-lang="javascript">// We don't want to do _everything_ ourselves
+var simplesmtp = require("simplesmtp");
+var fs = require("fs");
+// See implementation below
+var SpamFilter = require("./spam-filter")
+
+process.on('uncaughtException', function(err) {
+  console.log(new Date())
+  console.log('Caught exception: ' + err);
+});
+
+function getUuid() {
+    return new Date().getTime().toString() + Math.random().toString();
+}
+
+// The directory where our maildir formatted e-mai lis stored.
+var MAILDIR = "/var/mail/maildirs/augustl/Maildir";
+// The directory where spam is stored, also in the maildir format.
+var SPAMDIR = "/var/mail/maildirs/augustl/Maildir/.Spam"
+
+var opts = {
+    SMTPBanner: "August's SMTP server"
+};
+
+var server = simplesmtp.createSimpleServer(opts, function (req) {
+    // Each message needs an unique ID.
+    var messageId = getUuid();
+    // We write the incoming message to the "tmp" folder of the maildir. This is part
+    // of the maildir standard. The idea is that e-mail clients won't read this folder,
+    // so while we stream chunks of incoming e-mail to files in OUR_MAILDIR/tmp, e-mail
+    // clients won't read/parse that e-mail.
+    var tempPath = MAILDIR + "/tmp/" + messageId;
+    var tempWriteStream = fs.createWriteStream(tempPath);
+
+    // See below for implementation of SpamFilter
+    var spamFilter = new SpamFilter(function (isSpam, confidence, probability, rawHeader) {
+        if (isSpam && confidence >= 0.5) {
+            fs.rename(tempPath, SPAMDIR + "/new/" + messageId);
+        } else {
+            fs.rename(tempPath, MAILDIR + "/new/" + messageId);
+        }
+    });
+
+    // Actually write the raw e-mail to the OUR_MAILDIR/tmp folder. Note that the
+    // maildir format stores raw e-mail in files, no fancy formats going on here.
+    req.pipe(tempWriteStream);
+    // Also write the entire e-mail to the spam filter client
+    req.pipe(spamFilter.writeStream);
+
+    // When we've finished writing the file to disk, we tell the SMTP server that
+    // delivered the message to us that we've received it successfully. If we skip
+    // this step, we might get the message re-delivered to us at a later time.
+    tempWriteStream.on("finish", function () {
+        req.accept(messageId);
+    });
+})
+
+// I use plain old iptables to forward port 25 to port 2525, so I don't have to run
+// the node process as root to bind it directly to port 25.
+server.listen(2525);
+</code></pre>
+
+<p>And here is the implementation of <code>SpamFilter</code>:</p>
+
+<pre><code data-lang="javascript">var spawn = require('child_process').spawn;
+function concBuff(bufs) { return Buffer.concat(bufs).toString("utf8"); }
+
+function concStream(stream) {
+    var result = [];
+    stream.on("data", function (data) { result.push(data); });
+    return result;
+}
+
+function SpamFilter(cb) {
+    // The dspam server is already running.
+    // --classify means that it won't do anything other than echoing the results to
+    //   stdout.
+    // --mode=teft is the most advanced training mode, which is what you want unless
+    //   you have a gazillion users on a single dspam system.
+    var dspam = spawn("dspam", ["--mode=teft", "--user=augustl", "--classify"]);
+
+    var stdOut = concStream(dspam.stdout);
+    var stdErr = concStream(dspam.stderr);
+
+    dspam.on("close", function (code) {
+        if (code === 0) {
+            // Example output:
+            //  X-DSPAM-Result: augustl; result="Spam"; class="Spam"; probability=1.0000; confidence=0.93; signature=N/A
+            var rawResult = concBuff(stdOut);
+            console.log(rawResult);
+
+            // Silly simple parser of the dspam output
+            var result = rawResult.slice(16).split("; ").reduce(function (res, entry) {
+                var pieces = entry.split("=");
+                res[pieces[0]] = pieces[1];
+                return res;
+            }, {});
+
+            // Invoke the callback from the SMTP server and let it know what the
+            // dspam filtering results are.
+            cb(
+                result["result"] === '"Spam"',
+                parseFloat(result.confidence, 10),
+                parseFloat(result.probability, 10),
+                rawResult);
+        } else {
+            console.log("Unknown error occurred, code " + code);
+            console.log(concBuf(stdErr));
+        }
+    });
+
+    this.writeStream = dspam.stdin;
+};
+module.exports = SpamFilter;</code></pre>
+
+<h3>What is running a home-made SMTP server like?</h3>
+
+<p>Thanks to the simplesmtp node.js library, getting incoming SMTP messages is dead simple. And thanks to the maildir format, all we really do is to pipe the incoming mails to disk, and to the dspam classification client.</p>
+
+<p>I just run the server under a GNU screen, and it hasn't crashed in a year now. That is partly thanks to the uncaught exception handler, but the only exception I've ever seen there is that the incoming TCP connection for the SMTP delivery gets unexpectedly reset. This is an error I could easily have handled if I wanted to, but I don't really care, since it seems that this is only something spammers do. And if it happens from a "real" mail server, it'll retry the delivery anyway.</p>
+
+<h2>Spam filtering: dspam</h2>
+
+<p>For the longest time I used spamassassin. It wasn't that great. I got 10-40 spam messages in my inbox every day, only a small fraction of the incoming spam got filtered. I'm not really sure why/how I coped with this situation, it was pretty terrible.</p>
+
+<p>Switching from spamassassin to dspam was a game changer. dspam is <em>almost</em> Gmail quality.</p>
+
+<p>Like spamassassin, dspam runs as a daemon in the background, and you use a client, the "dspam" command, to interact with it &mdash; as seen in the node.js code for the SMTP server.</p>
+
+<h3>Initial training</h3>
+
+<p>dspam is nothing without training. Thee's no central register it talks to (we're self-hosted after all), so it needs to be trained in order to recognize spam.</p>
+
+<p>You can download various corpuses of mock ups of spam and non-spam e-mail. But I already have a lot of mail stored. Namely, all mail I've ever received since 2005, and all spam I've gotten since I started self-hosting, as well as the spam I had in my Gmail spam folder when I migrated to self-hosting.</p>
+
+<p>The following command trains dspam, using my existing e-mail and old spam.</p>
+
+<pre>SPAM_FOLDER=/var/mail/maildirs/augustl/Maildir/.Spam/cur
+MAIL_FOLDER=/var/mail/maildirs/augustl/Maildir/.Archive/cur
+sudo dspam_train augustl --client $SPAM_FOLDER $MAIL_FOLDER</pre>
+
+<h3>Letting dspam know about failures</h3>
+
+<p>When dspam fails to correctly classify a message, you want to let it know.</p>
+
+<p>I have two IMAP folders, SpamTrain and HamTrain. If I get a spam message in my inbox, I put it in SpamTrain. If I get a non-smap message in spam, I put it in HamTrain.</p>
+
+<p>This little shell script posts these e-mails to dspam, and moves them to the spam folder and the inbox respectively after dspam is finished classifying them.</p>
+
+<pre><code data-lang="sh">#!/bin/sh
+MAIL_HOME=/var/mail/maildirs/augustl/Maildir
+
+learnSpam() {
+    local mailf="$1"
+    echo Spam: $mailf
+    cat $mailf | dspam --mode=teft --user=augustl --class=spam --source=error --clasify
+}
+
+learnHam() {
+    local mailf="$1"
+    echo Ham: $mailf
+    cat $mailf | dspam --mode=teft --user=augustl --class=innocent --source=error --clasify
+}
+
+
+for f in $MAIL_HOME/.SpamTrain/cur/*
+do
+    [ -f $f ] || return
+
+    learnSpam $f
+    mv $f $MAIL_HOME/.Spam/cur/
+done
+
+for f in $MAIL_HOME/.SpamTrain/new/*
+do
+    [ -f $f ] || return
+
+    learnSpam $f
+    mv $f $MAIL_HOME/.Spam/new/
+done
+
+for f in $MAIL_HOME/.HamTrain/cur/*
+do
+    [ -f $f ] || return
+
+    learnHam $f
+    mv $f $MAIL_HOME/cur/
+done
+
+for f in $MAIL_HOME/.HamTrain/new/*
+do
+    [ -f $f ] || return
+
+    learnHam $f
+    mv $f $MAIL_HOME/new/
+done</code></pre>
+
+<p>Aah, shell scripts. Love 'em.</p>
+
+<h2>Public service announcement: never use spamassassin</h2>
+
+<p>For over a year now, I've been using spamassassin. But be warned:</p>
+
+<p><span style="font-weight: bold; font-style: italic; text-decoration: underline; font-size: 2em; color: red; background-color: yellow; text-shadow: 1px 1px 0px #000;">Spamassassin sucks, don't use it!!</span></p>
+
+<p>Here's a mock-up of how I think the spamassassin home-page should look like:.</p>
+
+<p><img src="/static/posts/self-hosted-email/spamassassin_homepage.png" style="border:2px solid #ccc;"></p>
+
+<p>Seriously. Stay away rom spamassassin.</p>
+
+<h2>Reading e-mail: Thunderbird</h2>
+
+<p>I use Thunderbird. I'm very happy with it, and the only downside is that you need all of the mail to be stored locally on your box. The upside is that you can search your e-mail and find attachments when you're on the bus.</p>
+
+<p><img src="/static/posts/self-hosted-email/thunderbird.png" style="border:2px solid #ccc;"></p>
+
+<p>There are a bunch of self-hostable web mail clients, but I haven't really found the need for web mail yet. I also quickly got used to the lack of Gmail style threaded e-mail. I actually prefer non-threaded e-mail now. The main thing I can't do in Gmail is to have multiple messages from the same "thread" in my inbox, as separate "todo-items". There <em>is</em> actually a way to see a thread view in Thunderbird as well, if you absolutely want to.</p>
+
+<p>I have an "Archive" folder where all old mail exists. There's also a "Inbox" (doh) that has all the mail I haven't responded to yet. That's all I really need.</p>
+
+<h2>Reading e-mail on mobile: Android default email app</h2>
+
+<p>On mobile, I use the default "Email" app (not the Gmail app). It works great for my use cases.</p>
+
+<p>Not much else to say about that, really.</p>
+
+<h2>Transferring e-mail over IMAP: Dovecot</h2>
+
+<p>You need a method for transferring e-mails from your home server to your e-mail client. I use Thunderbird, so I need an IMAP server. An alternative is to run a webmail server, hosted on the home server itself.</p>
+
+<p>I ended up using Doecot for this. It is as monolithic as Postfix. What is it with e-mail and monoliths?. Despite being monolithic, Dovecot doesn't get in my way. All I needed to do was to configure Dovecot to use the maildir format, so it could read the maildir folders my node.js SMTP server writes to. I'm still annoyed by the fact that I didn't figure out how to give my SMTP server a different password than the one for my Linux account. Oh well. Pragmatism rules.</p>
+
+<p>Unfortunately I didn't write down what I did, and setting up Dovecot was a bit of a mess. There's a gazillion tutorials out there, though. Try Google.</p>
+
+
+<h2>But what if my home server is down?</h2>
+
+<p>My ISP is like most ISP's - there are absolutely no uptime guarantees. I also don't own expensive server grade hardware with ECC RAM, nor do I have an UPS to take over in case of grid outages.</p>
+
+<p>Thankfully, the e-mail protocol is very forgiving, and built to handle servers that are down. A couple of months ago I had a power outage at home that lasted for 3 hours, and I didn't miss a single e-mail. All sane SMTP servers that delivers e-mails will retry if the delivery fails. And I'm not talking about <em>my</em> SMTP server now. I'm talking about Gmail, Yahoo, Fastmail, and most/all e-mail providers out there.</p>
+
+<p>If I really wanted to, I could set up my DNS records to provide multiple targets for delivering e-mail, so I could have a proper server (a VPS, maybe) running somewhere that would act as failover while my home network is down, and set up my home server to POP e-mail from this proper server when it gets back online. But what's the point, I don't care if e-mail isn't deliverd to me for a couple of hours in the rare event of an outage.</p>
+
+<h2>Wrapping up</h2>
+
+<p>You've seen my cowboy setup for self-hosting e-mail. I'm very happy with it, and the only real reason you have for not switching, is that Gmail has a nice web interface!</p>
