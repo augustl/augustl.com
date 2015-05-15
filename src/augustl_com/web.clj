@@ -75,9 +75,16 @@
   [req]
   (layout-page
    (list
-    [:h1 "About me"]
-    [:p "Hi, I'm August Lilleaas. I " [:a {:href "http://kodemaker.no"} "work for Kodemaker"] " as a consultant. I live in Oslo, Norway, with my wife, a cat, and my daughter. My only education is a half-finished bachelor's degree in classical piano from the Norwegian Academy of Music."]
-    [:p "I'm on Twitter as " [:a {:href "http://twitter.com/augustl"} "@augustl"] ", my e-mail is " [:a {:href "mailto:august@augustl.com"} "august@augustl.com"] " and I have some stuff on " [:a {:href "http://github.com/augustl"} "Github"] "."])))
+    [:h1 "Who am I?"]
+    [:p "Hi, I'm August Lilleaas! I " [:a {:href "http://kodemaker.no"} "work for Kodemaker"] " as a consultant. I live in Oslo, Norway, with my wife, a cat, and my daughter. I'm a self taught programmer, and my only education is in music, where I started but didn't finish a bachelor in classical piano at the Norwegian Academy of Music"]
+    [:p "I'm on Twitter as " [:a {:href "http://twitter.com/augustl"} "@augustl"] ", my e-mail is " [:a {:href "mailto:august@augustl.com"} "august@augustl.com"] " and I have some stuff on " [:a {:href "http://github.com/augustl"} "Github"] "."]
+    [:h2 "Recommendations"]
+    [:p "My must watch/read list."]
+    [:p [:a {:href "https://www.youtube.com/watch?v=k2h2lvhzMDc"} "Ed Catmull, Pixar: Keep Your Crises Small"] ". My favorite part starts at 29:00, about phrases that has no meaning, such as \"the story is the most important thing\" or \"buildings should be designed from the inside-out\". Another great insight is \"success hides problems\"."]
+    [:p [:a {:href "https://www.youtube.com/watch?v=FxKtZmQgxrI"} "Star Wars: The Phantom Menace Review"] " (also " [:a {:href "https://www.youtube.com/watch?v=CfBhi6qqFLA"} "Attack of the Clones"] " and " [:a {:href "https://www.youtube.com/watch?v=ABcXyZn9xjg"} "Revenge of the Ssith"] ") are superb reviews of the Star Wars prequels that are as thorough as they are hilarious. There's also a lot to lean about film making in general, and about the way success might change the way you work to make your accomplishments unrepeatable."]
+    [:p [:a {:href "http://www.infoq.com/presentations/Simple-Made-Easy"} "Simple Made Easy"] " by Rich Hickey is a legendary talk from the creator of Clojure, about Clojure, without a single line of Clojure code in it."]
+    [:p [:a {:href "http://www.infoq.com/presentations/Thinking-Parallel-Programming"} "How to Think about Parallel Programming: Not!"] " is a talk by Guy Steele about the ugliest program he ever wrote, and how it's possible to have programming languages automate parallelization like the way some programming languages automate memory management (garbage collection)."]
+    [:p [:a {:href "http://www.amazon.com/About-Time-Einsteins-Unfinished-Revolution/dp/0684818221"} "About Time"] " (Paul Davies) is a book about modern physics starting with and resolving around Einsteins theories of relativity, laid out so that you get to re-discover what Einstein himself discovered, framing it in the physics of the early 1900s."])))
 
 (defn get-assets
   []
