@@ -11,6 +11,9 @@
                  [hiccup "1.0.5"]
                  [optimus "0.14.2"]
                  [org.clojure/tools.nrepl "0.2.2"]
-                 [augusts-fancy-blog-post-parser "0.1.0"]]
-  :aliases {"export" ["run" "-m" "augustl-com.cli/export" "dist"]
-            "server" ["run" "-m" "augustl-com.cli/run" "4567"]})
+                 [augusts-fancy-blog-post-parser "0.1.0"]
+                 [com.stuartsierra/component "0.2.3"]]
+  :aliases {"export" ["run" "-m" "augustl-com.cli/export" "dist"]}
+  :profiles
+  {:dev {:source-paths ["dev"]
+         :dependencies [[reloaded.repl "0.1.0"]]}})

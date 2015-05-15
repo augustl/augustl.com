@@ -10,18 +10,6 @@
 
 (def optimize optimizations/all)
 
-(defn run
-  [port]
-  (let [repl (clojure.tools.nrepl.server/start-server :port 0 :bind "127.0.0.1")]
-    (println "Repl started at" (:port repl)))
-  (jetty/run-jetty
-   (->
-    (stasis/serve-pages augustl-com.web/get-pages)
-    (optimus/wrap augustl-com.web/get-assets optimize serve-live-assets))
-   {:port (Integer/parseInt port)
-    :join? true}))
-
-
 (defn export
   [dir]
   (let [assets (optimize (augustl-com.web/get-assets) {})]
