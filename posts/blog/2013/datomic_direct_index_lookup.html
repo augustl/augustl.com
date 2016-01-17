@@ -1,11 +1,6 @@
 date: 2013.07.17
 title: Datomic: Direct index lookup
 
-<div class="moved-post">
-  <p><a href="http://dbs-are-fn.com/2013/datomic_direct_index_lookup/">Click here for the updated version of this post</p></a>
-  <p>I've created a new Datomic specific blog, <a href="http://dbs-are-fn.com">dbs-are-fn.com</a>, and migrated this post there. I'm keeping this old post around so I don't break links.</p>
-</div>
-
 <p>A couple of years ago, I read about someone whose MySQL performance bottleneck was SQL parsing. Most of the queries were straightforward primary key lookups, so the author wrote code that called InnoDB (MySQL's storage engine) directly and removed the bottleneck. I thought this was really cool, and I feel like I've reached a small milestone today for doing the same thing myself, only in Datomic.</p>
 
 <p>In our system, we have a querying API that lists <em>everything</em> if an empty query is passed. This means we need to ask datomic for potentially 1000s of entities, and also make it happen in a reasonable amount of time. In the future, we we'll probably be more clever and lazily load stuff, but I wanted to see if there was a quick fix, since lazy loading in the UI takes a lot of work to get right.</p>

@@ -1,11 +1,6 @@
 date: 2013.01.20
 title: Querying Datomic for the history of an entity
 
-<div class="moved-post">
-  <p><a href="http://dbs-are-fn.com/2013/datomic_history_of_an_entity/">Click here for the updated version of this post</p></a>
-  <p>I've created a new Datomic specific blog, <a href="http://dbs-are-fn.com">dbs-are-fn.com</a>, and migrated this post there. I'm keeping this old post around so I don't break links.</p>
-</div>
-
 <p>The main reason for choosing Datomic for our project was our requirement to have a page that lists all the changes that ever occurred to a specific entity. This turned out to be a bit more tricky than I anticipated, but after I finally wrapped my head around the basics, the solution ended up being quite elegant.</p>
 
 <p>The first step is to get a hold of all the transactions related to the entity in question. This is done with a query on <code>(datomic.api/history db)</code>, a special version of the database containing the full history of assertions and retractions.</p>
