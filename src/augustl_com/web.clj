@@ -92,10 +92,11 @@
 
 (defn get-pages
   []
-  (let [posts (post-parser/get-posts "posts")]
+  (let [posts (post-parser/get-posts "posts")
+        listed-posts (remove #(contains? (:headers %) :unlisted) posts)]
     (merge
-     {"/" (partial get-home-page posts)
+     {"/" (partial get-home-page listed-posts)
       "/about" get-about-page
-      "/archive" (partial get-archive-page posts)
-      "/atom.xml" (partial atom-feed/get-atom-feed posts base-title)}
+      "/archive" (partial get-archive-page listed-posts)
+      "/atom.xml" (partial atom-feed/get-atom-feed listed-posts base-title)}
      (into {} (map (fn [post] [(:url post) (fn [req] (layout-post post))]) posts)))))
