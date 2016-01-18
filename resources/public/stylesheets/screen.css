@@ -128,13 +128,13 @@ a:visited {
     padding-left: 15px;
 }
 
-.moved-post {
+.series {
     background: #ff6;
     padding: 1em;
     margin-bottom: 1em;
 }
 
-.moved-post a {
+.series a {
     color: #e60000;
 }
 
