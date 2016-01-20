@@ -1,0 +1,152 @@
+date: 2016.01.18
+title: Datomic: The most innovative DB you've neve heard of
+series: datomic
+
+<p>Once upon a time (late 2011, to be exact), a small group of programmers got blown away by <a href="http://www.infoq.com/presentations/Simple-Made-Easy">Rich Hickey's talk Simple Made Easy</a>. This group of programmers became passionately obsessed with the programming language Hickey created: Clojure. When Hickey then introduced Datomic a year later, <em>reconstructive jaw surgery</em> became a meme in the Clojure community.</p>
+
+<p>Why did our jaws suddenly become so useless? And why hasn't Datomic become an A-level option in the database space?</p>
+
+<p>
+    <img src="/static/posts/datomic_never_heard_of/simple_made_easy.png" width="300px">
+    <img src="/static/posts/datomic_never_heard_of/woah.gif">
+</p>
+
+<p>Let's investigate.</p>
+
+
+
+<h2>Datomic stores the actual data directly in (multiple) indexes</em></h2>
+
+<p>Datomic doesn't have the data in one place and the indexes elsewhere. In Datomic, data and indexes are the same thing, and data is stored directly in the index. This is called a <em>covering index</em>.</p>
+
+<p>Not only that, the data is stored <em>multiple</em> times, once for each index, of which there are four and only four.</p>
+
+
+
+<h2>Datomic only stores its data in other databases</h2>
+
+<p>Datomic does not write directly to the file system. Instead, you can use a number of different databases as a storage backend for Datomic: Any SQL JDBC database, CouchBase, Riak, Cassandra, DynamoDB, Infinispan, and a "dev" mode that writes to a file backed H2 database.</p>
+
+
+
+<h2>Datomic has a completely different API for reads vs. writes</h2>
+
+<p>In most databases, you use the same API for reading and writing. Typically in the form of a DSL, like SQL, Cypher in Neo4j, the JavaScript based MongoDB API, and so on.</p>
+
+<p>In Datomic, you use a "transactor" API for writes and datalog for reads.</p>
+
+<p>Reads and writes have completely different performance characteristics, semantics, APIs, operational details - you name it.</p>
+
+
+
+<h2>Datomic is single threaded</h2>
+
+<p>To be specific, <strong>writes</strong> are single threaded.</p>
+
+<p>Note that <strong>reads</strong> are however multi-threaded. As I already mentioned, reads and writes have completely separate characteristics in Datomic.</p>
+
+
+<p>It turns out that traditional multi threaded databases <a href="http://nms.csail.mit.edu/~stavros/pubs/OLTP_sigmod08.pdf">only spend about 25% of their time actually writing to and reading from the database</a>. The rest of the time is spent coordinating multiple clients reading and writing in parallell.</p>
+
+<p>So a single threaded writer, like Datomic, is able to completely saturate a CPU core for writes, spending 100% of the time doing actual useful writes.</p>
+
+<p>This also means that you get what Stuart Halloway calls isolation level 9000. A single thread doesn't have concurrency problems.</p>
+
+
+<h2>Datomic runs queries on <em>the client</em>, not on the server</h2>
+
+<p>This tends to seriously creep out most experienced programmers. Including myself when I first heard of Datomic.</p>
+
+<p>First, keep in mind that if you want your reads to be fast, you have to keep the working dataset in RAM on the database server anyway.</p>
+
+<p>Second, realize that this means you can infinitely scale your reads to as many clients as you want.</p>
+
+<p>This doesn't mean that the entire dataset has to fit in memory, by the way, only the part that you actively query. And, as mentioned, for speed, you want the entire active dataset in RAM anyway. So why does this absolutely have to happen on the database server?</p>
+
+<p>The Datomic server is not concerned with reads whatsoever! You can run the nastiest long running query you can think of and not affect anyone but yourself.</p>
+
+<p>Remember how Datomic doesn't write to its own storage, but stores data in other databases? As an extension of that, when a client (or <em>peer</em> in Datomic lingo) needs to fetch some data from storage to run a query, the Datomic server is not involved in any way at all! The client instead connects directly to the underlying storage engine. Furthermore, you can put memcached between you and storage, so you don't even have to talk directly to the storage engine for reads.</p>
+
+
+
+<h2>Datomic has no round-trip open long running transactions</h2>
+
+<p>In Datomic, you can't open a transaction, do some reads, some writes, some more reads, and then commit. You have to create a complete transaction statement and send it off whole sale to the server.</p>
+
+<p>This goes back to what I've already mentioned, reads and writes are completely separated.</p>
+
+<p>Fear not: It is completely doable to write transactions that say "increment existing value by 10" and "replace whatever list that might exist with this new list" consistently. It's just that you have to write this in a complete statement that you send off to the Datomic server, so that Datomic can put your transaction on a queue and run it when it's ready (previous writes have finished).</p>
+
+<p>Sending off a transaction like this is what makes writes so efficient. The Datomic server requires no coordination to perform writes, all it needs to do is to read the next transaction off of the queue and execute it.</p>
+
+
+<h2>Datomic treats the database as one huge immutable map</h2>
+
+<p>Or, well, not a <em>map</em>, it's actually a sorted set implemented as a persistent red-black tree traversed with a O(log n) binary search. And I'm actually not 100% sure about the red-black tree part. It's a proprietary database, so self taught programmers like myself have no chance of grokking the details completely.</p>
+
+<p>To run a query, you ask the Database connection "give me the current database". What you get back, is a single data structure, a "db", that represents your entire database, consistently, at a point in time.</p>
+
+<p>As mentioned, queries are executed on the client, not the server. This "entire database value" is of course lazy, backed by a LRU cache, so you only actually pull in the subset that you operate on.</p>
+
+
+
+<h2>Datomic has time travel built in</h2>
+
+<p>You can ask the database about its current value and get a immutable value back, representing the entire database.</p>
+
+<p>Then, you can say "give me the database as of &lt;timestamp&gt;". What you get back, is another immutable value, representing your entire database, <em>at a previous point in time</em>.</p>
+
+<p>This is one of those things that is so utterly sexy and useful and absolutely a killer feature that you'll end up loving so much you'll have problems using other databases.</p>
+
+<p>At no point can you say "damn, I wonder what actually happened yesterday at 22:30 when nobody was in the office". With Datomic, all you need to do is to ask "give me the database as of 22:30 yesterday". Zomg!</p>
+
+<p>I can't praise this feature enough. And honestly, it's difficult to explain how awesome it is until you've become familiar with it yourself. It's one of those things that seems <em>so</em> fundamental, and there's no going back.</p>
+
+<p>Wait, you actually <em>consistently delete data en masse from your customers database</em>? Are you <em>crazy</em>?</p>
+
+
+
+<h2>Datomic has "what if" for all database operations</h2>
+
+<p>As I've mentioned, a write is represented as a single operation that you ship off to the Datomic server.</p>
+
+<p>When you have one of those writes available, you can also ask Datomic for a database (the current one, or any previous version) and say "give me a database as if this transaction/write was applied".</p>
+
+<p>This is also kind of difficult to adequately communicate so that you'll grasp how completely awesome this is</p>
+
+<p>Since all your queries run against a "db", an immutable value representing your entire database, your codebase typically ends up having a lot of methods/functions that run their business logic by getting a "db" passed in.</p>
+
+<p>So let's say you have a method like that for generating a report, or maybe running some analytics and doing some number crunching.</p>
+
+<p>With Datomic, you can use <em>the exact same function</em> and run it against a "what if" database - it doesn't care if the database value is a "real" one from the Datomic server or a "what if" one generated locally!</p>
+
+
+
+
+<h2>Datomic lets you query the history of your database</h2>
+
+<p>I won't go into details, since this can get quite technical, but I've <a href="http://augustl.com/blog/2013/querying_datomic_for_history_of_entity/">written a separate article about this subject</a> which goes into detail how this works.</p>
+
+
+<h2>Datomic has actually invented very little from scratch</h2>
+
+<p>Covering indices are nothing new, you can do that with plain old SQL databases. VoltDB is also single threaded and has a similar queue based transaction API without round-trips. I haven't talked about Datomic's periodic merging and live merging of the transaction log, but that is borrowed from Google BigTable.</p>
+
+
+<h2>That's nice. So why the heck are so few people using Datomic?</h2>
+
+<p>I think there are a number of reasons.</p>
+
+<p>Datomic is a proprietary database. I've used it in production without paying a dime. There is a free version of Datomic and it works just fine for startups and smaller apps without a gazillion users. But developers generally find proprietary systems off-putting, so it has some difficulty in gaining traction because of that.</p>
+
+<p>Datomic is made by Cognitect, and I suspect that they want to stay small. I suspect that they have a few 100s of Datomic customers, and that's more than enough for them to make Datomic a sustainable business. It is actually possible for companies to <em>not</em> want to grow - I know, I'm an owner and stakeholder in such a company, <a href="http://kodemaker.no">Kodemaker</a> (in fact, all of us are owners and stakeholders, that's the model).</p>
+
+<p>But most importantly, I think: Datomic solves a lot of problems I didn't know I had, until I learned Datomic.</p>
+
+<p>I didn't learn Datomic because its promises of time travel or separation of reads and writes and what not. I learned Datomic because I was passionate about Clojure, and was pretty open to whatever Rich Hickey created. So I toyed with it, wrote some dummy stuff, and quickly began to love to hate other databases. A lot of the problems I had at work with our RDBMS actually weren't fundamental problems! And now, at least once or twice a week, I encounter a problem that Datomic would have solved at a fundamental level.</p>
+
+<p>I blogged some about Datomic a couple of years ago, and this post (i hope) marks the first of many blog posts about Datomic I'll write in 2016. I have no problems calling myself a Datomic evangelist. I would quite frankly like to see an open source alternative, or at least <em>one</em> other database similar to Datomic, and for now the best way of achieving that (short if making one) is to evangelize Datomic and make developers around the world aware of the problems you don't have to solve yourself.</p>
+
+<p>...</p>
+
+<p>Here's to an ACID future where databases are immutable values and time travel is for free!</p>
