@@ -2,7 +2,8 @@
   (:require [augusts-fancy-blog-post-parser.core :as post-parser]
             [augustl-com.atom-feed :as atom-feed]
             [hiccup.page :refer [html5]]
-            [optimus.assets :as assets]))
+            [optimus.assets :as assets]
+            clojure.edn))
 
 (def base-title "August Lilleaas' blog")
 
