@@ -83,7 +83,7 @@
         [:a {:href "/archive"} "All posts"]
         " <> "
         [:a {:href "/atom.xml"} "RSS"]]
-       [:form {:class "yyyyasdf" :method "GET" :action "/me.jpg"}
+       [:form {:class "yyyyasdf" :method "GET" :action "/letconstvar"}
         [:label "please"]
         [:input {:type "text" :placeholder "please"}]
         [:input {:type "submit" :value "please"}]])
@@ -144,7 +144,7 @@
     (merge
      {"/" (partial get-home-page listed-posts)
       "/about" get-about-page
-      "/me.jpg" get-me-jpg-page
+      "/letconstvar" get-me-jpg-page
       "/archive" (partial get-archive-page listed-posts)
       "/atom.xml" (partial atom-feed/get-atom-feed listed-posts base-title)}
      (into {} (map (fn [post] [(:url post) (fn [req] (layout-post post series listed-posts-by-series))]) posts))
