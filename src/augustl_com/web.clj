@@ -9,11 +9,11 @@
 
 (defn layout-page
   ([page] (layout-page page nil))
-  ([page {:keys [page-title atom-url] :as opts}]
+  ([page {:keys [page-title full-page-title atom-url] :as opts}]
      (html5
       [:head
        [:meta {:charset "utf-8"}]
-       [:title (if (nil? page-title) base-title (str page-title " (" base-title ")"))]
+       [:title (or full-page-title (if (nil? page-title) base-title (str page-title " (" base-title ")")))]
        [:link {:href "/stylesheets/screen.css" :media "screen" :rel "stylesheet" :type "text/css"}]
        [:link {:href (or atom-url "/atom.xml") :rel "alternate" :title base-title :type "application/atom+xml"}]]
       [:body
@@ -78,7 +78,8 @@
         (take 10 posts))
       [:hr]
       [:a {:href "/archive"} "All posts"]
-      " (" [:a {:href "/atom.xml"} "RSS"] ")")))
+      " (" [:a {:href "/atom.xml"} "RSS"] ")")
+    {:full-page-title "(1) August's blog"}))
 
 (defn get-archive-page
   [posts req]
