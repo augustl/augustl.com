@@ -20,6 +20,13 @@ h2 {
     margin-bottom: 10px;
 }
 
+a.take-me-home,
+a.take-me-home:visited {
+    color: #999;
+    font-size: 13px;
+    font-family: courier, monospace;
+}
+
 #article h2 {
     margin-top: 40px;
 }
@@ -28,14 +35,6 @@ h3 {
     font-size: 16px;
     margin-top: 40px;
     margin-bottom: 10px;
-}
-
-.site-header {
-    background-color: #333;
-    color: #fff;
-    padding: 10px 0;
-    font-weight: bold;
-    font-size: 18px;
 }
 
 ul.inline-list {

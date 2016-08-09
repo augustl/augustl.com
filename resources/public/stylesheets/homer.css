@@ -1,0 +1,37 @@
+.wwwf {
+    font-size: 100px;
+    font-family: Helvetica;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    margin-bottom: 25px;
+}
+
+.nfnfnfnfnf {
+    margin: 50px;
+}
+
+.nfnfnfnfnf a {
+    color: red;
+    font-weight: bold;
+    font-family: courier;
+    font-weight: bold;
+    text-decoration: none;
+    border: outset;
+    padding: 5px;
+}
+
+.ffffff {
+    color: #ccc;
+    text-transform: uppercase;
+    margin-bottom: 50px;
+}
+
+.ffffff a {
+    color: #000;
+    text-decoration: none;
+    font-size: 25px;
+}
+

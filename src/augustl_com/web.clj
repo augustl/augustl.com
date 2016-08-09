@@ -7,23 +7,18 @@
 
 (def base-title "August Lilleaas' blog")
 
-(defn layout-page
-  ([page] (layout-page page nil))
-  ([page {:keys [page-title full-page-title atom-url] :as opts}]
+(defn layout-postish-page
+  ([page] (layout-postish-page page nil))
+  ([page {:keys [page-title atom-url] :as opts}]
      (html5
       [:head
        [:meta {:charset "utf-8"}]
-       [:title (or full-page-title (if (nil? page-title) base-title (str page-title " (" base-title ")")))]
+       [:title (if (nil? page-title) base-title (str page-title " (" base-title ")"))]
        [:link {:href "/stylesheets/screen.css" :media "screen" :rel "stylesheet" :type "text/css"}]
        [:link {:href (or atom-url "/atom.xml") :rel "alternate" :title base-title :type "application/atom+xml"}]]
       [:body
-       [:div {:class "site-header"}
-        [:div {:class "site-content"}
-         [:ul {:class "inline-list"}
-          [:li base-title]
-          [:li [:a {:href "/"} "Home"]]
-          [:li [:a {:href "/about"} "About me"]]
-          [:li [:small [:a {:href "https://github.com/augustl/augustl.com"} "Blog source code"]]]]]]
+       [:div {:class "site-content"}
+        [:p [:a {:href "/" :class "take-me-home"} "Take me home"]]]
        [:div {:class "site-content site-content-main"} page]])))
 
 (defn get-series [series-name series posts-by-series]
@@ -33,7 +28,7 @@
 
 (defn layout-post
   [post series posts-by-series]
-  (layout-page
+  (layout-postish-page
    [:div {:id "article" :class "article"}
     [:h1 (get-in post [:headers :title])]
     [:p {:class "timestamp"} "Published " (:pretty-date post)]
@@ -51,7 +46,7 @@
 
 (defn layout-series-overview [a-series name listed-posts-by-seriess]
   (let [atom-url (str "/atom/series/" name ".xml")]
-    (layout-page
+    (layout-postish-page
       [:div
        [:h2 (str "Series: " (:title a-series))]
        [:p (:description a-series)]
@@ -68,22 +63,31 @@
 
 (defn get-home-page
   [posts req]
-  (layout-page
-    (list
-      [:h2 "Latest 10 posts"]
-      (map
-        (fn [post] [:p
-                    [:a {:href (:url post)} (get-in post [:headers :title])]
-                    (str " (" (:pretty-date post) ")")])
-        (take 10 posts))
-      [:hr]
-      [:a {:href "/archive"} "All posts"]
-      " (" [:a {:href "/atom.xml"} "RSS"] ")")
-    {:full-page-title "(1) August's blog"}))
+  (html5
+    [:head
+     [:meta {:charset "utf-8"}]
+     [:title "(1) August Lilleaas"]
+     [:meta {:content "width=device-width, initial-scale=1.0" :name "viewport"}]
+     [:link {:href "/stylesheets/homer.css" :media "screen" :rel "stylesheet" :type "text/css"}]
+     [:link {:href "/atom.xml" :rel "alternate" :title base-title :type "application/atom+xml"}]]
+    [:body
+     (list
+       [:p {:class "wwwf"} "ME ME ME ME ME"]
+       [:p {:class "nfnfnfnfnf"} [:a {:href "/about"} "<> <>"]]
+       (map
+         (fn [post] [:p.ffffff
+                     [:a {:href (:url post)} (get-in post [:headers :title])]
+                     (str " (" (:pretty-date post) ")")])
+         (take 10 posts))
+       [:div {:class "ffffff"}
+        [:a {:href "/archive"} "All posts"]
+        " <> "
+        [:a {:href "/atom.xml"} "RSS"]])
+     ]))
 
 (defn get-archive-page
   [posts req]
-  (layout-page
+  (layout-postish-page
    (list
     [:h1 "Archive"]
     (map
@@ -98,11 +102,18 @@
 
 (defn get-about-page
   [req]
-  (layout-page
-   (list
-    [:h1 "Who am I?"]
-    [:p "I'm August Lilleaas. I " [:a {:href "http://kodemaker.no"} "work for Kodemaker"] " as a contracting programmer. I live in Eidsvoll, Norway, with my wife, a cat, and my daughter."]
-    [:p "I'm on Twitter as " [:a {:href "http://twitter.com/augustl"} "@augustl"] ", my e-mail is " [:a {:href "mailto:august@augustl.com"} "august@augustl.com"] " and I have some stuff on " [:a {:href "http://github.com/augustl"} "Github"] "."])))
+  (html5
+    [:head
+     [:meta {:charset "utf-8"}]
+     [:title "(2) August Lilleaaaaaaaaaaaa;;;;;;"]
+     [:meta {:content "width=device-width, initial-scale=1.0" :name "viewport"}]
+     [:link {:href "/stylesheets/dddddddddddd.css" :media "screen" :rel "stylesheet" :type "text/css"}]
+     [:link {:href "/atom.xml" :rel "alternate" :title base-title :type "application/atom+xml"}]]
+    [:body
+     (list
+       [:p "me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me me "]
+       [:p "me.jpg"]
+       [:p "don't forget to like on facebook"])]))
 
 (defn get-assets
   []
