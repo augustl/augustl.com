@@ -82,7 +82,11 @@
        [:div {:class "ffffff"}
         [:a {:href "/archive"} "All posts"]
         " <> "
-        [:a {:href "/atom.xml"} "RSS"]])
+        [:a {:href "/atom.xml"} "RSS"]]
+       [:form {:class "yyyyasdf" :method "GET" :action "/me.jpg"}
+        [:label "please"]
+        [:input {:type "text" :placeholder "please"}]
+        [:input {:type "submit" :value "please"}]])
      ]))
 
 (defn get-archive-page
@@ -115,6 +119,18 @@
        [:p "me.jpg"]
        [:p "don't forget to like on facebook"])]))
 
+(defn get-me-jpg-page
+  [req]
+  (html5
+    [:head
+     [:meta {:charset "utf-8"}]
+     [:title "(17) August August August August"]
+     [:meta {:content "width=device-width, initial-scale=1.0" :name "viewport"}]
+     [:link {:href "/atom.xml" :rel "alternate" :title base-title :type "application/atom+xml"}]]
+    [:body
+     (list
+       [:p "Terms of service"])]))
+
 (defn get-assets
   []
   (assets/load-assets "public" [#".*"]))
@@ -128,6 +144,7 @@
     (merge
      {"/" (partial get-home-page listed-posts)
       "/about" get-about-page
+      "/me.jpg" get-me-jpg-page
       "/archive" (partial get-archive-page listed-posts)
       "/atom.xml" (partial atom-feed/get-atom-feed listed-posts base-title)}
      (into {} (map (fn [post] [(:url post) (fn [req] (layout-post post series listed-posts-by-series))]) posts))

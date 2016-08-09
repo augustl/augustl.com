@@ -35,3 +35,7 @@
     font-size: 25px;
 }
 
+.yyyyasdf label {
+    display: block;
+    font-weight: bold;
+}
