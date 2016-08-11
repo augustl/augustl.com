@@ -1,3 +1,8 @@
+body {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
 .wwwf {
     font-size: 100px;
     font-family: Helvetica;
