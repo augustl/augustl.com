@@ -3,7 +3,8 @@
             [augustl-com.atom-feed :as atom-feed]
             [hiccup.page :refer [html5]]
             [optimus.assets :as assets]
-            clojure.edn))
+            clojure.edn)
+  (:import [org.pegdown PegDownProcessor]))
 
 (def base-title "August Lilleaas' blog")
 
@@ -26,6 +27,12 @@
     [:div.series
      "This post is part of a series: " [:a {:href (str "/series/" series-name)} (:title a-series)]]))
 
+(defmulti get-post-body :extension)
+(defmethod get-post-body "md" [post]
+  (.markdownToHtml (PegDownProcessor.) ((:get-body post))))
+(defmethod get-post-body :default [post]
+  ((:get-body post)))
+
 (defn layout-post
   [post series posts-by-series]
   (layout-postish-page
@@ -33,7 +40,7 @@
     [:h1 (get-in post [:headers :title])]
     [:p {:class "timestamp"} "Published " (:pretty-date post)]
     (get-series (get-in post [:headers :series]) series posts-by-series)
-    ((:get-body post))
+    (get-post-body post)
     [:hr {:class "post-sep"}]
     [:p "Questions or comments?"]
     [:p
@@ -135,9 +142,20 @@
   []
   (assets/load-assets "public" [#".*"]))
 
+(defn get-file-extension [file]
+  (let [name (.getName file)]
+    (.substring name (+ 1 (.lastIndexOf name ".")))))
+
+(defn get-posts [dir]
+  (let [dir (clojure.java.io/as-file dir)]
+    (->> (file-seq dir)
+         (filter #(.isFile %))
+         (map #(assoc (post-parser/parse dir %) :extension (get-file-extension %)))
+         (sort-by #(get-in % [:headers :date]) #(.compareTo %2 %1)))))
+
 (defn get-pages
   []
-  (let [posts (post-parser/get-posts "posts")
+  (let [posts (get-posts "posts")
         listed-posts (remove #(contains? (:headers %) :unlisted) posts)
         series (-> "series.edn" clojure.java.io/resource slurp clojure.edn/read-string)
         listed-posts-by-series (group-by #(get-in % [:headers :series]) listed-posts)]
@@ -147,7 +165,7 @@
       "/letconstvar" get-me-jpg-page
       "/archive" (partial get-archive-page listed-posts)
       "/atom.xml" (partial atom-feed/get-atom-feed listed-posts base-title)}
-     (into {} (map (fn [post] [(:url post) (fn [req] (layout-post post series listed-posts-by-series))]) posts))
+     (into {} (map (fn [post] [(:url post) (fn [req] (prn (keys post)) (layout-post post series listed-posts-by-series))]) posts))
      (into {} (map (fn  [[name a-series]]
                      [(str "/series/" name)
                       (fn [req] (layout-series-overview a-series name listed-posts-by-series))])

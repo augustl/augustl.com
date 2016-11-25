@@ -12,7 +12,8 @@
                  [optimus "0.14.2"]
                  [org.clojure/tools.nrepl "0.2.2"]
                  [augusts-fancy-blog-post-parser "0.1.0"]
-                 [com.stuartsierra/component "0.2.3"]]
+                 [com.stuartsierra/component "0.2.3"]
+                 [org.pegdown/pegdown "1.6.0"]]
   :aliases {"export" ["run" "-m" "augustl-com.cli/export" "dist"]}
   :profiles
   {:dev {:source-paths ["dev"]
