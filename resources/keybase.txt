@@ -1,0 +1,54 @@
+==================================================================
+https://keybase.io/augustl
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://augustl.com
+  * I am augustl (https://keybase.io/augustl) on keybase.
+  * I have a public key ASDqfYwabacKxl9p01mjkV3ZlWGcUAfd3MZ_3FO4gzD9fwo
+
+To do so, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "eldest_kid": "0101337e85b92a1c3485207e94ea8090e110f72ff420c5932b01a0ac9b96bc0332ae0a",
+            "host": "keybase.io",
+            "kid": "0120ea7d8c1a6da70ac65f69d359a3915dd995619c5007dddcc67fdc53b88330fd7f0a",
+            "uid": "9c79239cff1fb81dab6586e12f076919",
+            "username": "augustl"
+        },
+        "service": {
+            "hostname": "augustl.com",
+            "protocol": "http:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "client": {
+        "name": "keybase.io go client",
+        "version": "1.0.18"
+    },
+    "ctime": 1480277477,
+    "expire_in": 504576000,
+    "merkle_root": {
+        "ctime": 1480277465,
+        "hash": "ce7c8e9917acd75f234ca73dc741ffe505b4301c7b2d71a87be626c1be7fe3a86412e3e8e61d03e015e0f6e931b3882ac67f4c409c12d0b06a5dc43022d76196",
+        "seqno": 737142
+    },
+    "prev": "0f78a8542c340464c3deb2f0db4e9788b3568c085bf14d60983274c7b74efd63",
+    "seqno": 26,
+    "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEg6n2MGm2nCsZfadNZo5Fd2ZVhnFAH3dzGf9xTuIMw/X8Kp3BheWxvYWTFAvJ7ImJvZHkiOnsia2V5Ijp7ImVsZGVzdF9raWQiOiIwMTAxMzM3ZTg1YjkyYTFjMzQ4NTIwN2U5NGVhODA5MGUxMTBmNzJmZjQyMGM1OTMyYjAxYTBhYzliOTZiYzAzMzJhZTBhIiwiaG9zdCI6ImtleWJhc2UuaW8iLCJraWQiOiIwMTIwZWE3ZDhjMWE2ZGE3MGFjNjVmNjlkMzU5YTM5MTVkZDk5NTYxOWM1MDA3ZGRkY2M2N2ZkYzUzYjg4MzMwZmQ3ZjBhIiwidWlkIjoiOWM3OTIzOWNmZjFmYjgxZGFiNjU4NmUxMmYwNzY5MTkiLCJ1c2VybmFtZSI6ImF1Z3VzdGwifSwic2VydmljZSI6eyJob3N0bmFtZSI6ImF1Z3VzdGwuY29tIiwicHJvdG9jb2wiOiJodHRwOiJ9LCJ0eXBlIjoid2ViX3NlcnZpY2VfYmluZGluZyIsInZlcnNpb24iOjF9LCJjbGllbnQiOnsibmFtZSI6ImtleWJhc2UuaW8gZ28gY2xpZW50IiwidmVyc2lvbiI6IjEuMC4xOCJ9LCJjdGltZSI6MTQ4MDI3NzQ3NywiZXhwaXJlX2luIjo1MDQ1NzYwMDAsIm1lcmtsZV9yb290Ijp7ImN0aW1lIjoxNDgwMjc3NDY1LCJoYXNoIjoiY2U3YzhlOTkxN2FjZDc1ZjIzNGNhNzNkYzc0MWZmZTUwNWI0MzAxYzdiMmQ3MWE4N2JlNjI2YzFiZTdmZTNhODY0MTJlM2U4ZTYxZDAzZTAxNWUwZjZlOTMxYjM4ODJhYzY3ZjRjNDA5YzEyZDBiMDZhNWRjNDMwMjJkNzYxOTYiLCJzZXFubyI6NzM3MTQyfSwicHJldiI6IjBmNzhhODU0MmMzNDA0NjRjM2RlYjJmMGRiNGU5Nzg4YjM1NjhjMDg1YmYxNGQ2MDk4MzI3NGM3Yjc0ZWZkNjMiLCJzZXFubyI6MjYsInRhZyI6InNpZ25hdHVyZSJ9o3NpZ8RAh2cEMNAH6zax4aedCvBLQ2y8ByfaEtuQRCyKLUpUlEwAqrc+wh7GSJuAFjfJ0rjBDIf+4cLAH8G3txS8c6XXD6hzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIEXMnGnQHSOmW8+WxXi76ZcNoQvHzq7zhugCZ1ckADflo3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/augustl
+
+==================================================================
