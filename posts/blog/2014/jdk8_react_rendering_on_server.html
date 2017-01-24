@@ -47,13 +47,14 @@ title: JDK8 + Facebook React: Rendering single page apps on the server
 <pre><code data-lang="clojure">
 (.eval nashorn "var global = this") ;; React expects 'window' or 'global' to be set
 (.eval nashorn (clojure.java.io/reader (java.io.File. "path/to/react.js")))
-(.eval nashorn "var MyComponent = React.createClass({
+(.eval nashorn (clojure.java.io/reader (java.io.File. "path/to/react-dom.js")))
+(.eval nashorn "var MyComponent = React.createFactory(React.createClass({
   render: function () {
     return React.DOM.h1(null, 'Hi, ' + this.props.msg)
   }
-})")
-(.eval nashorn "React.renderComponentToString(MyComponent({msg: 'World!'}))")
-; <h1 data-reactid=".12pv6hptgez" data-react-checksum="-1534324670">Hi, World!</h1>
+}))")
+(.eval nashorn "ReactDOMServer.renderToString(MyComponent({msg: 'World!'}))")
+; <h1 data-reactroot="" data-reactid="1" data-react-checksum="-359329492">Hi, World!</h1>
 </code></pre>
 
 <p>And just like that, we executed code for a single page web app in our backend, without any hassle at all.</p>
@@ -82,8 +83,8 @@ title: JDK8 + Facebook React: Rendering single page apps on the server
 
 <pre><code data-lang="js">var app = {};
 
-var HomePageComponent = React.createClass({...});
-var PersonShowComponent = React.createClass({...});
+var HomePageComponent = React.createFactory(React.createClass({...}));
+var PersonShowComponent = React.createFactory(React.createClass({...}));
 
 app.router = sillyRouter.create([
   {path: /^\/$/,
@@ -109,8 +110,8 @@ function renderUrl(url) {
     var match = app.router.match(url);
     if (match) {
         fetchDataFromUrls(match.urls, function (props) {
-            React.renderComponent(match.get(props),
-                                  document.getElementById("app"));
+            ReactDOM.render(match.get(props),
+                            document.getElementById("app"));
         });
     } else {
         renderNotFound();
@@ -144,7 +145,7 @@ function renderUrl(url) {
     var match = app.router.match(url);
     if (match) {
         var props = apiFetcher.resolveUrls(match.urls);
-        return React.renderComponentToString(match.get(props));
+        return ReactDOMServer.renderToString(match.get(props));
     }
 }
 </code></pre>
@@ -165,7 +166,7 @@ function renderUrl(url) {
 <p>What the heck is <code>app.onLocationChangeRequested</code>? It's what our React components invoke when they want to change pages. We also make sure that our React components has normal anchor tags with normal hrefs on them, so they work fine without JS.</p>
 
 <pre><code data-lang="js">
-var PersonLinkComponent = React.createClass({
+var PersonLinkComponent = React.createFactory(React.createClass({
     gotoPerson: function (e) {
         e.preventDefault();
         app.onLocationChangeRequested(this.getPath());
@@ -178,9 +179,9 @@ var PersonLinkComponent = React.createClass({
             {onClick: this.gotoPerson, href: this.getPath()},
             "Go to person " + this.props.person.name);
     }
-});
+}));
 
-var HomePageComponent = React.createClass({
+var HomePageComponent = React.createFactory(React.createClass({
     render: function () {
         return React.DOM.div(
             null,
@@ -189,7 +190,7 @@ var HomePageComponent = React.createClass({
                 return React.DOM.p({key: p.id}, PersonLinkComponent({person: p}))
             }));
     }
-});
+}));
 </code></pre>
 
 <p>So in the browser, HTML5 pushState changes the URL and causes the JS routing to be invoked, as we saw earlier. But on the server, we don't generate a DOM, we just get HTML. So none of the onClick stuff is passed on. We just get a plain anchor tag with a href. And what's interesting here, is that if we disable JS alltogether, our app will still work! We share the routing between the server and browser, so when no JS intercepts the click, the URL loads good ol' browser style, and our backend is invoked and loads the React component for that URL. Splendid!</p>
