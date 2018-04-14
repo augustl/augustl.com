@@ -1,5 +1,6 @@
 (ns augustl-com.atom-feed
-  (:require hiccup.core)
+  (:require hiccup.core
+            [augustl-com.util :as util])
   (:import [org.joda.time.format ISODateTimeFormat]))
 
 (defn post-date-to-atom-date
@@ -25,5 +26,5 @@
          [:author [:name "August Lilleaas"]]
          [:link {:href (str "http://augustl.com" (:url post))}]
          [:id (str "urn:augustl-com:feed:post:" (:id post))]
-         [:content {:type "html"} (hiccup.core/h ((:get-body post)))]])
+         [:content {:type "html"} (hiccup.core/h (util/get-post-body post))]])
       (take 20 posts))])))

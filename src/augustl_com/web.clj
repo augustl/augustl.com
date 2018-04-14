@@ -1,6 +1,7 @@
 (ns augustl-com.web
   (:require [augusts-fancy-blog-post-parser.core :as post-parser]
             [augustl-com.atom-feed :as atom-feed]
+            [augustl-com.util :as util]
             [hiccup.page :refer [html5]]
             [optimus.assets :as assets]
             clojure.edn)
@@ -27,12 +28,6 @@
     [:div.series
      "This post is part of a series: " [:a {:href (str "/series/" series-name)} (:title a-series)]]))
 
-(defmulti get-post-body :extension)
-(defmethod get-post-body "md" [post]
-  (.markdownToHtml (PegDownProcessor.) ((:get-body post))))
-(defmethod get-post-body :default [post]
-  ((:get-body post)))
-
 (defn layout-post
   [post series posts-by-series]
   (layout-postish-page
@@ -40,7 +35,7 @@
     [:h1 (get-in post [:headers :title])]
     [:p {:class "timestamp"} "Published " (:pretty-date post)]
     (get-series (get-in post [:headers :series]) series posts-by-series)
-    (get-post-body post)
+    (util/get-post-body post)
     [:hr {:class "post-sep"}]
     [:p "Questions or comments?"]
     [:p
