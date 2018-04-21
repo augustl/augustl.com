@@ -16,6 +16,7 @@
       [:head
        [:meta {:charset "utf-8"}]
        [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+       [:link {:rel "icon" :href "/favicon.ico"}]
        [:title (if (nil? page-title) base-title (str page-title " (" base-title ")"))]
        [:link {:href "/stylesheets/screen.css" :media "screen" :rel "stylesheet" :type "text/css"}]
        [:link {:href (or atom-url "/atom.xml") :rel "alternate" :title base-title :type "application/atom+xml"}]
