@@ -2,6 +2,14 @@ date: 2018.04.20
 title: Datomic: Look at all the things I'm not doing!
 series: datomic
 
+---
+
+UPDATE: This post has a follow-up: [http://augustl.com/blog/2018/datomic_look_at_all_the_things_i_am_not_doing_cont/](http://augustl.com/blog/2018/datomic_look_at_all_the_things_i_am_not_doing_cont/)
+
+Original post follows.
+
+---
+
 This is the video that got me into programming:
 
 <small><em>(This embed should take you directly to 01:52, where it's all at)</em></small>
@@ -146,3 +154,9 @@ There's also a concept borrowed from Google's Big Table. The indices in Datomic 
 In my experience, Datomic is indistinguishable from magic, in a good way. It's one level of abstraction above traditional databases, but manages to hide those abstractions since you at no point worry about postgres or zookeeper internals when you make use of Datomic on top of the existing storage engines. You get a whole lot of stuff for free, without Datomic getting in your way.
 
 And to me, the most important point is all of the things you're _not_ doing and all of the decisions you are _not_ making up front, but rather in an agile fashion as your application grows.
+
+## Update: even more things I'm not doing
+
+I wrote a follow-up, with even more things I'm not doing:
+
+[http://augustl.com/blog/2018/datomic_look_at_all_the_things_i_am_not_doing_cont/](http://augustl.com/blog/2018/datomic_look_at_all_the_things_i_am_not_doing_cont/)
