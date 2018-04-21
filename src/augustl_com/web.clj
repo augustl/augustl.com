@@ -11,13 +11,23 @@
 
 (defn layout-postish-page
   ([page] (layout-postish-page page nil))
-  ([page {:keys [page-title atom-url] :as opts}]
+  ([page {:keys [page-title atom-url og-title og-url og-description] :as opts}]
      (html5
       [:head
        [:meta {:charset "utf-8"}]
+       [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
        [:title (if (nil? page-title) base-title (str page-title " (" base-title ")"))]
        [:link {:href "/stylesheets/screen.css" :media "screen" :rel "stylesheet" :type "text/css"}]
-       [:link {:href (or atom-url "/atom.xml") :rel "alternate" :title base-title :type "application/atom+xml"}]]
+       [:link {:href (or atom-url "/atom.xml") :rel "alternate" :title base-title :type "application/atom+xml"}]
+       (when og-title
+         (list [:meta {:property "og:title" :content og-title}]
+               [:meta {:name "twitter:card" :content "summary"}]
+               [:meta {:name "twitter:title" :content og-title}]))
+       (when og-title
+         (list [:meta {:property "og:description" :content og-description}]
+               [:meta {:name "twitter:description" :content og-description}]))
+       (when og-url
+         (list [:meta {:property "og:url" :content og-url}]))]
       [:body
        [:div {:class "site-content"}
         [:p [:a {:href "/" :class "take-me-home"} "Take me home"]]]
@@ -44,7 +54,10 @@
      ", or e-mail me at "
      [:a {:href "mailto:august@augustl.com"} "august@augustl.com"]
      "."]]
-   {:page-title (get-in post [:headers :title])}))
+   {:page-title (get-in post [:headers :title])
+    :og-title (get-in post [:headers :title])
+    :og-url (:url post)
+    :og-description "The CRUD blog"}))
 
 (defn layout-series-overview [a-series name listed-posts-by-seriess]
   (let [atom-url (str "/atom/series/" name ".xml")]
