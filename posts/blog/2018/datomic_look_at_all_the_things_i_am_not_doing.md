@@ -107,7 +107,7 @@ Answer: An absence of hand written views.
 
 With event sourcing, you have raw data in your stream of events. This data is useless until you create a view of it. A view is typically a left fold reducing function that gets the previous state and the next event in the list passed to it, and returns a new and updated state.
 
-<p><img width="600" src="/static/posts/datomic_look_at_all_the_things_i_am_not_doing/event_sourcing.PNG"></p>
+<p><img width="600" src="/static/posts/datomic_look_at_all_the_things_i_am_not_doing/event_sourcing.jpg"></p>
 
 This means that you have to decide which views you want to have. And that if there's a bug in your view code, you have to traverse the entire time-line again to build up the state.
 
@@ -117,7 +117,7 @@ _You don't have to decide what your views are up-front_
 
 So, essentially: **Look at all the up front decisions I'm not making about which views to have**.
 
-<p><img width="600" src="/static/posts/datomic_look_at_all_the_things_i_am_not_doing/event_sourcing_datomic.PNG"></p>
+<p><img width="600" src="/static/posts/datomic_look_at_all_the_things_i_am_not_doing/event_sourcing_datomic.jpg"></p>
 
 
 Again, Datomic provides us with extreme agility. Because the data we write is completely flat, but is _not_ arbitrary data but a well known structure (facts), and Datomic have generic indices to query these facts, and because Datomic keeps these indices up to date when we add data to our system, you get the benefits of event sourcing (time travel, a consistent time-line, all your historical data easily traversable), without having to worry about creating views for your data. The views are already there, in form of Datomic's query engine, its built-in time travel features, and efficient indices of historical data.
