@@ -2,13 +2,11 @@ date: 2018.04.20
 title: Datomic: Look at all the things I'm not doing!
 series: datomic
 
----
+<div class="update">
+<p>UPDATE: This post has a follow-up: <a href="http://augustl.com/blog/2018/datomic_look_at_all_the_things_i_am_not_doing_cont/">http://augustl.com/blog/2018/datomic_look_at_all_the_things_i_am_not_doing_cont/</a></p>
 
-UPDATE: This post has a follow-up: [http://augustl.com/blog/2018/datomic_look_at_all_the_things_i_am_not_doing_cont/](http://augustl.com/blog/2018/datomic_look_at_all_the_things_i_am_not_doing_cont/)
-
-Original post follows.
-
----
+<p>Original post follows.</p>
+</div>
 
 This is the video that got me into programming:
 

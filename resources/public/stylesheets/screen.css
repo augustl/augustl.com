@@ -144,6 +144,18 @@ a:visited {
     color: #e60000;
 }
 
+.update {
+    background: #f7f7f7;
+    color: #999;
+    padding: 1em;
+    margin-bottom: 2em;
+    font-size: 14px;
+}
+
+#article .update p:last-child {
+    margin: 0;
+}
+
 .blog_post_archive_year {
     font-size: 20px;
     margin: 10px 0;
