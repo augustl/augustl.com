@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: Georgia, serif;
-    font-size: 15px;
+    font-size: 18px;
 }
 
 h1, h2, h3 {
@@ -55,8 +55,15 @@ ul.inline-list small {
 }
 
 .site-content {
-    width: 700px;
+    padding: 0 20px;
     margin: 0 auto;
+}
+
+
+@media only screen and (min-width: 1000px) {
+    .site-content {
+        max-width: 700px;
+    }
 }
 
 .site-content-main {
@@ -145,6 +152,13 @@ a:visited {
 
 pre, code {
     font-family: "Inconsolata", "Monaco", "Lucida Console", monospace;
+    font-size: 12px;
+}
+
+@media only screen and (min-width: 1000px) {
+    pre, code {
+        font-size: 14px;
+    }
 }
 
 code, tt {
@@ -162,8 +176,14 @@ pre, p code, ul code, ol code, pre code {
 pre {
     border:dashed #ddd;
     border-width: 1px 0;
-    padding: 1em;
+    padding: .25em;
     overflow: hidden;
+}
+
+@media only screen and (min-width: 1000px) {
+    pre {
+        padding: 1em;
+    }
 }
 
 pre:hover {
