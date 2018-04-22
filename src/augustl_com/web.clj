@@ -118,7 +118,10 @@
          (fn [post]
            [:p [:a {:href (:url post)} (get-in post [:headers :title])] " (" (:pretty-date post) ")"])
          posts)))
-     (group-by #(-> % :headers :date (.getYear)) posts)))))
+     (->> posts
+          (group-by #(-> % :headers :date (.getYear)))
+          (sort-by (fn [[year posts]] year))
+          (reverse))))))
 
 (defn get-about-page
   [req]
