@@ -86,7 +86,7 @@ Internally, the query engine works on two data structures: The index trees, and 
 
 Datomic calls this a "live merge", and it's borrowed from Google's Bigtable. It can't just merge new data into the index trees immediately, because that merge is an expensive operation and it would dramatically lower write throughput.
 
-Thankfully, it has been foudn that it's very efficient to do a "live" combination of the latest version of the index trees, and the raw transaction data that has not yet been merged into the tree. This is partly because the amount of data in the unmerged log is relatively low, since it _is_ merged in, only periodically, not immediately after the transaction commits.
+Thankfully, it has been found that it's very efficient to do a "live" combination of the latest version of the index trees, and the raw transaction data that has not yet been merged into the tree. This is partly because the amount of data in the unmerged log is relatively low, since it _is_ merged in, only periodically, not immediately after the transaction commits.
 
 (Note: Obviously, the transaction log is persisted to disk as well, alongside the index trees.)
 
