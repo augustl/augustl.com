@@ -9,7 +9,7 @@
                  [ring/ring-jetty-adapter "1.7.0"]
                  [joda-time "2.10"]
                  [hiccup "1.0.5"]
-                 [optimus "0.14.2"]
+                 [optimus "0.20.1"]
                  [org.clojure/tools.nrepl "0.2.13"]
                  [augusts-fancy-blog-post-parser "0.1.0"]
                  [com.stuartsierra/component "0.3.2"]
