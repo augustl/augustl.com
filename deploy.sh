@@ -1,3 +1,3 @@
 lein export
 cp resources/keybase.txt dist/keybase.txt
-rsync -zvr --delete dist/ augustl.com:www/augustl.com/
+aws s3 sync dist/ s3://augustl-com-static-web/ --delete
