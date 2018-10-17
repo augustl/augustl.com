@@ -4,7 +4,7 @@
   :license {:name "BSD 2 Clause"
             :url "http://opensource.org/licenses/BSD-2-Clause"}
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [stasis "1.0.0"]
+                 [stasis "2.3.0"]
                  [ring "1.2.1"]
                  [ring/ring-jetty-adapter "1.2.1"]
                  [joda-time "2.3"]

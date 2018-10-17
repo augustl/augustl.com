@@ -173,13 +173,13 @@
         listed-posts-by-series (group-by #(get-in % [:headers :series]) listed-posts)]
     (merge
      {"/" (partial get-home-page listed-posts)
-      "/about" get-about-page
-      "/letconstvar" get-me-jpg-page
-      "/archive" (partial get-archive-page listed-posts)
+      "/about/" get-about-page
+      "/letconstvar/" get-me-jpg-page
+      "/archive/" (partial get-archive-page listed-posts)
       "/atom.xml" (partial atom-feed/get-atom-feed listed-posts base-title)}
-     (into {} (map (fn [post] [(:url post) (fn [req] (layout-post post series listed-posts-by-series))]) posts))
+     (into {} (map (fn [post] [(str (:url post) "/") (fn [req] (layout-post post series listed-posts-by-series))]) posts))
      (into {} (map (fn  [[name a-series]]
-                     [(str "/series/" name)
+                     [(str "/series/" name "/")
                       (fn [req] (layout-series-overview a-series name listed-posts-by-series))])
                    series))
      (into {} (map (fn  [[name a-series]]
