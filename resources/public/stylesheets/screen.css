@@ -146,10 +146,9 @@ a:visited {
 
 .update {
     background: #f7f7f7;
-    color: #999;
     padding: 1em;
     margin-bottom: 2em;
-    font-size: 14px;
+    font-size: 18px;
 }
 
 #article .update p:last-child {
