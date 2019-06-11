@@ -1,7 +1,6 @@
 date: 2019.06.11
 title: Datomic: Querying for the history of an entity (v2)
 series: datomic
-unlisted: true
 
 This is the updated and rewritten version of an [old classic](https://augustl.com/blog/2013/querying_datomic_for_history_of_entity/).
 
