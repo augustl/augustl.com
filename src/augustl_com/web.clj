@@ -19,6 +19,7 @@
        [:link {:rel "icon" :href "/favicon.ico"}]
        [:title (if (nil? page-title) base-title (str page-title " (" base-title ")"))]
        [:link {:href "/stylesheets/screen.css" :media "screen" :rel "stylesheet" :type "text/css"}]
+       [:link {:href "/stylesheets/dark-mode.css" :media "screen" :rel "stylesheet" :type "text/css"}]
        [:link {:href (or atom-url "/atom.xml") :rel "alternate" :title base-title :type "application/atom+xml"}]
        (when og-title
          (list [:meta {:property "og:title" :content og-title}]
@@ -85,6 +86,7 @@
      [:title "(1) August Lilleaas"]
      [:meta {:content "width=device-width, initial-scale=1.0" :name "viewport"}]
      [:link {:href "/stylesheets/homer.css" :media "screen" :rel "stylesheet" :type "text/css"}]
+     [:link {:href "/stylesheets/dark-mode.css" :media "screen" :rel "stylesheet" :type "text/css"}]
      [:link {:href "/atom.xml" :rel "alternate" :title base-title :type "application/atom+xml"}]]
     [:body
      (list

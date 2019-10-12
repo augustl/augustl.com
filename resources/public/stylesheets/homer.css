@@ -34,7 +34,7 @@ body {
     margin-bottom: 50px;
 }
 
-.ffffff a {
+.ffffff a, .ffffff a:visited {
     color: #000;
     text-decoration: none;
     font-size: 25px;

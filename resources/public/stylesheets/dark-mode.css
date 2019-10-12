@@ -1,0 +1,74 @@
+@media (prefers-color-scheme: dark) {
+    img {
+        filter: grayscale(0.2) saturate(0.5);
+    }
+
+    img:hover, img:active {
+        filter: none;
+    }
+
+
+    body {
+        background-color: #222;
+        color: #ccc;
+    }
+
+    a, .ffffff a {
+        color: #883;
+    }
+
+    a:visited, .ffffff a:visited  {
+        color: #661;
+    }
+
+    h1, h2, h3 {
+        color: #fff;
+    }
+
+    blockquote {
+        color: #999;
+        border-color: #444;
+    }
+
+    .series {
+        background: #303000;
+    }
+
+    .update {
+        background: #303000;
+    }
+
+    pre {
+        border-color: #444;
+    }
+
+    pre, p code, ul code, ol code, pre code {
+        background-color: #1a1a1a;
+    }
+
+    hr {
+        border-color: #444
+    }
+
+    #article dl {
+        border-color: #444;
+        background: #333;
+    }
+    #article dl dt,
+    #article dl dd {
+        border-color: #444;
+    }
+
+    .ffffff {
+        color: #666;
+    }
+
+    .original-post-fade {
+        background: linear-gradient(rgba(34, 34, 34, 0), rgba(34, 34, 34, 1))
+    }
+
+    .original-post-button-link {
+        background: #333;
+        border-color: #444;
+    }
+}

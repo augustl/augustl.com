@@ -343,3 +343,34 @@ blockquote {
 .highlight .ss { /* Strings, keywords */
     color: #369;
 }
+
+
+.original-post-fade {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    height: 200px;
+    width: 100%;
+    background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 1))
+}
+
+.original-post-button {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.original-post-wrapper {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center
+}
+
+.original-post-button-link {
+    cursor: pointer;
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 1em;
+}
