@@ -9,7 +9,7 @@ title: Third Rails patch
 
 <p>The <tt class="inline_code">setup</tt> method is subclassed tests isn&#8217;t run. Not cool if you need to do something like this:</p>
 
-<pre><code>class FooControllerTest < ActiveSupport::TestCase
+<pre><code data-lang="ruby">class FooControllerTest < ActiveSupport::TestCase
   def setup
     # subdomain authentication coming in!
     @request.host = "subdomain.local.host"
@@ -27,7 +27,7 @@ end</code></pre>
 
 <p>Annoying. You could even do this:</p>
 
-<pre><code>class FooControllerTest < ActiveSupport::TestCase
+<pre><code data-lang="ruby">class FooControllerTest < ActiveSupport::TestCase
   def setup
     raise "BUT OMG LOL"
   end

@@ -1,7 +1,7 @@
 date: 2010.1.17
 title: Monolithic e-mail validators sucks
 
-<pre><code>validates_format_of :email,
+<pre><code data-lang="ruby">validates_format_of :email,
   :with => /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/
   :message => "E-mail is invalid"</code></pre>
  
@@ -13,7 +13,7 @@ title: Monolithic e-mail validators sucks
 
 <p>I think you should be nicer to your users. Stop worrying about compliance with the RFCs, and validate erroneous user input instead.</p>
 
-<pre><code>validates_format_of :email,
+<pre><code data-lang="ruby">validates_format_of :email,
   :with => /@/,
   :message => "Needs to contain an @."
 

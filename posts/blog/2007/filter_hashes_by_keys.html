@@ -7,13 +7,13 @@ title: Filter hashes by keys
  
 <p>I needed to filter a hash by keys.</p> 
  
-<pre><code>h = {:hai => "lolz", :burz => "barz", :maz => "garfer"}
+<pre><code data-lang="ruby">h = {:hai => "lolz", :burz => "barz", :maz => "garfer"}
 puts h.filter(:hai, :burz)
 # => {:hai=>"lolz", :burz=>"barz"}</code></pre>
  
 <p><code>.reject</code> was the only enumerable thingie I found that returned a hash and isn&#8217;t destructive (such as <code>delete_all</code>), so this is what I ended up doing:</p>
 
-<pre><code>class Hash
+<pre><code data-lang="ruby">class Hash
   def filter(*args)
     reject {|k, v| !args.include?(k) }
   end

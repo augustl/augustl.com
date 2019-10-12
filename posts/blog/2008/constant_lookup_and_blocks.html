@@ -1,7 +1,7 @@
 date: 2008.8.19
 title: Constant lookup and blocks
 
-<pre><code>class HelperHandler
+<pre><code data-lang="ruby">class HelperHandler
   def foo_exists
     Foo.exists
   end
@@ -21,7 +21,7 @@ h.foo_exists
 
 <p>No surprises here. This, however, is quite surprising:</p>
 
-<pre><code>class HelperHandler
+<pre><code data-lang="ruby">class HelperHandler
   def initialize(&block)
     instance_eval(&block)
   end
@@ -43,7 +43,7 @@ end
 
 <p>Unless you want to be evil and use strings.</p>
 
-<pre><code>class HelperHandler
+<pre><code data-lang="ruby">class HelperHandler
   def initialize(evil)
     eval(evil)
   end

@@ -8,7 +8,7 @@ title: iOS and Objective-C block quickref
 
 <h2>Passing blocks</h2>
 
-<pre><code>// The very simplest case.
+<pre><code data-lang="objc">// The very simplest case.
 [foo someMethod:^{
     // Any code here.  
 }];
@@ -20,7 +20,7 @@ title: iOS and Objective-C block quickref
 
 <h2>Taking blocks</h2>
 
-<pre><code>// Take a block with no arguments
+<pre><code data-lang="objc">// Take a block with no arguments
 - (void)someMethod:(void(^)())block;
 
 // Take a block with arguments
@@ -47,7 +47,7 @@ b = Arguments
 
 <p>You can create a type for your block signature, if you're using the same signature many places.
 
-<pre><code>typedef BOOL (^MyCustomBlock)(NSString *something);
+<pre><code data-lang="objc">typedef BOOL (^MyCustomBlock)(NSString *something);
 
 - (void)myMethod:(MyCustomBlock)block {
     BOOL result = block(@"whatever");
@@ -62,7 +62,7 @@ b = Arguments
 
 <p>The compiler will infer the return type of a block for unspecified return types, making return type specification optional. In the examples above, we have never specified the return type. This is how block creation looks with an explicit return type.</p>
 
-<pre><code>[foo someMethod:BOOL^{ return YES; }];
+<pre><code data-lang="objc">[foo someMethod:BOOL^{ return YES; }];
 
 // Inferred return type, for good measure.
 [foo someMethod:^{ return YES; }];
@@ -72,7 +72,7 @@ b = Arguments
 
 <p>This actually have a use case; storing blocks in a <code>NSArray</code> or similar.</p>
 
-<pre><code>// Assuming "callbacks" is an NSMutableArray instance variable.
+<pre><code data-lang="objc">// Assuming "callbacks" is an NSMutableArray instance variable.
 - (void)registerCallback:(BOOL(^)())callback {
     [_listeners addObject:[[callback copy] autorelease]];
 }

@@ -7,7 +7,7 @@ title: Styling Rails URLs
 
 <p><code>ActionController</code> has a <code>default_url_options</code> method that it uses for all <span class="caps">URL</span> generation tasks. It returns an empty hash by default, but can be overridden.</p>
 
-<pre><code>class ApplicationController < ActionController::Base
+<pre><code data-lang="ruby">class ApplicationController < ActionController::Base
   def default_url_options(options = nil)
     {:format => "html"}
   end
@@ -27,7 +27,7 @@ end</code></pre>
 
 <p>One way is to name the controller &#8220;prosjekter&#8221; instead of &#8220;projects&#8221;. That isn&#8217;t very Rails friendly, though, you&#8217;ll end up fighting with pluralization conventions. Thankfully, there is a Rails friendly way to do this, via <tt>routes.rb</tt>.</p>
 
-<pre><code>map.resources :projects, :as => "prosjekter", :path_names => {:new => "nytt", :edit => "rediger"}</code></pre>
+<pre><code data-lang="ruby">map.resources :projects, :as => "prosjekter", :path_names => {:new => "nytt", :edit => "rediger"}</code></pre>
 
 <p>That will give you these URLs:</p>
 
@@ -37,7 +37,7 @@ end</code></pre>
 
 <p>You can also set <code>:path_names</code> globally, by adding the following to <tt>config/environment.rb</tt>.</p>
 
-<pre><code>config.action_controller.resources_path_names = { :new => 'ny', :edit => 'rediger' }</code></pre>
+<pre><code data-lang="ruby">config.action_controller.resources_path_names = { :new => 'ny', :edit => 'rediger' }</code></pre>
 
 <h2>URLs without the ID of the record</h2>
 
@@ -59,13 +59,13 @@ end</code></pre>
 
 <p>What makes Rails use the ID alone in the first place? The answer is <code>to_param</code>. It&#8217;s an instance method in all models, and it looks like this:</p>
 
-<pre><code>def to_param
+<pre><code data-lang="ruby">def to_param
   id
 end</code></pre>
 
 <p>We can override it to include the title of the post as well as the ID.</p>
 
-<pre><code>class Post < ActiveRecord::Base
+<pre><code data-lang="ruby">class Post < ActiveRecord::Base
   def to_param
     "#{id}-#{title.parameterize}"
   end
@@ -75,12 +75,12 @@ end</code></pre>
 
 <p>The reason this is the easy way, is that this is all there is to it. Our finds will still work, because of the way Ruby handles <code>to_i</code> on strings.</p>
 
-<pre><code>"5-a-post-about-rockets".to_i
+<pre><code data-lang="ruby">"5-a-post-about-rockets".to_i
 # => 5</code></pre>
 
 <p>The <code>find</code> method that we use in the controllers calls <code>to_i</code> for us.</p>
 
-<pre><code>Post.find("5-a-post-about-rockets")
+<pre><code data-lang="ruby">Post.find("5-a-post-about-rockets")
 # equals
 Post.find(5)</code></pre>
 
@@ -92,7 +92,7 @@ Post.find(5)</code></pre>
 
 <p>Because the ID is no longer in the <span class="caps">URL</span>, we have to change the code a bit.</p>
 
-<pre><code>class Post < ActiveRecord::Base
+<pre><code data-lang="ruby">class Post < ActiveRecord::Base
   before_create :create_slug
   
   def to_param
@@ -106,7 +106,7 @@ end</code></pre>
 
 <p>When a post is created, the <span class="caps">URL</span> friendly version of the title is stored in the database, in the <tt>slug</tt> column. We also have to update the finds to find records using the slug column instead of using the ID.</p>
 
-<pre><code>class ProjectsController < ApplicationController
+<pre><code data-lang="ruby">class ProjectsController < ApplicationController
   def show
     @project = Project.find_by_slug!(params[:id])
   end
@@ -125,12 +125,12 @@ end</code></pre>
 
 <p>Anyhow, here&#8217;s how you do it:</p>
 
-<pre><code>map.short_user ":id", :controller => "users", :action => "show"
+<pre><code data-lang="ruby">map.short_user ":id", :controller => "users", :action => "show"
 map.short_project ":user_id/:id", :controller => "projects", :action => "show"</code></pre>
 
 <p>This gives you two very handy named routes.</p>
 
-<pre><code>short_user_path(@user)
+<pre><code data-lang="ruby">short_user_path(@user)
 short_project_path(@user, @project)</code></pre>
 
 <p>The example above only handles those two show actions. I advise using regular <code>map.resources</code> for <code>create</code>, <code>edit</code> etc. Users will never have to <em>link</em> to the <span class="caps">URL</span> that creates a new project, so it&#8217;s pointless to style those routes.</p>

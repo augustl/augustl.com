@@ -25,7 +25,7 @@ title: iOS unit testing Tips & Tricks
 
 <p>When you're set up, you can use your normal Core Data methods as in your application code. There's an example of this in the <code>testSomething</code> test case.</p>
 
-<pre><code>@interface MyTest : SenTestCase {
+<pre><code data-lang="objc">@interface MyTest : SenTestCase {
     NSManagedObjectModel *model;
     NSPersistentStoreCoordinator *coordinator;
     NSPersistentStore *store;
@@ -74,7 +74,7 @@ title: iOS unit testing Tips & Tricks
 
 <p>With this exact setup, the following code is copy-pasteable.</p>
 
-<pre class="del"><code>-(NSData *)loadFixture:(NSString *)name {
+<pre class="del"><code data-lang="objc">-(NSData *)loadFixture:(NSString *)name {
     NSMutableString *path = [[NSMutableString alloc] init];
     [path appendString:[[NSFileManager defaultManager] currentDirectoryPath]];
     [path appendString:@"/Tests/Fixtures/"];
@@ -88,7 +88,7 @@ title: iOS unit testing Tips & Tricks
 
 <p>Update: Jim Leask e-mailed me with an improved version that works with the Xcode 4 style in-application unit testing. Reproduced below by his permission.</p>
 
-<pre><code>-(NSData *)loadFixture:(NSString *)name
+<pre><code data-lang="objc">-(NSData *)loadFixture:(NSString *)name
 {
     NSBundle *unitTestBundle = [NSBundle bundleForClass:[self class]];
     NSString *pathForFile    = [unitTestBundle pathForResource:name ofType:nil];

@@ -5,18 +5,18 @@ title: HTML list helper
 
 <p>I use this one in pretty much all of them projects of mine.</p>
 
-<pre><code>def list(stuff)
+<pre><code data-lang="ruby">def list(stuff)
   content_tag(:ul, stuff.map { |thingie| content_tag(:li, yield(thingie)) })
 end</code></pre>
 
 <p>Usage:</p>
 
-<pre><code><%= list(@posts) {|post| link_to(post.title, post_url(post)) } %></code></pre>
+<pre><code data-lang="ruby"><%= list(@posts) {|post| link_to(post.title, post_url(post)) } %></code></pre>
 
 <p>Pretty pretty. Much better than this:</p>
 
-<pre><code>&lt;ul&gt;
-  &lt;% @posts.each do |post| %&gt;
-    &lt;li&gt;&lt;%= link_to(...) %&gt;&lt;/li&gt;
-  &lt;% end %&gt;
-&lt;/ul&gt;</code></pre>
+<pre><code data-lang="erb"><ul>
+  <% @posts.each do |post| %>
+    <li><%= link_to(...) %></li>
+  <% end %>
+</ul></code></pre>

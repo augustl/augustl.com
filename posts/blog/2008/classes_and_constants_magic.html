@@ -3,7 +3,7 @@ title: Classes and constants magic
 
 <p>An anonymous class!</p>
 
-<pre><code>bear = Class.new
+<pre><code data-lang="ruby">bear = Class.new
 
 puts bear
 # => #<Class:0x8ef08>
@@ -18,7 +18,7 @@ puts bear.name
 <p>This class has no name, it's anonymous. Let's create an instance of the anonymous class.</p>
 
 
-<pre><code>b = bear.new
+<pre><code data-lang="ruby">b = bear.new
 puts b.class
 #=> #<Class:0x8ef08>
 </code></pre>
@@ -27,13 +27,13 @@ puts b.class
 
 <p>A class name is always a constant. The call <code>class Foo; end</code> tells Ruby to create an instance of <code>Class</code> and assign that instance to the constant <code>Foo</code>. These two calls are equal:</p>
 
-<pre><code>class Foo; end
+<pre><code data-lang="ruby">class Foo; end
 Foo = Class.new
 </code></pre>
 
 <p>Let's try this with our anonymous class. We're assigning the instance of <code>Class</code> stored in the variable <code>bear</code> to a constant, <code>Bear</code>.</p>
 
-<pre><code>Bear = bear
+<pre><code data-lang="ruby">Bear = bear
 
 puts b.class
 # => Bear
@@ -46,7 +46,7 @@ puts b.name
 
 <p>Our instance of <code>Class</code> seems to have vanished, but it's still possible to access this instance directly.</p>
 
-<pre><code>class << Bear
+<pre><code data-lang="ruby">class << Bear
   puts self
   # => #<Class:Bear>
 end
@@ -62,7 +62,7 @@ end
 
 <h2>Code speaks louder than words</h2>
 
-<pre><code>Bear.class_eval do
+<pre><code data-lang="ruby">Bear.class_eval do
   def say_hello
     puts "Hello!"
   end
@@ -74,7 +74,7 @@ Bear.say_hello
 
 <p>We need to define the method on the metaclass, the instance of <code>Class</code>.</p>
 
-<pre><code>class << Bear
+<pre><code data-lang="ruby">class << Bear
   def say_hello
     puts "Hello!"
   end

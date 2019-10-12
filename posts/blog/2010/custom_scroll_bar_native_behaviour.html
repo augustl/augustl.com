@@ -38,7 +38,7 @@ rss_warning: true
 
 <h2>A box with a scrollbar</h2>
 
-<pre><code>.custom_scroll_bar {
+<pre><code data-lang="css">.custom_scroll_bar {
     width: 400px;
     height: 200px;
     border: 5px solid #ccc;
@@ -63,7 +63,7 @@ rss_warning: true
 
 <h2>Move the scrollbar</h2>
 
-<p>Using the CSS and HTML above, we add <code>.custom_scroll_bar .content { width: 200%; }</code>.</p>
+<p>Using the CSS and HTML above, we add <code data-lang="css">.custom_scroll_bar .content { width: 200%; }</code>.</p>
 
 <div class="custom_scroll_bar_wide_content wants_content">
   <div class="native">
@@ -74,7 +74,7 @@ rss_warning: true
 
 <h2>Size the content</h2>
 
-<p>We're setting the width of the content <code>.custom_scroll_bar .content { width: 400px; }</code>, which is the width of the <code>.custom_scroll_bar</code> element.</p>
+<p>We're setting the width of the content <code data-lang="css">.custom_scroll_bar .content { width: 400px; }</code>, which is the width of the <code>.custom_scroll_bar</code> element.</p>
 
 <div class="custom_scroll_bar_sized_content wants_content">
   <div class="native">
@@ -84,7 +84,7 @@ rss_warning: true
 
 <h2>Hide the native scrollbar</h2>
 
-<p>Setting <code>.custom_scroll_bar { overflow-x: hidden; }</code> hides the native scrollbar.We can now scroll the element as if it had a native scrollbar, but with the luxury of it not being visible.</p>
+<p>Setting <code data-lang="css">.custom_scroll_bar { overflow-x: hidden; }</code> hides the native scrollbar.We can now scroll the element as if it had a native scrollbar, but with the luxury of it not being visible.</p>
 
 <div class="custom_scroll_bar_hidden_native wants_content">
   <div class="native">
@@ -102,13 +102,13 @@ rss_warning: true
   </div>
 </div>
 
-<p>We hook into the <code>scroll</code> event of <code>.custom_scroll_bar .native</code>. In it we set the position of the scroll handle.</p>
+<p>We hook into the <code>scroll</code> event of <code data-lang="css">.custom_scroll_bar .native</code>. In it we set the position of the scroll handle.</p>
 
 <p>The scroll handle is created with JavaScript, so that it isn't visible on noscript clients.</p>
 
 <p>We hook the mousedown event on the scroll handle and use it to set the <code>scrollTop</code> property of the <code>.custom_scroll_bar .native</code> as we move the handle.</p>
 
-<p>We hook the scroll event of <code>.custom_scroll_bar</code> and set it's <code>scrollLeft</code> and <code>scrollTop</code> properties to <code>0</code>. That way we avoid horizontal scrolling when dragging and selecting text.</p>
+<p>We hook the scroll event of <code data-lang="css">.custom_scroll_bar</code> and set it's <code>scrollLeft</code> and <code>scrollTop</code> properties to <code>0</code>. That way we avoid horizontal scrolling when dragging and selecting text.</p>
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
 <script type="text/javascript" src="/static/posts/custom-scrollbar/custom_scroll_bar.js"></script>

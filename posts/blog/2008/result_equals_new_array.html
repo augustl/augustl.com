@@ -5,7 +5,7 @@ title: Result equals new array
 
 <h2>detect</h2>
 
-<pre><code>def accepted_users
+<pre><code data-lang="ruby">def accepted_users
   result = []
   users.each {|u| result << u if u.accepted? }
   return result
@@ -14,14 +14,14 @@ end
 
 <p>No. <code>each</code> is for looping, not selecting certain items.</p>
 
-<pre><code>def accepted_users
+<pre><code data-lang="ruby">def accepted_users
   users.select {|u| u.accepted? }
 end
 </code></pre>
 
 <h2>map</h2>
 
-<pre><code>def for_select(items)
+<pre><code data-lang="ruby">def for_select(items)
   result = []
   items.each {|i| result << "<option>#{i}</option>" }
   return result
@@ -30,7 +30,7 @@ end
 
 <p>No again. <code>each</code> is for looping, not mapping.</p>
 
-<pre><code>def for_select(items)
+<pre><code data-lang="ruby">def for_select(items)
   items.map {|i| "<option>#{i}</option>" }
 end
 </code></pre>
@@ -52,13 +52,13 @@ end
 
 <p>This is exactly what inject does, too. Initial object, loop through the items, add stuff on each iteration, and return the initial object. But it lets you one-line the process.</p>
 
-<pre><code>(1..10).inject(0) {|result, i| result + i }
+<pre><code data-lang="ruby">(1..10).inject(0) {|result, i| result + i }
 # => 55
 </code></pre>
 
 <p>Here's another example. First, the evil <code>result = {}</code> (it's not an array, but the concept is the same):</p>
 
-<pre><code>def filenames_with_path(filenames)
+<pre><code data-lang="ruby">def filenames_with_path(filenames)
   result = {}
   filenames.each {|d| result.merge!("/path/to/#{d}" => d) }
   result
@@ -70,7 +70,7 @@ filenames_with_path(['foo.txt', 'bar.pdf', 'hello.jpg'])
 
 <p>Then, an inject version. A sensible one-liner.</p>
 
-<pre><code>def filenames_with_path(filenames)
+<pre><code data-lang="ruby">def filenames_with_path(filenames)
   filenames.inject({}) {|result, d| result.merge!("/path/to/#{d}" => d) }
 end
 
@@ -84,7 +84,7 @@ filenames_with_path(['foo.txt', 'bar.pdf', 'hello.jpg'])
 
 <p>The result of these two calls are identical, as you can see:</p>
 
-<pre><code>data = ["foo", "bar", "baz"]
+<pre><code data-lang="ruby">data = ["foo", "bar", "baz"]
 
 data.inject([]) {|result, i| result.push("#{i} is nice") }
 # => ["foo is nice", "bar is nice", "baz is nice"]
@@ -98,13 +98,13 @@ data.map {|i| "#{i} is nice" }
 
 <p>This fails:</p>
 
-<pre><code>["foo", "bar"].inject({}) {|data, i| data["#{i} is cool"] = i }
+<pre><code data-lang="ruby">["foo", "bar"].inject({}) {|data, i| data["#{i} is cool"] = i }
 # => IndexError: string not matched
 </code></pre>
 
 <p>This does not:</p>
 
-<pre><code>["foo", "bar"].inject({}) {|data, i| data.merge("#{i} is cool" => i) }
+<pre><code data-lang="ruby">["foo", "bar"].inject({}) {|data, i| data.merge("#{i} is cool" => i) }
 # => {"bar is cool"=>"bar", "foo is cool"=>"foo"}
 </code></pre>
 
@@ -136,7 +136,7 @@ data.map {|i| "#{i} is nice" }
 
 <p>As mentioned, when <code>inject</code> loops through the items, the <code>data</code> part is whatever the previous iteration returned. Let's have a look at what the two calls returns.</p>
 
-<pre><code>data["#{i} is cool"] = i
+<pre><code data-lang="ruby">data["#{i} is cool"] = i
 # => "foo"
 
 data.merge("#{i} is cool" => i)

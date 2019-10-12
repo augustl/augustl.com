@@ -3,17 +3,17 @@ title: <code>to_proc</code>
 
 <p>You've probably seen this in Rails:</p>
 
-<pre><code>User.find(:all).map(&:name)</code></pre>
+<pre><code data-lang="ruby">User.find(:all).map(&:name)</code></pre>
 
 <p>It is the equivalent of doing:</p>
 
-<pre><code>User.find(:all).map {|p| p.name }</code></pre>
+<pre><code data-lang="ruby">User.find(:all).map {|p| p.name }</code></pre>
 
 <p>The technique in question is called "symbol to proc". First, let's examine <code>to_proc</code>.</p>
 
 <h2><code>to_proc</code></h2>
 
-<pre><code>def call_a_proc(&proc)
+<pre><code data-lang="ruby">def call_a_proc(&proc)
   proc.call
 end
 
@@ -25,7 +25,7 @@ call_a_proc(&leethal)
 
 <p>Yeah, this is pretty odd. It's about time someone lets you in on a little secret:</p>
 
-<pre><code>class String
+<pre><code data-lang="ruby">class String
   def to_proc
     Proc.new { puts "I am a proc" }
   end
@@ -41,7 +41,7 @@ call_a_proc(&leethal)
 
 <p>So what is Rails doing that lets us do <code>map(&:name)</code>?</p>
   
-<pre><code>class Symbol
+<pre><code data-lang="ruby">class Symbol
   def to_proc
     Proc.new { |*args| args.shift.__send__(self, *args) }
   end
@@ -54,7 +54,7 @@ end
 
 <p>By the way, Rails could have been doing this:</p>
 
-<pre><code>class Symbol
+<pre><code data-lang="ruby">class Symbol
   def to_proc
     Proc.new {|arg| arg.__send__(self) }
   end
@@ -63,7 +63,7 @@ end
 
 <p>Many people says Rails _should_ do this, because of performance issues. With Rails' implementation, though, this works:</p>
 
-<pre><code>[1, 2, 3].inject(&:+)
+<pre><code data-lang="ruby">[1, 2, 3].inject(&:+)
 # => 6
 </code></pre>
 

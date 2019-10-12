@@ -5,7 +5,7 @@ title: Syntax highlighter
  
 <p>I&#8217;m using this app-only plugin called <tt>cache_html</tt>. It lets me do this:</p> 
  
-<pre><code>class Post < ActiveRecord::Base
+<pre><code data-lang="ruby">class Post < ActiveRecord::Base
   cache_html :intro, :content
 end</code></pre>
 
@@ -14,7 +14,7 @@ end</code></pre>
 <p>So, the <code>cache_html</code> does it&#8217;s thing <code>before_save</code>, and this is one of the things:</p> 
  
  
-<pre><code>def coderay(text)
+<pre><code data-lang="ruby">def coderay(text)
   duped = text.dup
   expression = /(<source(?:\:([a-z]+))?>(.+?)<\/source>)/m
   text.scan(expression) do |all, language, code|

@@ -3,7 +3,7 @@ title: Dynamic session expiration time in Rails 3
 
 <h2>Update: new syntax</h2>
 
-<pre><code>cookies[:thing] = {:value => {:normal => "session stuff"}, :expires => 2.hours.from_now}
+<pre><code data-lang="ruby">cookies[:thing] = {:value => {:normal => "session stuff"}, :expires => 2.hours.from_now}
 
 # Signed cookies are encrypted with the apps secret_token.
 cookies.signed[:login] = {:value => @user.id, :expires => 1.day.from_now}
@@ -25,7 +25,7 @@ cookies.permanent[:foo] = "bar"
 
 <p>This is how you set coookie expiration time in Rails 3:</p>
 
-<pre><code>env["rack.session.options"][:expire_after] = 10.minutes</code></pre>
+<pre><code data-lang="ruby">env["rack.session.options"][:expire_after] = 10.minutes</code></pre>
 
 <p>This alone won&#8217;t do, though.</p>
 
@@ -42,14 +42,14 @@ cookies.permanent[:foo] = "bar"
 
 <p>When we log in, we set the expiration time in our session.</p>
 
-<pre><code>def create
+<pre><code data-lang="ruby">def create
   session[:remember_for] = 1.week
   # Perform regular login..
 end</code></pre>
 
 <p>In our application controller, we create an after filter that will pass this session variable to our new cookie.</p>
 
-<pre><code>after_filter :persist_session
+<pre><code data-lang="ruby">after_filter :persist_session
  
 def persist_session
   if session[:remember_for]
@@ -59,7 +59,7 @@ end</code></pre>
 
 <p>When we want to log out, just have to delete the session key, and the session will return to normal.</p>
 
-<pre><code>def destroy
+<pre><code data-lang="ruby">def destroy
   session.delete(:remember_for)
 end</code></pre>
 
@@ -69,7 +69,7 @@ end</code></pre>
 
 <h2>Full example, using the plugin</h2>
 
-<pre><code>class SessionsController < ApplicationController
+<pre><code data-lang="ruby">class SessionsController < ApplicationController
   def create
     session_expires_after = 1.day if params[:remember_me]
     

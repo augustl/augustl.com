@@ -13,7 +13,7 @@ title: Unit testing iOS: Core Data with multiple and/or versioned models
 
 <p>You can solve the problem by altering the code to only get the model you want to use:</p>
 
-<pre><code>// Old
+<pre><code data-lang="objc">// Old
 model = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]];
 
 // New
@@ -34,7 +34,7 @@ self.model = [[[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL] auto
 
 <h2>The full code</h2>
 
-<pre><code>// Header
+<pre><code data-lang="objc">// Header
 @interface ManagedObjectContextTestHelper : NSObject {
 }
 

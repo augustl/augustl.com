@@ -10,7 +10,7 @@ title: Ruby Net::HTTP cheat sheet
 
 <h2>A basic request</h2>
 
-<pre><code>require "net/https"
+<pre><code data-lang="ruby">require "net/https"
 require "uri"
 
 uri = URI.parse("http://google.com")
@@ -26,7 +26,7 @@ puts response["location"] # All headers are lowercase
 
 <h2><span class="caps">URI</span></h2>
 
-<pre><code>uri = URI.parse("http://mysite.com/some_api")
+<pre><code data-lang="ruby">uri = URI.parse("http://mysite.com/some_api")
 uri = URI.parse("https://mysite.com/thing?foo=bar")
 
 # URI will also guess the correct port
@@ -52,7 +52,7 @@ p uri.to_s
 
 <h2>Everything else</h2>
 
-<pre><code>http = Net::HTTP.new(uri.host, uri.port)
+<pre><code data-lang="ruby">http = Net::HTTP.new(uri.host, uri.port)
 http.open_timeout = 3 # in seconds
 http.read_timeout = 3 # in seconds
 
@@ -78,7 +78,7 @@ response["header-here"] # All headers are lowercase</code></pre>
 
 <h2><span class="caps">SSL</span></h2>
 
-<pre><code># Normal ssl
+<pre><code data-lang="ruby"># Normal ssl
 http.use_ssl = true
 http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 

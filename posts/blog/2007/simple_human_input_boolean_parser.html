@@ -5,7 +5,7 @@ title: Simple human input boolean parser
 
 <p>Converts human input to a boolean. Used this in a keyword search thingie of mine, whene users could go <tt>published:true</tt>, <tt>published:yes</tt>, <tt>published:0</tt> and so on, and have the booleans parsed properly.</p>
 
-<pre><code>TRUE_VALUES = %w( yes y true t 1 )
+<pre><code data-lang="ruby">TRUE_VALUES = %w( yes y true t 1 )
 FALSE_VALUES = %w( no n false f 0 )
 
 class String
@@ -21,7 +21,7 @@ end</code></pre>
 
 <p>Adapt the constants to your needs. Any unmatched value would simply return nil.</p> 
  
-<pre><code>"yes".to_boolean
+<pre><code data-lang="ruby">"yes".to_boolean
 # => true
 
 "no".to_boolean

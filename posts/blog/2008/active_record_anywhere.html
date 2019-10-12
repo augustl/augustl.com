@@ -3,7 +3,7 @@ title: Active Record anywhere!
 
 <p>You can use <code>ActiveRecord</code> anywhere!</p>
 
-<pre><code>require 'rubygems'
+<pre><code data-lang="ruby">require 'rubygems'
 require 'active_record'
  
 ActiveRecord::Base.establish_connection({
@@ -25,7 +25,7 @@ Task.find(:first)</code></pre>
 
 <p>Etcetera. It&#8217;s <code>ActiveRecord</code>, you know what to do. Going wild:</p>
 
-<pre><code>
+<pre><code data-lang="ruby">
 ActiveRecord::Base.establish_connection(:adapter => "sqlite3", :database => ":memory:")
  
 ActiveRecord::Schema.define do

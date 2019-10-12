@@ -5,7 +5,7 @@ title: Things you can do in Ruby
 
 <p>Subtracting.</p>
 
-<pre><code>everyone = ["Jane", "Joe", "Tom", "why", "Roger"]
+<pre><code data-lang="ruby">everyone = ["Jane", "Joe", "Tom", "why", "Roger"]
 coming = ["Tom", "Joe"]
 not_coming = everyone - coming
 # => ["Jane", "why", "Roger"]
@@ -13,7 +13,7 @@ not_coming = everyone - coming
 
 <p>Intersection. Elements common to both arrays.</p>
 
-<pre><code>my_party = ["Jane", "Tom", "Roger", "Bob"]
+<pre><code data-lang="ruby">my_party = ["Jane", "Tom", "Roger", "Bob"]
 jons_party = ["Warren", "Bob", "Vinnie"]
 double_booked = my_party & jons_party
 # => ["Bob"]
@@ -21,13 +21,13 @@ double_booked = my_party & jons_party
 
 <p>A list of words. These two statements are equivalent.</p>
 
-<pre><code>%w(Jane Joe Tom)
+<pre><code data-lang="ruby">%w(Jane Joe Tom)
 ['Jane', 'Joe', 'Tom']
 </code></pre>
 
 <p>You can also escape spaces, if you really want to.</p>
 
-<pre><code>%w(foo bar\ baz)
+<pre><code data-lang="ruby">%w(foo bar\ baz)
 # => ['foo', 'bar baz']
 </code></pre>
 
@@ -37,14 +37,14 @@ double_booked = my_party & jons_party
 
 <p>Formatting.</p>
 
-<pre><code>greeting = "Hello, %s. You are %d years old."
+<pre><code data-lang="ruby">greeting = "Hello, %s. You are %d years old."
 greeting % ["Roger", 5]
 # => Hello, Roger. You are 5 years old.
 </code></pre>
 
 <p>Encrypting (one-way, irreversible)</p>
 
-<pre><code>secret_password = "peUdjGQDziI8w"
+<pre><code data-lang="ruby">secret_password = "peUdjGQDziI8w"
 secret_password == "foo".crypt("hai")
 # => false
 secret_password == "foo".crypt("pepper")
@@ -53,7 +53,7 @@ secret_password == "foo".crypt("pepper")
 
 <p>Different literals.</p>
 
-<pre><code>%q{You are learning Ruby}
+<pre><code data-lang="ruby">%q{You are learning Ruby}
 %Q{You are learning Ruby. You can have "double quotes" in 
 here. and #{foo} interpolation. }
 </code></pre>
@@ -62,7 +62,7 @@ here. and #{foo} interpolation. }
 
 <p>Default values.</p>
 
-<pre><code>parties = {}
+<pre><code data-lang="ruby">parties = {}
 parties["Summer Party"]
 # => nil
 
@@ -83,7 +83,7 @@ parties
 
 <p>You can run system commands, too.</p>
 
-<pre><code>`which ruby` # => /usr/bin/ruby
+<pre><code data-lang="ruby">`which ruby` # => /usr/bin/ruby
 %x{which ruby} # => /usr/bin/ruby
 </code></pre>
 

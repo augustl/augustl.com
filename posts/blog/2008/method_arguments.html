@@ -7,7 +7,7 @@ title: Method arguments
 
 <p>Capture x amount of arguments.</p>
 
-<pre><code>def silly_list(*args)
+<pre><code data-lang="ruby">def silly_list(*args)
   args.join(' ') + '.'
 end
 
@@ -17,7 +17,7 @@ silly_list 'My', 'hovercraft', 'is', 'full', 'of', 'eels'
 
 <p>You can also do it the other way around, when calling a method. This will pass each item in the array as a separate argument to the method.</p>
 
-<pre><code>def say_a_name(first, last)
+<pre><code data-lang="ruby">def say_a_name(first, last)
   puts "#{last}, #{first}"
 end
 
@@ -34,7 +34,7 @@ say_a_name(*name)
 
 <p>Capture the block.</p>
 
-<pre><code>def can_has_block(&block)
+<pre><code data-lang="ruby">def can_has_block(&block)
   puts block.inspect
 end
 
@@ -47,7 +47,7 @@ can_has_block { "Here is a block" }
 
 <p>You can also do it the other way around, when calling a method. This will pass the proc to the method as if you were giving it a normal block. The last two calls are identical:</p>
 
-<pre><code>a_proc = Proc.new { puts "I am a proc" }
+<pre><code data-lang="ruby">a_proc = Proc.new { puts "I am a proc" }
 
 def call_the_block
   yield
@@ -63,7 +63,7 @@ call_the_block(&a_proc)
 
 <p>And then, of course, without the ampersand Ruby treats the proc as any other object passed as an argument.</p>
 
-<pre><code>call_the_block(a_proc)
+<pre><code data-lang="ruby">call_the_block(a_proc)
 # => ArgumentError: wrong number of arguments (1 for 0)
 </code></pre>
 
@@ -72,7 +72,7 @@ call_the_block(&a_proc)
 
 <p>Of course! Let's use every trick in the book.</p>
 
-<pre><code>def another_map(*args, &block)
+<pre><code data-lang="ruby">def another_map(*args, &block)
   args.map(&block)
 end
 
@@ -84,7 +84,7 @@ another_map('hello', 'there') {|i| i.upcase }
 
 <p>Don't forget yield, though. These two calls are identical.</p>
 
-<pre><code>def say_hello(&block)
+<pre><code data-lang="ruby">def say_hello(&block)
   block.call
 end
 
@@ -99,7 +99,7 @@ end
 
 <p>You probably knew this already.</p>
 
-<pre><code>def a_default_value(value = {})
+<pre><code data-lang="ruby">def a_default_value(value = {})
   value
 end
 

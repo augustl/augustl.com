@@ -3,19 +3,19 @@ title: <code>rescue nil</code> is not awesome
 
 <p>Deliberately calling code that may raise an error is ugly. Just look at it:</p>
 
-<pre><code>person.name.gsub(/foo/, 'bar') rescue nil</code></pre>
+<pre><code data-lang="ruby">person.name.gsub(/foo/, 'bar') rescue nil</code></pre>
 
 <p>As <code>person.name</code> returns <code>nil</code> if no name has been set, <code>person.name.gsub</code> would raise a <code>NoMethodError</code> in the event of a nameless person. <code>nil</code> has no <code>gsub</code> method. Because we know this, we <code>rescue</code>. So, we deliberately call code that may raise an error. Which is ugly.</p>
 
 <p>Instead, you should determine wether or not the code you call can raise an error, and then just not call it.</p>
 
-<pre><code>person.name.gsub(/foo/, 'bar') if person.name</code></pre>
+<pre><code data-lang="ruby">person.name.gsub(/foo/, 'bar') if person.name</code></pre>
 
 <p>This is also sort of odd, though. If getting a persons name takes 2 seconds, the additional call to <code>person.name</code> sucks. Etc.</p>
 
 <p>Introducing <soruce>try</soruce>!</p>
 
-<pre><code>class Object
+<pre><code data-lang="ruby">class Object
   def try(*args, &block)
     return if self.nil?
     block_given? ? yield(self) : self.__send__(args.shift, *args)
@@ -25,11 +25,11 @@ end
 
 <p>Yes! Now you can do this instead:</p>
 
-<pre><code>person.name.try(:gsub, /foo/, 'bar')</code></pre>
+<pre><code data-lang="ruby">person.name.try(:gsub, /foo/, 'bar')</code></pre>
 
 <p>An actual working sample:</p>
 
-<pre><code>class Person
+<pre><code data-lang="ruby">class Person
   attr_reader :name
 
   def initialize(name = nil)
@@ -55,7 +55,7 @@ p.name.try {|n| n.upcase.reverse }
 
 <p>Here's how it looks when <code>name</code> isn't nil:</p>
 
-<pre><code>p2 = Person.new('Joe')
+<pre><code data-lang="ruby">p2 = Person.new('Joe')
 
 p2.name.try(:upcase)
 # => "JOE"

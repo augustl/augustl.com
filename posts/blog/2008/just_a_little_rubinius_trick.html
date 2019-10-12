@@ -3,7 +3,7 @@ title: Just a little Rubinius trick
 
 <p>Rubinius can do it all.</p>
 
-<pre><code>def pwn_locals
+<pre><code data-lang="ruby">def pwn_locals
   MethodContext.current.sender.locals[0] = 666
 end
 

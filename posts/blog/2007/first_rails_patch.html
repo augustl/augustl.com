@@ -5,14 +5,14 @@ title: First Rails patch
  
 <p>The syntax of the select helpers is annoying! It is</p>
 
-<pre><code>collection_select(:category_id, @categories, 'id', 'title', {}, :class => "cool")</code></pre>
+<pre><code data-lang="ruby">collection_select(:category_id, @categories, 'id', 'title', {}, :class => "cool")</code></pre>
  
 <p>Two option hashes! Noone likes that, <a href="http://groups.google.com/group/rubyonrails-core/browse_thread/thread/976230070a08978a">not even Jeremy Kemper</a> (first follow-up). I made my first evah patch, and submitted it!</p>
 
 <p><a href="http://dev.rubyonrails.org/ticket/10233">http://dev.rubyonrails.org/ticket/10233</a></p> 
 <p>It lets you:</p>
 
-<pre><code>collection_select(:category_id, @categories, 'id', 'title', :html => {:class => "cool"})</code></pre>
+<pre><code data-lang="ruby">collection_select(:category_id, @categories, 'id', 'title', :html => {:class => "cool"})</code></pre>
 
 <p>Just like <code>form_for</code>. And it avoids <code>with_options</code> getting screwed up, too.</p>
  

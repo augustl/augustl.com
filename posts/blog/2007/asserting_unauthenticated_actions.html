@@ -1,15 +1,15 @@
 date: 2007.11.28
 title: Asserting unauthenticated actions
 
-<p>Using <code>assert_unauthenticated</code> to test that your <code>before_filter :require_login</code> thingie works.</p>
+<p>Using <code>assert_unauthenticated</code> to test that your <code data-lang="ruby">before_filter :require_login</code> thingie works.</p>
  
-<p>I&#8217;m not a part of the RSpec mob. It&#8217;s simply not appealing to me, good ol&#8217; <code>"test/unit"</code> is my friend. And with these recent updates on the way <a href="http://railscasts.com/episodes/81">fixtures works in 2.0</a>, mocking is a bit less cool, too.</p>
+<p>I&#8217;m not a part of the RSpec mob. It&#8217;s simply not appealing to me, good ol&#8217; <code data-lang="ruby">"test/unit"</code> is my friend. And with these recent updates on the way <a href="http://railscasts.com/episodes/81">fixtures works in 2.0</a>, mocking is a bit less cool, too.</p>
 
 <p>(I might be wrong about that mocking thought of mine, though, I&#8217;ve never mocked because I didn&#8217;t see the point of mocking, either. No mocking, no RSpec, what kind of person am I?)</p>
 
-<p>So, I&#8217;m using <code>"test/unit"</code>, and I wrote a method to assert that action x and y requires login.</p> 
+<p>So, I&#8217;m using <code data-lang="ruby">"test/unit"</code>, and I wrote a method to assert that action x and y requires login.</p>
  
-<pre><code>def test_should_block_unauthenticated
+<pre><code data-lang="ruby">def test_should_block_unauthenticated
   assert_unauthenticated :get => [:new, :edit], 
     :post =>  [:create, :update]
 end</code></pre>
@@ -17,7 +17,7 @@ end</code></pre>
 <p>Here&#8217;s the implementation (in the <tt>test_helper.rb</tt>):</p> 
  
  
-<pre><code>def assert_unauthenticated(requests = {})
+<pre><code data-lang="ruby">def assert_unauthenticated(requests = {})
   requests.each do |type, methods|
     methods.each do |method|
       perform_unauthenticated_assert(type, method)

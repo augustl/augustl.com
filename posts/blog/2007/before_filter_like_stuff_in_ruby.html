@@ -10,7 +10,7 @@ title: before_filter-like stuff in Ruby
  
 <p>The actual method that we&#8217;re calling, however, is called on another class. This is done so that we can indeed do the filters on internal methods like <code>send</code> etc, as mentioned above.</p> 
 
-<pre><code>class Cool
+<pre><code data-lang="ruby">class Cool
   def be_cool
     puts "I'm so damn cool tbh"
   end
@@ -42,11 +42,11 @@ class Silly
   end
 end</code></pre> 
  
-<p>The <code>undef_method</code> stuff is the magic thingie that undefines all the built-in methods we automatically inherit from <code><span class="co">Object</span></code> and <code><span class="co">Kernel</span></code>.</p>
+<p>The <code>undef_method</code> stuff is the magic thingie that undefines all the built-in methods we automatically inherit from <code data-lang="html"><span class="co">Object</span></code> and <code data-lang="html"><span class="co">Kernel</span></code>.</p>
 
 <p>Usage:</p> 
   
-<pre><code>s = Silly.new
+<pre><code data-lang="ruby">s = Silly.new
 s.plz_do proc { puts "Hello, there" }
 s.plz_do "puts 'Oh yeah!'"
 s.plz_do { puts "BUT OMG!" }
