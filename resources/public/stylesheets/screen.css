@@ -11,12 +11,12 @@ h1, h2, h3 {
 }
 
 h1 {
-    font-size: 40px;
+    font-size: 45px;
     margin-bottom: 20px;
 }
 
 h2 {
-    font-size: 24px;
+    font-size: 35px;
     margin-bottom: 10px;
 }
 
@@ -32,7 +32,7 @@ a.take-me-home:visited {
 }
 
 h3 {
-    font-size: 16px;
+    font-size: 20px;
     margin-top: 40px;
     margin-bottom: 10px;
 }
