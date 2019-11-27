@@ -71,3 +71,17 @@ The commits have been merged, and it will be as if you never made your mistake!
 
 It's nice to not have to admit to making silly mistakes. And it's even nicer that your small (or big) mistakes doesn't clutter up the git history.
 
+
+## One more thing
+
+I actually used this feature for real when writing this article! The three commits I made above were made to this project. But they were just faux commits that I wanted to get rid of.
+
+So first, I created a commit for this article (which I'm now adding to). Then, I chose the first faux commit and started a rebase. I made the popup look like this:
+
+<p><img src="/static/posts/intellij_rebase_fixup/real_step.jpg" style="max-width: 400px">
+
+I moved the commit for this article to the top, and let it stay on "pick". Then I picked "skip" - i.e. get rid of - my two faux commits.
+
+And just like that, they are gone from the project.
+
+Pretty nice!
