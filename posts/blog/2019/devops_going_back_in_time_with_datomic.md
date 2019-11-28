@@ -1,6 +1,7 @@
 date: 2019.12.06
 title: DevOps: The magic of going back in time with Datomic
 series: advent_calendar_2019
+unlisted: true
 
 I'm a bit of a [Datomic](https://www.datomic.com/) fan. That's a bit of an understatement.
 
