@@ -308,13 +308,14 @@ ul.inline-dots li:last-child:after {
 
 .image-block {
     text-align: center;
-    margin: 40px 60px;
+    margin: 40px 0;
 }
 
 .image-block-caption {
     text-align: left;
     color: #999;
     font-style: italic;
+    margin: 0 20px;
 }
 
 blockquote {
@@ -373,4 +374,8 @@ blockquote {
     background: #fff;
     border: 1px solid #ccc;
     padding: 1em;
+}
+
+img {
+    max-width: 100%;
 }
