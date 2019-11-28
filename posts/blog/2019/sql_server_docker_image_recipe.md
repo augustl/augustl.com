@@ -1,5 +1,6 @@
 date: 2019.12.03
 title: A short recipe for setting up the Microsoft SQL Server docker image
+series: advent_calendar_2019
 unlisted: true
 
 That's a lot of Microsoft stuff so far! This one is more of a coincidence. 

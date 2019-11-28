@@ -1,2 +1,4 @@
 {"datomic" {:title "Datomic"
-            :description "Anything and everything about the Datomic database"}}
+            :description "Anything and everything about the Datomic database"}
+ "advent_calendar_2019" {:title "Advent Calendar 2019"
+                         :description "A glorious series of blog posts, one each day, for the advent of 2019!"}}

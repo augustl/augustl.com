@@ -1,5 +1,6 @@
 date: 2019.12.02
 title: You should use rebase/fixup in IntelliJ IDEA more often
+series: advent_calendar_2019
 unlisted: true
 
 This one applies to all JetBrains products with git integration.
@@ -41,15 +42,15 @@ We can do this! As mentioned above, you can do it in plain git with `git rebase 
 
 First, select the earliest commit in the history that you want to operate on. In our case, we want to merge the 3rd most recent and the most recent commit. So we select the 3rd most recent, and choose "Interactively Rebase from Here..."
 
-<p><img src="/static/posts/intellij_rebase_fixup/step_1.jpg" style="max-width: 600px">
+<p><img src="/static/posts/intellij_rebase_fixup/step_1.jpg">
 
 You get a popup showing your commits, in reverse order.
 
-<p><img src="/static/posts/intellij_rebase_fixup/step_2.jpg" style="max-width: 400px">
+<p style="margin-right: 20%"><img src="/static/posts/intellij_rebase_fixup/step_2.jpg">
 
 What we want to do at this point, is to merge the last commit on that list into the first commit on that list. To do that, we first move it one step up by selecting it and clicking those small arrows on the side there.
 
-<p><img src="/static/posts/intellij_rebase_fixup/step_3.jpg" style="max-width: 400px">
+<p style="margin-right: 20%"><img src="/static/posts/intellij_rebase_fixup/step_3.jpg">
 
 The reason we do that, is that this list of commit is what Git will apply various operations on, in the order they appear (from top to bottom). That is why the commits come in reverse order.
 
@@ -57,15 +58,15 @@ The default operation is "pick", which just means "use this commit". I.e. don't 
 
 The one we want to choose, is "fixup". Click the little arrow for the "whoops" commit, which is now the 2nd commit in the list.
 
-<p><img src="/static/posts/intellij_rebase_fixup/step_4.jpg" style="max-width: 400px">
+<p style="margin-right: 20%"><img src="/static/posts/intellij_rebase_fixup/step_4.jpg">
 
 That means that Git will take the commit marked as "fixup", amend it into the commit before it, and discard the commit message. Click the button do make that happen.
 
-<p><img src="/static/posts/intellij_rebase_fixup/step_5.jpg" style="max-width: 400px">
+<p style="margin-right: 20%"><img src="/static/posts/intellij_rebase_fixup/step_5.jpg">
 
 And voila, you're done! Your history will now look like this:
 
-<p><img src="/static/posts/intellij_rebase_fixup/step_6.jpg" style="max-width: 600px">
+<p><img src="/static/posts/intellij_rebase_fixup/step_6.jpg">
 
 The commits have been merged, and it will be as if you never made your mistake!
 
@@ -78,7 +79,7 @@ I actually used this feature for real when writing this article! The three commi
 
 So first, I created a commit for this article (which I'm now adding to). Then, I chose the first faux commit and started a rebase. I made the popup look like this:
 
-<p><img src="/static/posts/intellij_rebase_fixup/real_step.jpg" style="max-width: 400px">
+<p style="margin-right: 20%"><img src="/static/posts/intellij_rebase_fixup/real_step.jpg">
 
 I moved the commit for this article to the top, and let it stay on "pick". Then I picked "skip" - i.e. get rid of - my two faux commits.
 

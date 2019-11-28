@@ -1,5 +1,6 @@
 date: 2019.12.01
 title: How to set up a Windows 10 development environment - for macOS and Linux users
+series: advent_calendar_2019
 unlisted: true
 
 So yeah, after years of back and forth between macOS and Linux, and numerous [failed attempts](https://augustl.com/blog/2016/notes_on_windows/) of switching to Windows before, I'm back again. I used Bootcamp on a Macbook Pro for a month, and got me a Dell XPS which I have been using for two months now.
@@ -16,8 +17,8 @@ You use `ctrl+shift+{1,2,3,...}` to open new terminals (the numbers correspond t
 
 You can install it [from the Store](https://www.microsoft.com/en-us/p/windows-terminal-preview/9n0dx20hk701) - or build it yourself [from source](https://github.com/microsoft/terminal) if you fancy that sort of thing!
 
-<p><img src="/static/posts/win10_dev_env/windows_terminal_1.jpg" style="max-width: 600px">
-<p><img src="/static/posts/win10_dev_env/windows_terminal_2.jpg" style="max-width: 600px">
+<p><img src="/static/posts/win10_dev_env/windows_terminal_1.jpg">
+<p><img src="/static/posts/win10_dev_env/windows_terminal_2.jpg">
 
 
 # You are going to need WSL
@@ -86,7 +87,7 @@ max-cache-ttl 34560000
 
 VSCode - or Visual Studio Code - is a lightweight editor (at least compared to Visual Studio itself) that's gaining a lot of traction, and is a pretty nice editor in my estimation. I'm an IDE guy and I use IntelliJ for my main projects. But for editing gitconfigs, opening log files, and so on, I use VSCode.
 
-<p><img src="/static/posts/win10_dev_env/vscode.jpg" style="max-width: 600px">
+<p><img src="/static/posts/win10_dev_env/vscode.jpg">
 
 
 You can [download it for free](https://code.visualstudio.com/) (it's open source and everything), and it's a much better alternative to the buil-in notepad - obviously.
