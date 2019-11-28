@@ -14,7 +14,7 @@
                  [augusts-fancy-blog-post-parser "0.1.0"]
                  [clygments "2.0.0"]
                  [com.stuartsierra/component "0.3.2"]
-                 [org.pegdown/pegdown "1.6.0"]]
+                 [com.vladsch.flexmark/flexmark-all "0.50.42"]]
   :aliases {"export" ["run" "-m" "augustl-com.cli/export" "dist"]}
   :profiles
   {:dev {:source-paths ["dev"]

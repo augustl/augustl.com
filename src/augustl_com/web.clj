@@ -4,8 +4,7 @@
             [augustl-com.util :as util]
             [hiccup.page :refer [html5]]
             [optimus.assets :as assets]
-            clojure.edn)
-  (:import [org.pegdown PegDownProcessor]))
+            clojure.edn))
 
 (def base-title "August Lilleaas' blog")
 
