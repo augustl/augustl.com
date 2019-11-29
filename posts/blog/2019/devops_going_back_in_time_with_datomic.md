@@ -100,7 +100,7 @@ Marzia finds the transaction where the boss changed the rules.
                       :val v}))))))
 </code></pre>
 
-Marzia could have asked for more than the 3 latest ones, but decided that 5 was a good start. Here's what Marzia gets back from that query.
+Marzia could have asked for more than the 3 latest ones, but decided that 3 was a good start. Here's what Marzia gets back from that query.
 
 <pre><code data-lang="clojure">
 ({:timestamp #inst"2019-11-28T07:54:28.102-00:00",
@@ -127,18 +127,21 @@ Marzia could have asked for more than the 3 latest ones, but decided that 5 was 
 
 There we go! Marzia found three transactions, performed around 07:55. The oldest one fixed a spelling error in a customer name, the second one added a new customer and set its name and assigned it to a department, and the most recent one changed an `:order-rule/zip-code` from "0056" to "0061".
 
-Marzia knows that when we change the zip code of an order rule, it changes the routing completely. And the order that failed was related to the department that order rule is assigned to.
+Marzia knows that the zip code is important to the routing, and the change of zip codes triggered some rules that were changed by a code change the day before.
+
+
+And the order that failed was related to the department that order rule is assigned to.
 
 <pre><code data-lang="clojure">
 (d/q
-  '[:find [?rule-id]
+  '[:find [?rule-id ...]
     :in $ ?order-id
     :where
     [?order-id :order/zip-code ?zip-code]
     [?rule-id :order-rule/zip-code ?zip-code]]
   db
   failed-order-id)  
-;; => 17592186045421
+;; => #{17592186045421}
 </code></pre>
 
 
@@ -146,14 +149,14 @@ Jut to be on the safe side, Marzia checks that the order rule in question was ac
 
 <pre><code data-lang="clojure">
 (d/q
-  '[:find [?rule-id]
+  '[:find [?rule-id ...]
     :in $ ?order-id
     :where
     [?order-id :order/zip-code ?zip-code]
     [?rule-id :order-rule/zip-code ?zip-code]]
   (d/as-of db #inst "2019-11-27T23:30:00.000")
   failed-order-id)  
-;; => 17592186045421
+;; => #{17592186045421}
 </code></pre>
 
 Marzia could also have checked the full history, in case it changed departments rapidly back and forth for some reason, but decides to leave it at that. 
