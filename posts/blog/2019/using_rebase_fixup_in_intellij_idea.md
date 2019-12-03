@@ -1,7 +1,6 @@
-date: 2019.12.02
+date: 2019.12.03
 title: You should use rebase/fixup in IntelliJ IDEA more often
 series: advent_calendar_2019
-unlisted: true
 
 This one applies to all JetBrains products with git integration.
 
