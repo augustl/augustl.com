@@ -1,29 +1,28 @@
-date: 2019.12.06
+date: 2019.12.04
 title: DevOps: The magic of going back in time with Datomic
 series: advent_calendar_2019
-unlisted: true
 
 I'm a bit of a [Datomic](https://www.datomic.com/) fan. That's a bit of an understatement.
 
-I'm going to tell you a DevOps story today, about Marzia and Felix. They are both DevOps experts, delivering quality software at breakneck speeds. Marzia uses Datomic, and Felix uses PostgreSQL. Let's see what their DevOps lives are like.
+I'm going to tell you a DevOps story today, about Marzia and Felix. They are both DevOps experts, delivering quality software at breakneck speeds. Marzia uses Datomic, and Felix uses PostgreSQL. Let's see how their DevOps acts out in the world.
 
-## It's 11:30pm, almost midnight
+## It's 11:30 pm, almost midnight
 
 Felix is sleeping.
 
-The System is operational. Everything is running A-OK. No alerts are triggered, no warnings are active. 
+**The System** is operational. Everything is running A-OK. No alerts are triggered, no warnings are active. 
 
-Earlier today, Felix deployed to production. Four times, actually! Four nice and tidy incremental changes. DevOps, yay!
+Earlier today, Felix deployed to production. Four times, actually! DevOps, yay!
 
-The System receives orders from other systems in the organization. Felix is experienced and smart, so he has created an audit log table in postgres that stores all the incoming orders. It's great to be able to replay stuff if it goes wrong. 
+**The System** receives orders from many different systems in the organization. Felix is experienced and knows that stuff can go wrong, so he has created an audit log table in postgres that stores all the incoming orders. It's great to be able to replay orders that goes wrong. 
 
-It's _possible_ that The System has a complete meltdown and that orders are missed - but that doesn't matter. What matters, is that when everything is up and running, and some validation error or other software bug fails to process the order, it can simply be reprocessed by finding it in the orders audit log.
+It's _possible_ that **The System** has a complete meltdown and that orders are missed - but that doesn't matter. What matters, is that when everything is up and running, and some validation error or other software bug fails to process the order, it can simply be reprocessed by finding it in the orders audit log.
 
 It's 11:30pm. An order fails.
 
-Nobody is alerted. This is just normal business. The other system that posted the order to us got an error mesage back. It's their responsibility to retry until it works.
+Nobody is alerted. This is just normal business. The different system that posted the order to us got an error message back. It's their responsibility to retry until it works.
  
-## It's 08:41am, the next day
+## It's 08:41 am, the next day
 
 Felix just arrived at the office.
 
@@ -33,41 +32,41 @@ Cool! We have an audit log, so let's try! We just send it again. We don't have t
 
 It succeeds.
 
-(Have you ever told yourselv: "damn, I wish it didn't work?". That's normal. It happens to engineers all the time.)
+(Have you ever told yourself: "damn, I wish it didn't work?". That's normal. It happens to engineers all the time.)
 
-The Boss tells Felix that he changed some of the rules in the admin setup this morning, before Felix arrived. The admin setup is very powerful and flexible. Lots of grids and configs to tweak and adjust how orders are processed.
+Felix is told that The Boss changed some of the rules in the admin setup this morning, before Felix arrived. The admin setup is very powerful and flexible. Lots of grids and configs to tweak and adjust how orders are processed.
 
 Oh well. It worked. We're not sure why it failed.
 
-Moving on!
+Moving on to other things!
 
-## It's 11:30pm, almost midnight.
+## It's 11:30 pm, almost midnight.
 
 Marzia is sleeping.
 
-The System is operational. Everything is running A-OK. No alerts are triggered, no warnings are active.
+**The Other System** is operational. Everything is running A-OK. No alerts are triggered, no warnings are active.
 
-Earlier today, Marzia deployed to production. Four times, actually! Four nice and tidy incremental changes. DevOps, yay!
+Earlier today, Marzia deployed to production. Four times, actually! DevOps, yay!
 
-The System receives orders from other systems in the organization. Marzia is a fan of Datomic, so she stores all the rules about how to process orders, and all the data about the orders themselves, as well as the raw input data that The System receives, in Datomic. 
+**The Other System** receives orders from many different systems in the organization. Marzia is a fan of Datomic, so she stores all the rules about how to process orders, and all the data about the orders themselves, as well as the raw input data that **The Other System** receives, in Datomic. 
 
-They use redis for some other things, and Riak as well. It's nice to be able to use different databases with different semantics for different parts of the system.
+They use redis for some other things, and Riak as well. It's nice to be able to use different databases with different semantics for different parts of **The Other System**.
 
 It's 11:30pm. An order fails.
 
-Nobody is alerted. This is just normal business. The other system that posted the order to us got an error mesage back. It's their responsibility to retry until it works.
+Nobody is alerted. This is just normal business. The different system that posted the order to us got an error mesage back. It's their responsibility to retry until it works.
 
-## It's 08:41am, the next day
+## It's 08:41 am, the next day
 
 Marzia just arrived at the office.
 
 The Boss asks Marzia why the order failed. It was an important order, and the system that sent it to us hasn't retried it.
 
-Cool! We use Datomic, so we have full access to the historical information about all the data in our system.
+Cool! Marzia stores all order related information in Datomic, so we have full access to the historical information about all the data in our system.
 
 (Say what?)
 
-The Boss tells Marzia that he changed some of the rules in the admin setup this morning, before Marzia arrived.
+Marzia is told that The Boss changed some of the rules in the admin setup this morning, before Marzia arrived.
 
 Marzia finds the transaction where the boss changed the rules.
 
@@ -125,10 +124,9 @@ Marzia could have asked for more than the 3 latest ones, but decided that 3 was 
       :attr :customer/name, :val "Some Offcie", :added? false})})
 </code></pre>
 
-There we go! Marzia found three transactions, performed around 07:55. The oldest one fixed a spelling error in a customer name, the second one added a new customer and set its name and assigned it to a department, and the most recent one changed an `:order-rule/zip-code` from "0056" to "0061".
+Marzia found it! The query yielded three transactions, performed around 07:55. The oldest one fixed a spelling error in a customer name, the second one added a new customer and set its name and assigned it to a department, and the most recent one changed an `:order-rule/zip-code` from "0056" to "0061".
 
 Marzia knows that the zip code is important to the routing, and the change of zip codes triggered some rules that were changed by a code change the day before.
-
 
 And the order that failed was related to the department that order rule is assigned to.
 
@@ -180,4 +178,4 @@ This is a DevOps superpower. You can track your data as it changes and churns, a
 
 You can and should create audit logs. But it's super nice to be able to have _all_ of the data that governs your system with change tracking.
 
-You do it with your source code. You should also do it with critical business data.
+You do it with your source code. You do it with your log files. You should also do it with critical business data.
