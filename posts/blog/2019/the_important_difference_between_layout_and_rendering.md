@@ -29,18 +29,16 @@ And BOOM, the browser has to do a "layout" pass.
 
 Why?
 
-Well, setting the margin affects the layout. Obviously.
-
-Put differently: setting the margin on an element can cause another completely unrelated element to _also_ have to change _its_ layout.
+Because another completely unrelated element might _also_ have to change _its_ layout when you change a margin.
 
 For example, let's say your actual full HTML looks like this:
 
 <pre><code data-lang="html">
-<div style="width: 200px; background: red;">
-  <div style="background: yellow; display: inline-block; width: 160px;">
+<div style="width: 200px; background: #c1b4ae;">
+  <div style="background: #be5a38; display: inline-block; width: 160px;">
     foo
   </div>
-  <div style="background: green; display: inline-block;">
+  <div style="background: #92140c; display: inline-block;">
     hai
   </div>
 </div>
@@ -48,11 +46,11 @@ For example, let's say your actual full HTML looks like this:
 
 It looks like this:
 
-<div style="width: 200px; background: red;">
-  <div style="background: yellow; display: inline-block; width: 160px;">
+<div style="width: 200px; background: #c1b4ae;">
+  <div style="background: #be5a38; display: inline-block; width: 160px;">
     foo
   </div>
-  <div style="background: green; display: inline-block;">
+  <div style="background: #92140c; display: inline-block;">
     hai
   </div>
 </div>
@@ -62,11 +60,11 @@ It looks like this:
 Then we add a margin.
 
 <pre><code data-lang="html">
-<div style="width: 200px; background: red;">
-  <div style="background: yellow; display: inline-block; width: 160px;">
+<div style="width: 200px; background: #c1b4ae;">
+  <div style="background: #be5a38; display: inline-block; width: 160px;">
     foo
   </div>
-  <div style="background: green; display: inline-block; margin-left: 20px;">
+  <div style="background: #92140c; display: inline-block; margin-left: 20px;">
     hai
   </div>
 </div>
@@ -74,28 +72,30 @@ Then we add a margin.
 
 Which then looks like this:
 
-<div style="width: 200px; background: red;">
-  <div style="background: yellow; display: inline-block; width: 160px;">foo</div>
-  <div style="background: green; display: inline-block; margin-left: 20px;">hai</div>
+<div style="width: 200px; background: #c1b4ae;">
+  <div style="background: #be5a38; display: inline-block; width: 160px;">foo</div>
+  <div style="background: #92140c; display: inline-block; margin-left: 20px;">hai</div>
 </div>
 
 <p></p>
 
 See?
 
-We added a margin to the green box, but that caused the browser to make the red box larger.
+A different element on the page had to change! The surrounding grey box in the background had to be made larger.
+
+And we didn't change anything on that box.
 
 What if we had another box around that?
 
-And then another box aroudn that?
+And then another box around that?
 
 And then maybe a sidebar somewhere, that now moved a little bit?
 
 See where this is going?
 
-So if you try to do something crazy, like changing the "margin" property of an element in JavaScript and hoping to achieve anything that looks even slightly like a smooth animation, you're out of luck. Not gonna happen.
+If you try to animate an element smoothly using "margin", you're out of luck. Every time you change the margin, the browser has to check a lot of extra stuff to see what else has to be rendered as well as the element that you changed.
 
-This is the "latout" phase. It's the expensive part.
+This is the "layout" phase. It's the expensive part.
 
 ## How to cause "rendering"
 
@@ -103,23 +103,26 @@ Short answer: you don't cause it. It happens all the time.
 
 It's true!
 
-60 times every second, your entire UI is rendered, from scratch. _All_ of it.
+Under the hood, your entire UI is rendered, 60 times every second, from scratch. _All_ of it.
 
-The browser is _finished_ with the layout. It knows the size of all the boxes, where they should be on the page, and all that jazz.
+The browser uses the cached layout structure when rendering, so the browser knows the size of all the boxes, where they should be on the page, and all that jazz.
 
-So rendering it, or painting it, as it's often called with affection, is super fast, because that's something the GPU does.
+Typically, each box or section of your GUI has ended up as a texture in OpenGL or Metal or something like that. Your GPU will then paint the textures in the correct position on the screen. 
 
-Typically, each box or section of your GUI has ended up as a texture in OpenGL or something like that. Your GPU will then just take all of these textures, and paint them in the correct position on the screen. The GPU is _really super ultra fast_ at doing this.
+The GPU is _really super ultra fast_ at doing this.
 
-That's why a simple "rendering" is fast.
+That's why "rendering" is fast.
 
 ## Why does that matter? 
 
 Good question.
 
-The answer: **Some operations only requires a new rendering phase.**
+If you want rendering to be fast, you got to ask yourself:
 
-This is super important. Your buttery smooth 60 fps animations, for example, absolutely most certainly do _not_ want to cause a new layout. You just want to tweak the rendering.
+* Does this cause full layout?
+* Or does it just cause a new render with the existing laout?
+
+This is super important. Your buttery smooth 60 fps animations does _not_ want to cause a new layout. You just want to tweak the rendering.
 
 There are two main ways of doing that.
 
@@ -128,11 +131,11 @@ There are two main ways of doing that.
 Let's say you have the divs from above:
 
 <pre><code data-lang="html">
-<div style="width: 200px; background: red;">
-  <div style="background: yellow; display: inline-block; width: 160px;">
+<div style="width: 200px; background: #c1b4ae;">
+  <div style="background: #be5a38; display: inline-block; width: 160px;">
     foo
   </div>
-  <div style="background: green; display: inline-block; margin-left: 20px;">
+  <div style="background: #92140c; display: inline-block; margin-left: 20px;">
     hai
   </div>
 </div>
@@ -140,18 +143,18 @@ Let's say you have the divs from above:
 
 Which then looks like this:
 
-<div style="width: 200px; background: red;">
-  <div style="background: yellow; display: inline-block; width: 160px;">foo</div>
-  <div style="background: green; display: inline-block; margin-left: 20px;">hai</div>
+<div style="width: 200px; background: #c1b4ae;">
+  <div style="background: #be5a38; display: inline-block; width: 160px;">foo</div>
+  <div style="background: #92140c; display: inline-block; margin-left: 20px;">hai</div>
 </div>
 
 <p></p>
 
-All we want to do, is to change the color on one of them, from <span style="color: #fff; background-color: green">Ugly Web Green</span> to <span style="color: #fff; background-color: blue">Ugly Web Blue</span>.
+All we want to do, is to change the color on one of them, from <span style="color: #fff; background-color: #92140c">Pretty Smooth Red</span> to <span style="color: #fff; background-color: blue">Ugly Web Blue</span>.
 
 <pre><code data-lang="html">
-<div style="width: 200px; background: red;">
-  <div style="background: yellow; display: inline-block; width: 160px;">
+<div style="width: 200px; background: #c1b4ae;">
+  <div style="background: #be5a38; display: inline-block; width: 160px;">
     foo
   </div>
   <div style="background: blue; display: inline-block; margin-left: 20px;">
@@ -160,8 +163,8 @@ All we want to do, is to change the color on one of them, from <span style="colo
 </div>
 </code></pre>
 
-<div style="width: 200px; background: red;">
-  <div style="background: yellow; display: inline-block; width: 160px;">foo</div>
+<div style="width: 200px; background: #c1b4ae;">
+  <div style="background: #be5a38; display: inline-block; width: 160px;">foo</div>
   <div style="background: blue; display: inline-block; margin-left: 20px;">hai</div>
 </div>
 
@@ -174,8 +177,8 @@ The browser knows that there is absolutely no way that changing the background-c
 Now, CSS has a separate property for just affecting the rendering stage. Let's move a box, without causing layout!
 
 <pre><code data-lang="html">
-<div style="width: 200px; background: red;">
-  <div style="background: yellow; display: inline-block; width: 160px;">
+<div style="width: 200px; background: #c1b4ae;">
+  <div style="background: #be5a38; display: inline-block; width: 160px;">
     foo
   </div>
   <div style="transform: translate(20px, -5px); background: blue; display: inline-block; margin-left: 20px;">
@@ -184,8 +187,8 @@ Now, CSS has a separate property for just affecting the rendering stage. Let's m
 </div>
 </code></pre>
 
-<div style="width: 200px; background: red;">
-  <div style="background: yellow; display: inline-block; width: 160px;">foo</div>
+<div style="width: 200px; background: #c1b4ae;">
+  <div style="background: #be5a38; display: inline-block; width: 160px;">foo</div>
   <div style="background: blue; display: inline-block; margin-left: 20px; transform: translate(20px, -5px)">hai</div>
 </div>
 
