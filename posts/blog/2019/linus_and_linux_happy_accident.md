@@ -16,7 +16,7 @@ After owning a few interesting computers (a VIC-20 and a Sinclair QL), Linus sav
 
 By "immediately", I mean "spent the better part of a week installing it".
 
-Minix was reasonably popular at the time, and also free, which was a killer combo for a poor university student in Helsinki, Finland. Linus ordered Minix in advance. A month later, it arrived - in the form of 16 floppy disk.
+Minix was reasonably popular at the time, and also free, which was a killer combo for a poor university student in Helsinki, Finland. Linus ordered Minix in advance. A month later, it arrived - in the form of 16 floppy disks.
 
 Designed by Andrew Tanenbaum, Minix was meant as a teaching aide at mr. Tanenbaum's professorate at an Amsterdam university. It was gimped by design, and not really a full blown OS. There were patches floating around to improve its usefulness, and one of the more popular and useful were made by Bruce Evans, an Australian.
 
