@@ -8,7 +8,7 @@ If you understand Norwegian, or just want to pretend you do, you should also [li
 
 It's story time.
 
-## How Linus Torvalds accidentally created Linux by mistake
+## How Linus Torvalds accidentally created Linux
 
 It's 1990, and Linus Torvalds was an unhappy Minix user.
 
