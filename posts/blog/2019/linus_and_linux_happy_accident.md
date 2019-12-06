@@ -2,6 +2,8 @@ date: 2019.12.05
 title: Linux exists only because of a happy accident
 series: advent_calendar_2019
 
+EDIT: Discussion [here](https://www.reddit.com/r/linux/comments/e6fvj0/linux_exists_only_because_of_a_happy_accident/), [here](https://www.reddit.com/r/programming/comments/e6kn97/linux_exists_only_because_of_a_happy_accident/) and [here](https://news.ycombinator.com/item?id=21711572).
+
 You should read the book [Just For Fun](https://www.amazon.com/Just-Fun-Story-Accidental-Revolutionary/dp/0066620732), Linus Torvalds' autobiography.
 
 I also make a podcast, in Norwegian. This post is based on an episode of that podcast, so if you understand Norwegian, or just want to pretend you do, you should also [listen to the episode we made](https://utviklingslandet.no/ep/2019-06-26/) about the same subject as this blog post.
