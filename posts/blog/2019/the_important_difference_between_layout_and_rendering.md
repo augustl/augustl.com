@@ -204,8 +204,10 @@ Then, it applies the transform _at the GPU level_ to the texture. If it's someth
 So that's almost like not doing any extra work at all as far as the GPU is concerned. It just takes the existing texture, positions it based on the existing layout information, and performs a super cheap transform to figure out where to draw it.
 
 
-## Allright!
+## Not just the web
 
-So now you know why it's important to know the difference between layout and rendering!
+I use web and HTML as an example here, but all rendering engines that I'm familiar with employs techniques like this.
 
+The terminology might not be the same in all of them, but the principle is there. Figuring out where to put stuff is much different than just rendering it after that has been figured out.
 
+Now you know!
