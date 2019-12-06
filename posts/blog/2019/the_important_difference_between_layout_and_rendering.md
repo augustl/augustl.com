@@ -6,11 +6,11 @@ Layout and rendering reminds me of variable names in math. What the heck is "c"?
 
 Different rendering engines might have different names for these. But the concept of separating layout and rendering exists in every rendering engine I'm aware of.
 
-Let's see how this works, using the web as an example.
+Let's see how this works, using the web and HTML as an example.
 
-## How to cause "layout"
+## How to cause "layout" in plain old HTML
 
-Allright, we have a div.
+Allright, we have a div, with plain old HTML. No JavaScript, no React.
 
 <pre><code data-lang="html">
 <div>hai</div>
@@ -96,7 +96,7 @@ If you try to animate an element smoothly using "margin", you're out of luck. Ev
 
 This is the "layout" phase. It's the expensive part.
 
-## How to cause "rendering"
+## How to cause "rendering" on the web
 
 Short answer: you don't cause it. It happens all the time.
 
