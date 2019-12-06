@@ -2,7 +2,7 @@ date: 2019.12.06
 title: The important difference between layout and rendering
 series: advent_calendar_2019
 
-Layout and rendering reminds me of variable names in math. What the heck is "c"? Well, that's the speed of light, obviously! And what about "L"? Angular momentum, silly! THere's a [whole list of these](https://en.wikipedia.org/wiki/List_of_letters_used_in_mathematics_and_science).
+Layout and rendering reminds me of variable names in math. What the heck is "c"? Well, that's the speed of light, obviously! And what about "L"? Angular momentum, silly! There's a [whole list of these](https://en.wikipedia.org/wiki/List_of_letters_used_in_mathematics_and_science).
 
 Different rendering engines might have different names for these. But the concept of separating layout and rendering exists in every rendering engine I'm aware of.
 
