@@ -59,6 +59,7 @@ It looks like this:
 Then we add a margin.
 
 <pre><code data-lang="html">
+<!-- This causes new layout! -->
 <div style="width: 200px; background: #c1b4ae;">
   <div style="background: #be5a38; display: inline-block; width: 160px;">
     foo
@@ -152,6 +153,7 @@ Which then looks like this:
 All we want to do, is to change the color on one of them, from <span style="color: #fff; background-color: #92140c">Pretty Smooth Red</span> to <span style="color: #fff; background-color: blue">Ugly Web Blue</span>.
 
 <pre><code data-lang="html">
+<!-- This does _not_ cause new layout, just new render -->
 <div style="width: 200px; background: #c1b4ae;">
   <div style="background: #be5a38; display: inline-block; width: 160px;">
     foo
@@ -176,6 +178,7 @@ The browser knows that there is absolutely no way that changing the background-c
 Now, CSS has a separate property for just affecting the rendering stage. Let's move a box, without causing layout!
 
 <pre><code data-lang="html">
+<!-- This also doesn't cause new layout, just new render -->
 <div style="width: 200px; background: #c1b4ae;">
   <div style="background: #be5a38; display: inline-block; width: 160px;">
     foo
