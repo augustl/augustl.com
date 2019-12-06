@@ -44,6 +44,10 @@ Then, Linus **accidentally deleted his Minix partition**
 
 In Linus' own words:
 
+> I probably would have stopped by the end of 1991. I had done a lot of things I thought were interesting. Everything didn’t really work perfectly, but in a software kind of world I find that once you solve the fundamental problems of a project, it’s easy to lose interest. And that’s what was happening to me. Trying to debug software is not very engaging.
+>
+> [...]
+>
 > Back then, I was booting into Linux but used Minix as the main development environment. Most of what I was doing under Linux was reading email and news from the university’s computer via the terminal emulator I had written. The university computer was constantly busy, so I had written a program that auto-dialed into it. But in December, I mistakenly auto-dialed my hard disk instead of my modem. I was trying to auto-dial /dev/tty1 [...]. But by mistake I auto-dialed /dev/hda1, which is the hard disk device. The end result was that I inadvertently overwrote some of the most critical parts of the partition where I had Minix. Yes, that meant I couldn’t boot Minix anymore.
 > 
 > That was the point where I had a decision to make: I could reinstall Minix, or I could bite the bullet and acknowledge that Linux was good enough that I didn’t need Minix. I would write the programs to compile Linux, under itself, and whenever I felt I needed Minix, I would just add the desired feature to Linux.
