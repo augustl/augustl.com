@@ -20,7 +20,7 @@ You can almost think of flutter like a 3D gaming engine, except that it's for 2D
 
 So when you see a table view and scroll it, you're not seeing _anything_ from the Android or iOS native code, you're seeing Flutter.
 
-You can choose between a material (Android-like) look, a "coupertino" look (iOS-like), or take complete control of the look and feel yourself. If you choose "cupertino", you app will look exactly like an iOS app on iOS _and_ Android. Vice versa for material. This means that Google has put a great effort into making the respective themes look and feel completely like their normal native counterparts. And from what I can tell, they've succeeded. There are no obvious tells that something is "a Flutter app".
+You can choose between a material (Android-like) look, a "cupertino" look (iOS-like), or take complete control of the look and feel yourself. If you choose "cupertino", you app will look exactly like an iOS app on iOS _and_ Android. Vice versa for material. This means that Google has put a great effort into making the respective themes look and feel completely like their normal native counterparts. And from what I can tell, they've succeeded. There are no obvious tells that something is "a Flutter app".
 
 Flutter is a well put together system. Some systems gives me the impression that it's only partly open sourced, and that the vendor has internal utils that are vital but not released. That is _not_ the case with Flutter. Flutter has solutions and APIs for all the problems you typically encounter.
 
