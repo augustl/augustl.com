@@ -37,7 +37,7 @@
 (defn get-series [series-name series posts-by-series]
   (if-let [a-series (get series series-name)]
     [:div.series
-     "This post is part of a series: " [:a {:href (str "/series/" series-name)} (:title a-series)]]))
+     "This post is part of a series: " [:a {:href (str "/series/" series-name "/")} (:title a-series)]]))
 
 (defn layout-post
   [post series posts-by-series]
@@ -90,14 +90,14 @@
     [:body
      (list
        [:p {:class "wwwf"} "ME ME ME ME ME"]
-       [:p {:class "nfnfnfnfnf"} [:a {:href "/about"} "<> <>"]]
+       [:p {:class "nfnfnfnfnf"} [:a {:href "/about/"} "<> <>"]]
        (map
          (fn [post] [:p.ffffff
                      [:a {:href (:url post)} (get-in post [:headers :title])]
                      (str " (" (:pretty-date post) ")")])
          (take 10 posts))
        [:div {:class "ffffff"}
-        [:a {:href "/archive"} "All posts"]
+        [:a {:href "/archive/"} "All posts"]
         " <> "
         [:a {:href "/atom.xml"} "RSS"]]
        [:form {:class "yyyyasdf" :method "GET" :action "/letconstvar"}
@@ -164,7 +164,8 @@
     (->> (file-seq dir)
          (filter #(.isFile %))
          (map #(assoc (post-parser/parse dir %) :extension (get-file-extension %)))
-         (sort-by #(get-in % [:headers :date]) #(.compareTo %2 %1)))))
+         (sort-by #(get-in % [:headers :date]) #(.compareTo %2 %1))
+         (map #(assoc % :url (str (:url %) "/"))))))
 
 (defn get-pages
   []
@@ -178,7 +179,7 @@
       "/letconstvar/" get-me-jpg-page
       "/archive/" (partial get-archive-page listed-posts)
       "/atom.xml" (partial atom-feed/get-atom-feed listed-posts base-title)}
-     (into {} (map (fn [post] [(str (:url post) "/") (fn [req] (layout-post post series listed-posts-by-series))]) posts))
+     (into {} (map (fn [post] [(:url post) (fn [req] (layout-post post series listed-posts-by-series))]) posts))
      (into {} (map (fn  [[name a-series]]
                      [(str "/series/" name "/")
                       (fn [req] (layout-series-overview a-series name listed-posts-by-series))])
