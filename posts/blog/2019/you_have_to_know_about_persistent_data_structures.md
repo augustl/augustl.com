@@ -1,7 +1,6 @@
-date: 2019.12.05
+date: 2019.12.08
 title: You have to know about persistent data structures
 series: advent_calendar_2019
-unlisted: true
 
 The first thing I look for when checking out a new programming language is immutable persistent data structures. This is an injury I've gotten from Clojure, which has them out of the box. I tend to structure my whole app around these kinds of data structures. They are smart, fast, efficient, immutable and amazing.
 
@@ -19,18 +18,19 @@ Sorry. Couldn't resist being snarky. I don't want to trash talk those who don't 
 
 ## The problem with immutable values is that they're immutable
 
-Let's say you have an immutable hash map or something. It's implemented using some kind of tree structure under the hood. A lot of data structures are trees under the hood.
+Let's say you have an immutable hash map or something. It's implemented using some kind of tree structure under the hood, like a lot of data structures are.
 
 <p><img src="/static/posts/you_have_to_Know_about_persistent_data_structures/the_basic.png">
 
+The problem happens when we want to add a key to this map. The data structure is immutable, so we can't change it! 
 
-Look at that tree! It's so big, and so immutable.
-
-The problem happens when we want to add something to it. Let's say it's a map, and we just want to add one key to it. But we can't do that, because it's immutable! Other parts of our code might have references to it, so we can't just change it. That's the whole point. So we have to create a completely new copy.
+So, we have to create a whole new copy of everything, an add our new stuff to it.
 
 <p><img src="/static/posts/you_have_to_Know_about_persistent_data_structures/complete_clone.png">
 
 (Red = new stuff)
+
+A new node was added at the bottom right of the image. And we had to copy _all the data_ in the tree structure, since we can't change the immutable original.
 
 So that's the end of the story, then? Immutability sucks, because you have to copy everything all the time you want to change something?
 
@@ -54,7 +54,9 @@ That other option is...
 
 Now _this_ is my kind of persistent data structure.
 
-Allright. So we have this huge data structure. We know that it is immutable. We want to change one little piece of it. What optimization can we run on this process?
+So.
+
+We have this huge data structure. We know that it is immutable. We want to change one little piece of it. What optimization can we run on this process?
 
 Do you see it yet?
 
@@ -75,9 +77,7 @@ Yay!
 
 ## Clojure does another really cool thing
 
-In the real world, it turns out that doing lots of stuff with tree structures is kind of expensive.
-
-And a lot of your lists and maps are small, containing maybe a handful of items.
+In the real world, it turns out that if you just have a small map with just a handful of keys, operating on a fancy tree structure can be kind of expensive.
 
 Under the hood, Clojure will do a very cool optimization: if your map has fewer than 8 (I think) items in it, it will just be represented as a normal mutable list under the hood.
 
@@ -88,6 +88,18 @@ Why is that cool?
 Well, it turns out that it's actually faster to do it that way, when you only have a small amount of data. Checking a list of 8 items for whether or not your key exists in it, is much faster than having to maintain and balance a binary tree or a b-tree.
 
 Think of it like garbage collection generations. Under the hood, your stuff will be in the "eden" space or "tenured" space. Which is fancy speak for: stuff that is just created and immediately discarded is garbage collected differently than long lived stuff. This happens completely under the hood, as a performance optimization, without you having to do anything special to make it happen.
+
+## An other another cool thing!
+
+Let's say you have this function in a tight loop that adds 100s of items to a map, based on a data stream of some kind. Maybe a CSV or a database or something like that.
+
+By default, all maps are immutable, so that means you have to do 100s of potentially expensive operations on the persistent data structures.
+
+However! Clojure has transients.
+
+Transients are a special version of immutable data structures. You first "unlock" it and create a "transient" map (or list or set or ...). Then you work on it as you would with a normal immutable data structure, using map or reduce or whatever. Then when you're done, you "lock" it and you get a normal immutable map back.
+
+This optimization allows Clojure to know that in your tight loop, nobody else will actually use the data structure, so it can be "less fancy" in how it builds it up. And much faster, skipping the entire potential overhead of managing a persistent data structure.
 
 Clojure has pretty cool data structures.
 
