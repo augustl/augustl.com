@@ -97,7 +97,38 @@ By default, all maps are immutable, so that means you have to do 100s of potenti
 
 However! Clojure has transients.
 
-Transients are a special version of immutable data structures. You first "unlock" it and create a "transient" map (or list or set or ...). Then you work on it as you would with a normal immutable data structure, using map or reduce or whatever. Then when you're done, you "lock" it and you get a normal immutable map back.
+Transients are a special version of immutable data structures. You first "unlock" it and create a "transient" map (or list or set or ...).
+
+Here's a normal immutable example:
+
+<pre><code data-lang="clojure">
+(->> [1 2 3 4]
+     (reduce
+       (fn [res curr] (conj res (+ 1 curr)))
+       []))
+;; [2 3 4 5]
+</code></pre> 
+
+Here it is with transients. Notice how we have to use special versions of the functions, like `conj!` instead of `conj`.
+
+<pre><code data-lang="clojure">
+(->> [1 2 3 4]
+     (reduce
+       (fn [res curr] (conj! res (+ 1 curr)))
+       (transient [])))
+;; clojure.lang.PersistentVector$TransientVector@139e6e1d
+</code></pre> 
+
+Whoops! We forgot to make it persistent:
+
+<pre><code data-lang="clojure">
+(->> [1 2 3 4]
+     (reduce
+       (fn [res curr] (conj! res (+ 1 curr)))
+       (transient []))
+     (persistent!))
+;; [2 3 4 5]
+</code></pre> 
 
 This optimization allows Clojure to know that in your tight loop, nobody else will actually use the data structure, so it can be "less fancy" in how it builds it up. And much faster, skipping the entire potential overhead of managing a persistent data structure.
 
