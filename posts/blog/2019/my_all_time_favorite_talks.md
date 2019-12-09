@@ -1,7 +1,6 @@
-date: 2019.12.04
+date: 2019.12.09
 title: My all-time favorite talks
 series: advent_calendar_2019
-unlisted: true
 
 It's sharing time!
 
