@@ -1,11 +1,10 @@
-date: 2019.12.03
+date: 2019.12.10
 title: A short recipe for setting up the Microsoft SQL Server docker image
 series: advent_calendar_2019
-unlisted: true
 
-That's a lot of Microsoft stuff so far! This one is more of a coincidence. 
+More Microsoft stuff.
 
-We're moving from Oracle to SQL Server at my current client. So far, so good. There's nothing I like better in Oracle than in SQL Server. In fact, there's a lot to like about SQL Server. The driver code is open source, for example, so when Weird Stuff happens in our app, we can look at the source code of the driver itself in the stack traces and see what it's up to.
+At my current client, we're in the process of moving from Oracle to SQL Server. So far so good!  In fact, there's a lot to like about SQL Server. The driver code is open source, for example, so when Weird Stuff happens in our app, we can look at the source code of the driver itself in the stack traces and see what it's up to.
 
 Anyway. The docker image.
 
