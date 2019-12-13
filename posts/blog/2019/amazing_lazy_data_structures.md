@@ -74,7 +74,8 @@ First of all, that's _much_ less code.
 Second of all, you can make it use BigDecimals and get `(fib 100000)` super fast, with good memory usage and no stack overflow and all that jazz.
 
 <pre><code data-lang="clojure">
-;; Clojure uses long by default, so make it use bigdec for arbitrarily sized numbers
+;; Clojure uses long by default, so make it use 
+;; bigdec for arbitrarily sized numbers
 (defn fib
   ([]
    (fib (bigdec 0) (bigdec 1)))
