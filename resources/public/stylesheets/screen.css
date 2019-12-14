@@ -380,3 +380,13 @@ blockquote {
 img {
     max-width: 100%;
 }
+
+table {
+    margin-left: 10%;
+    width: 80%;
+    margin-bottom: 1em;
+}
+
+th {
+    text-align: left;
+}
