@@ -1,17 +1,16 @@
 date: 2019.12.15
 title: According to Microsoft, the number one predictor of software bugs is...
 series: advent_calendar_2019
-unlisted: true
 
 Microsoft launched Windows Vista in 2007, with varying degrees of success.
 
 Microsoft Research made a substantial effort to figure out what went wrong.
 
-They learned something surprising (or maybe not?) about the number one predictor for software bugs.
+They learned something surprising (or maybe not?) about the number one predictor of software bugs.
 
 ## Microsoft Research, and Vista
 
-Windows Vista was a problematic release, to say the least. Vista is often placed alongside ME (Milennium Edition) as the two versions of Windows that were, put simply, bad releases.
+Windows Vista was a problematic release, to say the least. Vista is often placed alongside ME (Millennium Edition) as the two versions of Windows that were, put simply, bad releases.
 
 I'm not going to go into great detail here. But they struggled, and Microsoft knew it. For example, they had this amazing commercial running in 2008: The Mojave Experiment, where Microsoft basically pranks people into saying positive things about Vista.
 
@@ -29,15 +28,15 @@ Microsoft Research [developed a new statistical model](https://www.microsoft.com
 * **Code Coverage**. Traditional test coverage that most developers are probably already familiar with.
 * **Pre-Release Bugs**. Number of issues in the issue tracker.
 
-In addition to these pre-existing models, Microsoft made a new model:
+In addition to these pre-existing models, the new model they made was:
 
 * **Organizational Complexity**. Measures number of developers workong on the module, number of ex-developers that _used_ to work on the module but no longer does, how big a fraction of the organization as a whole that works or has worked on the module, the distance in the organization between the developer and the decision maker, etc.
 
 Microsoft published a study, where they used statistical methods to measure these different methods up against one another.
 
-If you want details, and happen to understand Norwegian, you can listen to [this podcast episode](https://utviklingslandet.no/ep/2019-05-08/). The short summary is that the two columns in the table below shows the following:
+If you want details, and happen to understand Norwegian, you can listen to [this podcast episode](https://utviklingslandet.no/ep/2019-05-08/) that I made. The short summary is that the two columns in the table below shows the following:
 
-* **Precision** - how many modules that had bugs, did we discover?
+* **Precision** - how many modules that had bugs, did we detect?
 * **Recall** - of the modules you thought had bugs, how many did actually have bugs?
 
 The results below are Microsoft running their models against the various modules in Vista, and compared that with how many bugs the module actually had 6 months after Vista was released. They found the following:
@@ -54,7 +53,7 @@ The results below are Microsoft running their models against the various modules
 
 Yowza!
 
-The organizational structure has the highest precision by far - so it found the highest amount of bugs. _And_ it has the highest recall - so of the modules that it thought could have bugs, almost all actually had bugs.
+The organizational structure has the highest precision by far - so it found the most amount of bugs. _And_ it has the highest recall - so of the modules that it thought could have bugs, almost all actually had bugs.
 
 That's pretty interesting, isn't it? The distance to decision makers and the number of developers working on a project is clearly and unambiguously the issue that is the best predictor of future problems with a code base.
 
