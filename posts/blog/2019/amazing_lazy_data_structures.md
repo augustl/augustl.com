@@ -156,11 +156,18 @@ It turns out that under the hood, Clojure will some times do a performance optim
 
 <pre><code data-lang="clojure">
 ; Batching
-(->> (map (fn [n] (print n ""))
+(->> (map (fn [n] (print n "") n)
           [1 2 3 4 5 6 7 8 9 10 11 ... 34 35 36])
      (take 3))
+     
+; prints
 ; 1 2 3 4 5 6 7 8 9 10 11 ... 30 31 32 
+
+; returns
+; (1 2 3)
 </code></pre>
+
+Note: it will run the mapping function 32 times and "pre-cache" the lazy results - but you'll still get a sequence with 3 elements in it returned from `(take)`.
 
 But, if your source is a lazy sequence and not a vector, it won't do that.
 
