@@ -144,10 +144,15 @@ That's because `(map)` is also lazy. We have to actually get some items from it 
 
 <pre><code data-lang="clojure">
 ; Wait what, now?
-(->> (map (fn [n] (print n "")) 
+(->> (map (fn [n] (print n "") n) 
           [1 2 3 4 5 6 7 8 9 10])
      (take 3))
+     
+; prints
 ; 1 2 3 4 5 6 7 8 9 10
+
+; returns
+; (1 2 3)
 </code></pre>
 
 Surprised? We ask for 3 items, but all 10 items seems to be printed! Is it not lazy after all?
@@ -173,11 +178,15 @@ But, if your source is a lazy sequence and not a vector, it won't do that.
 
 <pre><code data-lang="clojure">
 ; No batching when source is lazy
-(->> (map (fn [n] (print n "")) 
+(->> (map (fn [n] (print n "") n) 
           (iterate inc 1))
      (take 3))
 
+; prints
 ; 1 2 3
+
+; returns
+; (1 2 3)
 </code></pre>
 
 ## Generating PIN codes
