@@ -101,10 +101,10 @@ By the way, the threading macro is awesome. You use it to write statements in th
 (time (last (take 100000 (fib))))
 
 ; Awesome threading macro version
-(-> (fib)
-    (take 100000)
-    (last)
-    (time))
+(->> (fib)
+     (take 100000)
+     (last)
+     (time))
 </code></pre>
     
 So what actually _is_ this laziness?
