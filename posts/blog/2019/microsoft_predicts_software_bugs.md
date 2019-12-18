@@ -38,8 +38,8 @@ Microsoft published a study, where they used statistical methods to measure thes
 
 If you want details, and happen to understand Norwegian, you can listen to [this podcast episode](https://utviklingslandet.no/ep/2019-05-08/) that I made. The short summary is that the two columns in the table below shows the following:
 
-* **Precision** - how many modules that had bugs, did we detect?
-* **Recall** - of the modules you thought had bugs, how many did actually have bugs?
+* **Precision** - of the modules you thought had bugs, how many did actually have bugs?
+* **Recall** - how many modules that had bugs, did we detect?
 
 The results below are Microsoft running their models against the various modules in Vista, and compared that with how many bugs the module actually had 6 months after Vista was released. They found the following:
 
@@ -55,12 +55,12 @@ The results below are Microsoft running their models against the various modules
 
 Yowza!
 
-The organizational structure has the highest precision by far - so it found the most amount of bugs. _And_ it has the highest recall - so of the modules that it thought could have bugs, almost all actually had bugs.
+The organizational structure has the highest precision - so when it predicted a module would have a bug, it has the highest success rate for doing so. _And_ it has the highest recall - so it's the method that catched the highest amount of bugs.
 
 That's pretty interesting, isn't it? The distance to decision makers and the number of developers working on a project is clearly and unambiguously the issue that is the best predictor of future problems with a code base.
 
-Another shocking discovery for me personally, is that the only one that I've actually used myself - code coverage - has the lowest recall. In other words, almost all the issues it predicted turned out to not be real issues.
-
+Another shocking discovery for me personally, is that the only one that I've actually used myself - code coverage - has the lowest recall. It has a high precision, so bad code coverage does mean a high chance of bugs, i.e. low amount of false flags. But with a low recall, there are lots of bug that code coverage doesn't actually catch.
+ 
 ## And the study is replicated!
 
 Science is going through somewhat of a [replication crisis](https://en.wikipedia.org/wiki/Replication_crisis), where fundamental and highly cited studies has turned out to not be reproducible. 
