@@ -67,7 +67,7 @@ The gist of it is that you compare two things: The predictions made by the predi
 The very general summary of the statistical process is as follows:
 
 * You analyze a software module using the prediction model, and return a p value (a number between 0 and 1, where 0 means zero chance of bug, and 1 means it's completely confident that there's bugs).
-* You use that p value to define a binary "yes" or "no" for whether or not you think a module has a bug. If p < 0.5, the module is flagged as buggy.
+* You use that p value to define a binary "yes" or "no" for whether or not you think a module has a bug. If p > 0.5, the module is flagged as buggy.
 * A module, in the context of Windows Vista, is an individual DLL. So a device driver, a kernel module, etc.
 * You take the 3000 (ish) modules in Vista and, divide them into 3 random parts. One part gets the prediction method run on them, and that result is compared with the remaining two parts based on whether or not it actually had a bug in the real world
 * You extract precision and recall values out of that (more on that later)
@@ -92,7 +92,7 @@ So what does it mean?
 
 Having a low recall is not the end of the world. It just means that you could have detected more buggy modules, and that some buggy modules went under the radar.
 
-Having a low precision is worse. That means that the prediction model said tagged a module as buggy - but it turned out that the module actually wasn't.
+Having a low precision is worse. That means that the prediction model tagged a module as buggy - but it turned out that the module actually wasn't.
 
 ## Doesn't that mean that I need actual bug data to predict bugs?
 
