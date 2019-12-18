@@ -31,7 +31,7 @@ The new model they developed was compared to these pre-existing well known model
 In addition to these pre-existing models, the new model they
 developed  was:
 
-* **Organizational Complexity**. Measures number of developers workong on the module, number of ex-developers that _used_ to work on the module but no longer does, how big a fraction of the organization as a whole that works or has worked on the module, the distance in the organization between the developer and the decision maker, etc.
+* **Organizational Complexity**. Measures number of developers working on the module, number of ex-developers that _used_ to work on the module but no longer does, how big a fraction of the organization as a whole that works or has worked on the module, the distance in the organization between the developer and the decision maker, etc.
 
 The results really do speak for themselves.
 
