@@ -77,6 +77,8 @@ So what exactly is precision and recall?
 
 ## Precision and recall
 
+_EDIT: This section had precision and recall swapped. The article has been updated. Thanks to [/u/programmingfriend on Reddit](https://www.reddit.com/r/programming/comments/ec9s2o/the_1_bug_predictor_is_not_technical_its/fba2g0w/) for pointing that out!_ 
+
 When you run your comparison of "here's the result my prediction method got" and compare it to "here's how many bugs the module _actually_ had", you get precision and recall values.
 
 Remember that we checked 1/3rd of the modules with the prediction method, and compared it to the actual real world results of the remaining 2/3rds. This comparison yields the numbers in the table above.
