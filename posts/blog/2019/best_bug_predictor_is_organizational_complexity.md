@@ -50,7 +50,7 @@ Organizational structure has the highest precision, _and_ the highest recall. (A
 
 That's pretty interesting, isn't it? The distance to decision makers and the number of developers working on a project is clearly and unambiguously the issue that is the best predictor of future problems with a code base.
 
-Another shocking discovery for me personally, is that the only one that I've actually used myself - code coverage - has the lowest recall. In other words, almost all the issues it predicted turned out to not be real issues. (_Again_ again, more details later).
+Another shocking discovery for me personally, is that the only one that I've actually used myself - code coverage - has the lowest recall. It has a high precision, so bad code coverage does mean a high chance of bugs, i.e. low amount of false flags. But with a low recall, there are lots of bug that code coverage doesn't actually catch.
 
 ## Predicting bugs?
 
@@ -83,12 +83,12 @@ Remember that we checked 1/3rd of the modules with the prediction method, and co
 
 So what does it mean?
 
-* **Precision** - how many modules that had bugs, did the prediction model detect?
-* **Recall** - of the modules that the prediction model thought had bugs, how many did actually have bugs?
+* **Precision** - of the modules that the prediction thought had bugs, how many did actually have bugs?
+* **Recall** - how many modules that had bugs, did the prediction model detect?
 
-Having a low precision is not the end of the world. It just means that you could have detected more buggy modules, and that some buggy modules went under the radar.
+Having a low recall is not the end of the world. It just means that you could have detected more buggy modules, and that some buggy modules went under the radar.
 
-Having a low recall is worse. That means that the prediction model said tagged a module as buggy - but it turned out that the module actually wasn't.
+Having a low precision is worse. That means that the prediction model said tagged a module as buggy - but it turned out that the module actually wasn't.
 
 ## Doesn't that mean that I need actual bug data to predict bugs?
 
