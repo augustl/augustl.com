@@ -122,4 +122,4 @@ Another thing to consider is the difference between formal and informal organiza
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/k2h2lvhzMDc?start=606" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-At any rate, this discovery coupled with the findings from [Accellerate](https://www.amazon.com/Accelerate-Software-Performing-Technology-Organizations-ebook/dp/B07B9F83WM/ref=sr_1_1?keywords=accellerate&qid=1576617532&s=books&sr=1-1) leads me to at the very least believe that social elements is probably under-measured in software projects, and should be taken more seriously.
+At any rate, this discovery coupled with the findings from [Accelerate](https://www.amazon.com/Accelerate-Software-Performing-Technology-Organizations-ebook/dp/B07B9F83WM/ref=sr_1_1?keywords=accellerate&qid=1576617532&s=books&sr=1-1) leads me to at the very least believe that social elements is probably under-measured in software projects, and should be taken more seriously.
