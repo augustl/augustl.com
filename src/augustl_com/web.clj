@@ -48,7 +48,7 @@
   (layout-postish-page
    [:div {:id "article" :class "article"}
     [:h1 (get-in post [:headers :title])]
-    [:p {:class "timestamp"} "Published " (:pretty-date post)]
+    [:p {:class "timestamp"} "Written by August Lilleaas, published " (:pretty-date post)]
     (get-series (get-in post [:headers :series]) series posts-by-series)
     (util/get-post-body post)
     [:hr {:class "post-sep"}]
