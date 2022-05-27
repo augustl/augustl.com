@@ -4,7 +4,11 @@
             [augustl-com.util :as util]
             [hiccup.page :refer [html5]]
             [optimus.assets :as assets]
-            clojure.edn))
+            clojure.edn
+            [stasis.core :as stasis]
+            [optimus.prime :as optimus]
+            [optimus.optimizations :as optimizations]
+            [optimus.strategies :as strategies]))
 
 (def base-title "August Lilleaas' blog")
 
@@ -189,3 +193,8 @@
                       (fn [req]
                         (atom-feed/get-atom-feed (get listed-posts-by-series name) (:title a-series) req))])
                    series)))))
+
+(def app
+  (->
+    (stasis/serve-pages get-pages)
+    (optimus/wrap get-assets optimizations/none strategies/serve-live-assets)))

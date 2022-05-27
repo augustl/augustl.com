@@ -1,7 +1,14 @@
 (ns user
-  (:require [reloaded.repl :refer [system init start stop go reset]]
-            [augustl-com.system :as system]))
+  (:require [ring.adapter.jetty]
+            [augustl-com.web :refer [app]]))
 
-(reloaded.repl/set-init! #(system/new-system {:port 3000}))
+(declare server)
+
+(defn start-server []
+  (defonce server (ring.adapter.jetty/run-jetty #'app {:port 3000 :join? false}))
+  (.start server))
+
+(defn stop-server []
+  (.stop server))
 
 
