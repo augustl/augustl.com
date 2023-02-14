@@ -11,4 +11,6 @@ I wrote a book!
 
 ## Book source code
 
-[All the code from the book is available on GitHub](https://github.com/augustl/pro-kotlin-web-apps-from-scratch). For some reason, me and everyone else involved with the book forgot to mirror the code to Apress' GitHub and link to it from the book. Whoops!
+[All the code from the book is available on Apress' GitHub](https://github.com/Apress/Pro-Kotlin-Web-Apps-from-Scratch).
+
+You can also get [the code from the book mirrored to my personal GitHub](https://github.com/augustl/pro-kotlin-web-apps-from-scratch).
