@@ -174,7 +174,7 @@
   (let [dir (clojure.java.io/as-file dir)]
     (->> (file-seq dir)
          (filter #(.isFile %))
-         (map #(parse-post-file dir %))
+         (map #(assoc (parse-post-file dir %) :extension (get-file-extension %)))
          (remove nil?)
          (sort-by #(get-in % [:headers :date]) #(.compareTo %2 %1))
          (map #(assoc % :url (str (:url %) "/"))))))
