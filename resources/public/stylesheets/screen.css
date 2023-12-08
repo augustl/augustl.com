@@ -107,6 +107,10 @@ a:visited {
     margin-bottom: 20px;
 }
 
+.article article {
+    margin-top: 50px;
+}
+
 #blog_post_summaries {
     width: 450px;
     float: left;
