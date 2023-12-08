@@ -167,7 +167,7 @@
 
 (defn parse-post-file [dir file]
   (case (get-file-extension file)
-    "docx" (word-post-parser/parse file)
+    "docx" (word-post-parser/parse dir file)
     (post-parser/parse dir file)))
 
 (defn get-posts [dir]

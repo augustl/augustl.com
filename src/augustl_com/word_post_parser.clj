@@ -3,6 +3,7 @@
             [clojure.string :as s]
             [hiccup.core :as hiccup])
   (:import (java.io File)
+           (java.nio.file Paths)
            (org.joda.time LocalDate)
            (org.joda.time.format DateTimeFormat)
            (org.apache.poi.xwpf.usermodel XWPFDocument XWPFHyperlink XWPFHyperlinkRun XWPFParagraph XWPFRun)))
@@ -100,11 +101,18 @@
                   ::blank)))
          (word-paragraphs-hiccup-seq))))
 
-(defn parse [^File file]
+(defn parse [^File dir ^File file]
   (when (not (re-find #"^~" (.getName file)))
-    (let [headers (get-headers-from-docx file)]
+    (let [relative-path (-> (subs (.getPath file) (count (.getPath dir)))
+                            (s/replace #"\..*$" ""))
+          path-segments (->> (Paths/get relative-path (make-array String 0))
+                             (.iterator)
+                             (iterator-seq)
+                             (map #(.toString %)))
+          url (str "/" (s/join "/" path-segments))
+          headers (get-headers-from-docx file)]
       {:headers headers
-       :url "/wot"
+       :url url
        :get-body #(get-body-from-docx file)
-       :id ":)"
+       :id (clojure.string/replace url #"/" ":")
        :pretty-date (.print pretty-date-formatter (:date headers))})))
