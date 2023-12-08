@@ -11,4 +11,6 @@
 (defn stop-server []
   (.stop server))
 
+(comment
+  (start-server))
 
