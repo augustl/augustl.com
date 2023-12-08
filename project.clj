@@ -13,7 +13,9 @@
                  [nrepl "0.9.0"]
                  [org.clojure/tools.nrepl "0.2.13"]
                  [augusts-fancy-blog-post-parser "0.2.0"]
-                 [com.vladsch.flexmark/flexmark-all "0.50.42"]]
+                 [com.vladsch.flexmark/flexmark-all "0.50.42"]
+                 [org.apache.poi/poi "5.2.3"]
+                 [org.apache.poi/poi-ooxml "5.2.3"]]
   :aliases {"export" ["run" "-m" "augustl-com.cli/export" "dist"]}
   :profiles
   {:dev {:source-paths ["dev"]

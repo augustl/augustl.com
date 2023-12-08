@@ -8,7 +8,8 @@
             [stasis.core :as stasis]
             [optimus.prime :as optimus]
             [optimus.optimizations :as optimizations]
-            [optimus.strategies :as strategies]))
+            [optimus.strategies :as strategies]
+            [augustl-com.word-post-parser :as word-post-parser]))
 
 (def base-title "August Lilleaas' blog")
 
@@ -50,7 +51,8 @@
     [:h1 (get-in post [:headers :title])]
     [:p {:class "timestamp"} "Written by August Lilleaas, published " (:pretty-date post)]
     (get-series (get-in post [:headers :series]) series posts-by-series)
-    (util/get-post-body post)
+    [:article
+     (util/get-post-body post)]
     [:hr {:class "post-sep"}]
     [:p "Questions or comments?"]
     [:p
@@ -163,11 +165,17 @@
   (let [name (.getName file)]
     (.substring name (+ 1 (.lastIndexOf name ".")))))
 
+(defn parse-post-file [dir file]
+  (case (get-file-extension file)
+    "docx" (word-post-parser/parse file)
+    (post-parser/parse dir file)))
+
 (defn get-posts [dir]
   (let [dir (clojure.java.io/as-file dir)]
     (->> (file-seq dir)
          (filter #(.isFile %))
-         (map #(assoc (post-parser/parse dir %) :extension (get-file-extension %)))
+         (map #(parse-post-file dir %))
+         (remove nil?)
          (sort-by #(get-in % [:headers :date]) #(.compareTo %2 %1))
          (map #(assoc % :url (str (:url %) "/"))))))
 

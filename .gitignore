@@ -13,3 +13,6 @@ checkouts
 .lein-repl-history
 .nrepl-port
 target
+
+# Word tempfiles
+~$*.docx
