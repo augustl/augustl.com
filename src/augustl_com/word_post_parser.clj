@@ -99,7 +99,8 @@
                    ::para para
                    ::doc doc}
                   ::blank)))
-         (word-paragraphs-hiccup-seq))))
+         (word-paragraphs-hiccup-seq)
+         (hiccup/html))))
 
 (defn parse [^File dir ^File file]
   (when (not (re-find #"^~" (.getName file)))
