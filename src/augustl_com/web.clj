@@ -105,7 +105,8 @@
      [:li [:a {:href "https://crud.business"} "Work"]]
      [:li [:a {:href "https://github.com/augustl"} "Code"]]
      [:li [:a {:href "https://x.com/augustl"} "X"]]
-     [:li [:a {:href "https://www.linkedin.com/in/programmer666schmogrammer/"} "LinkedIn"]]]
+     [:li [:a {:href "https://www.linkedin.com/in/programmer666schmogrammer/"} "LinkedIn"]]
+     [:li [:a {:href "https://publish.obsidian.md/augusts-notes/"} "Study"]]]
     (map
      (fn [[year posts]]
        (list
