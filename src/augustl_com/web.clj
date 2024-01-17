@@ -83,40 +83,29 @@
       {:page-title (:title a-series)
        :atom-url atom-url})))
 
-(defn get-home-page
-  [posts req]
+(defn layout-home-page [page]
   (html5
     [:head
      [:meta {:charset "utf-8"}]
-     [:title "(1) August Lilleaas"]
-     [:meta {:content "width=device-width, initial-scale=1.0" :name "viewport"}]
-     [:link {:href "/stylesheets/homer.css" :media "screen" :rel "stylesheet" :type "text/css"}]
+     [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+     [:link {:rel "icon" :href "/favicon.ico"}]
+     [:title base-title]
+     [:link {:href "/stylesheets/screen.css" :media "screen" :rel "stylesheet" :type "text/css"}]
      [:link {:href "/stylesheets/dark-mode.css" :media "screen" :rel "stylesheet" :type "text/css"}]
      [:link {:href "/atom.xml" :rel "alternate" :title base-title :type "application/atom+xml"}]]
     [:body
-     (list
-       [:p {:class "wwwf"} "ME ME ME ME ME"]
-       [:p {:class "nfnfnfnfnf"} [:a {:href "/about/"} "<> <>"]]
-       (map
-         (fn [post] [:p.ffffff
-                     [:a {:href (:url post)} (get-in post [:headers :title])]
-                     (str " (" (:pretty-date post) ")")])
-         (take 10 posts))
-       [:div {:class "ffffff"}
-        [:a {:href "/archive/"} "All posts"]
-        " <> "
-        [:a {:href "/atom.xml"} "RSS"]]
-       [:form {:class "yyyyasdf" :method "GET" :action "/letconstvar"}
-        [:label "please"]
-        [:input {:type "text" :placeholder "please"}]
-        [:input {:type "submit" :value "please"}]])
-     ]))
+     [:div {:class "site-content site-content-main"} page]]))
 
 (defn get-archive-page
   [posts req]
-  (layout-postish-page
+  (layout-home-page
    (list
-    [:h1 "Archive"]
+    [:h1 "Blog"]
+    [:ul.plain {:style "display: flex; flex-direction: row; gap: 10px; margin-bottom: 20px;"}
+     [:li [:a {:href "https://crud.business"} "Work"]]
+     [:li [:a {:href "https://github.com/augustl"} "Code"]]
+     [:li [:a {:href "https://x.com/augustl"} "X"]]
+     [:li [:a {:href "https://www.linkedin.com/in/programmer666schmogrammer/"} "LinkedIn"]]]
     (map
      (fn [[year posts]]
        (list
@@ -186,10 +175,9 @@
         series (-> "series.edn" clojure.java.io/resource slurp clojure.edn/read-string)
         listed-posts-by-series (group-by #(get-in % [:headers :series]) listed-posts)]
     (merge
-     {"/" (partial get-home-page listed-posts)
+     {"/" (partial get-archive-page listed-posts)
       "/about/" get-about-page
       "/letconstvar/" get-me-jpg-page
-      "/archive/" (partial get-archive-page listed-posts)
       "/atom.xml" (partial atom-feed/get-atom-feed listed-posts base-title)}
      (into {} (map (fn [post] [(:url post) (fn [req] (layout-post post series listed-posts-by-series))]) posts))
      (into {} (map (fn  [[name a-series]]

@@ -311,6 +311,12 @@ ul.inline-dots li:last-child:after {
     content: "";
 }
 
+ul.plain {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
 .image-block {
     text-align: center;
     margin: 40px 0;
