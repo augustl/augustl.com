@@ -16,3 +16,4 @@ target
 
 # Word tempfiles
 ~$*.docx
+.vercel
