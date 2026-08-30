@@ -2,7 +2,6 @@
 title: "Screwing up fixnum"
 date: "2008-08-31"
 content_format: "html"
-archive_order: 84
 ---
 <p>As <a href="http://chadfowler.com/">Chad Fowler</a> <a href="http://video.google.com/videoplay?docid=-8984753198261505541">said</a> (somewhere in there): Many languages, such as Java, is made for stupid programmers, Ruby isn't.</p>
 

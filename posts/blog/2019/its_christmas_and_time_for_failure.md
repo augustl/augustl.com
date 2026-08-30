@@ -2,7 +2,6 @@
 title: "It's christmas, and time for failure!"
 date: "2019-12-24"
 content_format: "markdown"
-archive_order: 2
 series: "advent_calendar_2019"
 ---
 Well, that's it, then. I failed.

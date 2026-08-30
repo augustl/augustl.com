@@ -2,7 +2,6 @@
 title: "Procs, blocks and anonymous functions"
 date: "2008-11-08"
 content_format: "html"
-archive_order: 72
 ---
 <p>This is a Big Picture&#8482; post. I will attempt to give you a thorough understanding of how blocks and procs works in Ruby by showing examples and explaining basics. I will also show some examples from other languages, namely Javascript and Lua, in order to really expand on the Big Picture&#8482; in this article.</p>
 

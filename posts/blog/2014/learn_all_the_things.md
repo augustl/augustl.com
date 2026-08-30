@@ -2,7 +2,6 @@
 title: "Learn all the things!"
 date: "2014-03-18"
 content_format: "html"
-archive_order: 36
 ---
 <p>So much to learn! Currently working on creating a runnable kernel image for HALT. It will be formatted with efi, loaded into physical address 0, and jumped to. To ensure I have at least some clue what actually happens, I need a debugger. I've never used gdb before, so there's a lot of hurdles there. I also need to load and compile the boot loader and the kernel with debug symbols, so I can refer to things by the same name as it has in the code. I also need to figure out how to actually know where in qemu things are loaded. I can't just use address 0 in the qemu process of course, I have to ask qemu about its mapping so I know where in qemu's memory the emulated memory is stored. When this is solved, it should as far as I can tell be straight forward gdb (i.e. stuff I find on Google is relevant to me) but I have to jump through these hoops to get there.</p>
 

@@ -2,7 +2,6 @@
 title: "Active Record anywhere!"
 date: "2008-08-31"
 content_format: "html"
-archive_order: 82
 ---
 <p>You can use <code class="highlight">ActiveRecord</code> anywhere!</p>
 

@@ -2,7 +2,6 @@
 title: "Third Rails patch"
 date: "2007-12-19"
 content_format: "html"
-archive_order: 86
 ---
 <p>This is probably the last time I post explicitly about patches here, it&#8217;s not special anymore</p>
 

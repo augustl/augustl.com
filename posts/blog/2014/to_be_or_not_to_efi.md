@@ -2,7 +2,6 @@
 title: "To be or not to EFI"
 date: "2014-02-12"
 content_format: "html"
-archive_order: 39
 ---
 <p>Current status on the immutable operating system is that I'm working on boot loading with EFI.</p>
 

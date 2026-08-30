@@ -2,7 +2,6 @@
 title: "An immutable operating system"
 date: "2014-02-02"
 content_format: "html"
-archive_order: 41
 ---
 <p>Edit: Woha, lots of response <a href="https://news.ycombinator.com/item?id=7166173">over at Hacker News</a>. I didn't post this article anywhere, so not sure how it got so much attention. I just wanted to brain-dump my current thoughts. But it's very cool to see that so many people find an immutable operating system interesting.</p>
 

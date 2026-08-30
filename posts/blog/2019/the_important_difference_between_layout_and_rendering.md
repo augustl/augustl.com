@@ -2,7 +2,6 @@
 title: "The important difference between layout and rendering"
 date: "2019-12-06"
 content_format: "markdown"
-archive_order: 15
 series: "advent_calendar_2019"
 ---
 Layout and rendering reminds me of variable names in math. What the heck is "c"? Well, that's the speed of light, obviously! And what about "L"? Angular momentum, silly! There's a [whole list of these](https://en.wikipedia.org/wiki/List_of_letters_used_in_mathematics_and_science).

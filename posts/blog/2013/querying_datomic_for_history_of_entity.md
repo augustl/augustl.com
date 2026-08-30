@@ -2,7 +2,6 @@
 title: "Querying Datomic for the history of an entity"
 date: "2013-01-20"
 content_format: "html"
-archive_order: 52
 series: "datomic"
 ---
 <div class="update">

@@ -2,7 +2,6 @@
 title: "OS X: Extract JDK to folder, without running installer"
 date: "2014-07-10"
 content_format: "html"
-archive_order: 30
 ---
 <p>On Linux, I'm used to downloading the JDK as a tarball, extracting it, and setting PATH and JAVA_HOME accordingly. This makes it super-easy to switch Java versions, run multiple older versions, and so on.</p>
 

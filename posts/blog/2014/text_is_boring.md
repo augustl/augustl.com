@@ -2,7 +2,6 @@
 title: "Text is boring"
 date: "2014-02-27"
 content_format: "html"
-archive_order: 37
 ---
 <p>There's a bunch of new text editors around. Recently, Github announced <a href="http://atom.io/">Atom</a> which a lot of second guessing shitheads on the internet (myself included) has judged to oblivion for not being open source. <a href="http://www.lighttable.com/">Light table</a> is now open source, so yay. It's an IDE, but IDEs are just text editors with a toolbar of icons that would make Word 98 proud, and some clever features for auto completion built in. But they're still just text editors.</p>
 

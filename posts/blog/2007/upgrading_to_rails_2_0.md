@@ -2,7 +2,6 @@
 title: "Upgrading to Rails 2.0"
 date: "2007-12-10"
 content_format: "html"
-archive_order: 90
 ---
 <p>Here&#8217;s how one upgrades to Rails 2.0.</p>
  

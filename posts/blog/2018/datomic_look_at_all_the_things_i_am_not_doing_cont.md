@@ -2,7 +2,6 @@
 title: "Datomic: Look at all the things I'm not doing! (Cont.)"
 date: "2018-04-21"
 content_format: "markdown"
-archive_order: 23
 series: "datomic"
 ---
 In [a previous blog post](http://augustl.com/blog/2018/datomic_look_at_all_the_things_i_am_not_doing/) I listed a bunch of things I'm _not_ doing when I'm using Datomic.

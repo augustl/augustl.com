@@ -2,7 +2,6 @@
 title: "The amazingly amazing amaze of lazy data structures"
 date: "2019-12-14"
 content_format: "markdown"
-archive_order: 7
 series: "advent_calendar_2019"
 ---
 Two things makes me keep coming back to Clojure: [Persistent data structures](https://augustl.com/blog/2019/you_have_to_know_about_persistent_data_structures/) and lazy sequences.

@@ -2,7 +2,6 @@
 title: "Load path"
 date: "2008-12-28"
 content_format: "html"
-archive_order: 71
 ---
 <p>When you <code class="highlight">require</code> something, Ruby looks for a matching file in all the directories in the load path. The load path is stored in the global variable <code class="highlight">$LOAD_PATH</code>.</p>
 

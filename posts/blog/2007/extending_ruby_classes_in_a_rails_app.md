@@ -2,7 +2,6 @@
 title: "Extending Ruby classes in a Rails app"
 date: "2007-12-06"
 content_format: "html"
-archive_order: 91
 ---
 <p>Extending a Ruby class (or any class, really) in a Rails app is easy mode. Here&#8217;s how to do it.</p>
 

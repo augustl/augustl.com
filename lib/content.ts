@@ -25,7 +25,6 @@ const frontmatterSchema = z.object({
   title: z.string(),
   date: z.string().regex(ISO_DATE),
   content_format: z.enum(["html", "markdown"]),
-  archive_order: z.number().int().nonnegative(),
   series: z.string().optional(),
   updated: z.string().regex(ISO_DATE).optional(),
   rss_warning: z.boolean().optional(),
@@ -42,7 +41,6 @@ export type PostSource = {
   date: string;
   prettyDate: string;
   contentFormat: "html" | "markdown";
-  archiveOrder: number;
   series?: SeriesName;
   updated?: string;
   rssWarning?: boolean;
@@ -85,7 +83,6 @@ function loadPostSource(sourcePath: string): PostSource {
     date: data.date,
     prettyDate: prettyDate(data.date),
     contentFormat: data.content_format,
-    archiveOrder: data.archive_order,
     series: data.series as SeriesName | undefined,
     updated: data.updated,
     rssWarning: data.rss_warning,
@@ -96,7 +93,7 @@ function loadPostSource(sourcePath: string): PostSource {
 
 const postSources = markdownFilesBelow(POSTS_ROOT)
   .map(loadPostSource)
-  .sort((left, right) => left.archiveOrder - right.archiveOrder);
+  .sort((left, right) => right.date.localeCompare(left.date) || left.url.localeCompare(right.url));
 
 const duplicateUrl = postSources.find((post, index) => postSources.findIndex((candidate) => candidate.url === post.url) !== index);
 if (duplicateUrl) throw new Error(`Duplicate post URL: ${duplicateUrl.url}`);

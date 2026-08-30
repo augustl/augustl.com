@@ -2,7 +2,6 @@
 title: "Simple human input boolean parser"
 date: "2007-11-24"
 content_format: "html"
-archive_order: 97
 ---
 <p>Parsing human input &#8211; &#8220;yes&#8221;, &#8220;no&#8221;, &#8220;t&#8221; and so on &#8211; and converts it to a boolean, with a simple interface.</p> 
 

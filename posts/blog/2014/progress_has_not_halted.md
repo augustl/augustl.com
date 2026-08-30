@@ -2,7 +2,6 @@
 title: "Progress has not HALTed"
 date: "2014-02-18"
 content_format: "html"
-archive_order: 38
 ---
 <p>Another post about <a href="https://github.com/augustl/halt/">HALT</a>. I get a lot more hits on my RSS feed after the original braindump/announcement/self-indulgence blog post about HALT, so I'm planning to blog once a week about the progress.</p>
 

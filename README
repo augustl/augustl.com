@@ -35,16 +35,14 @@ Posts live below `posts/` as plain `.md` files with YAML frontmatter:
 title: "A post title"
 date: "2026-08-30"
 content_format: "markdown"
-archive_order: 0
 ---
 
 Post contents go here.
 ```
 
 `content_format` is either `markdown` or `html`. The latter preserves the markup
-of older posts byte-for-byte inside a Markdown file. `archive_order` preserves the
-historic ordering of posts that share a publication date; lower numbers appear
-first. Optional legacy fields are `updated`, `series`, `rss_warning`, and
+of older posts byte-for-byte inside a Markdown file. Posts are ordered by date,
+newest first. Optional fields are `updated`, `series`, `rss_warning`, and
 `unlisted`.
 
 ## Parity testing

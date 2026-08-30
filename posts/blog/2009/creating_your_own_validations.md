@@ -2,7 +2,6 @@
 title: "Creating your own validations"
 date: "2009-07-03"
 content_format: "html"
-archive_order: 68
 ---
 <p>There are many different methods for creating your own, custom validations in Rails. Here&#8217;s some of them:</p>
 

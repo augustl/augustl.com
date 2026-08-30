@@ -2,7 +2,6 @@
 title: "Custom scrollbar, native behaviour"
 date: "2010-10-27"
 content_format: "html"
-archive_order: 61
 rss_warning: true
 ---
 <p><strong>Tldr:</strong> Use a hidden native scrollbar for scrolling, use JavaScript to read it's current position, move the custom scrollbar based on the position of the native scrollbar. Mouse wheel, page up/down, physical scrolling on Macs, etc, works just as expected.</p>

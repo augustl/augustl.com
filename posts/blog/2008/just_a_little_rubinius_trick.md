@@ -2,7 +2,6 @@
 title: "Just a little Rubinius trick"
 date: "2008-09-03"
 content_format: "html"
-archive_order: 80
 ---
 <p>Rubinius can do it all.</p>
 

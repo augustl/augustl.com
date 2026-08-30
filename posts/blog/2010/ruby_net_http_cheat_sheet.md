@@ -2,7 +2,6 @@
 title: "Ruby Net::HTTP cheat sheet"
 date: "2010-01-06"
 content_format: "html"
-archive_order: 66
 updated: "2010-01-07"
 ---
 <p><strong>Update</strong>: <a href="http://github.com/augustl/net-http-cheat-sheet">It&#8217;s on GitHub now</a>.</p>

@@ -2,7 +2,6 @@
 title: "First Rails patch"
 date: "2007-11-21"
 content_format: "html"
-archive_order: 99
 ---
 <p>Made a rails patch that improves the behavior of some form helper methods. I&#8217;m proud!</p> 
  

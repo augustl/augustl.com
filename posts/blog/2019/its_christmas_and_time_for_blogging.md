@@ -2,7 +2,6 @@
 title: "It's christmas, and time for blogging!"
 date: "2019-12-01"
 content_format: "markdown"
-archive_order: 20
 series: "advent_calendar_2019"
 ---
 So I thought I'd do, like, a thing!

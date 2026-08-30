@@ -2,7 +2,6 @@
 title: "Creating edge apps"
 date: "2007-12-13"
 content_format: "html"
-archive_order: 89
 ---
 <p>I&#8217;m living on trunk/edge, and I use this shellscript to create new rails apps.</p>
 

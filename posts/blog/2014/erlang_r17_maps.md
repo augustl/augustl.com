@@ -2,7 +2,6 @@
 title: "Erlang R17 gets maps"
 date: "2014-02-02"
 content_format: "html"
-archive_order: 42
 ---
 <p>I consistently rant to my coworkers, so since there's nobody to rant to during the weekends, I've decided to blog more. Nobody reads blog posts unless they're on the home page of Hacker News, and keeping rants away from your Twitter has become a thing. Todays adventure is blogspam about <a href="http://joearms.github.io/2014/02/01/big-changes-to-erlang.html">the map announcement in Erlang R17</a> where my only contribution to the world is to say what Joe already said, but in my own words. This will make me feel important.</p>
 

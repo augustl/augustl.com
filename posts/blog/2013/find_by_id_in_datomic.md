@@ -2,7 +2,6 @@
 title: "Finding by ID (primary key) in Datomic"
 date: "2013-03-10"
 content_format: "html"
-archive_order: 49
 series: "datomic"
 ---
 <p>Datomic has no essential type for entities, so how do you <strong>find the user with id X</strong> with Datomic?</p>

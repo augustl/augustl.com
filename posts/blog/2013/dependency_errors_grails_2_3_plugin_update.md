@@ -2,7 +2,6 @@
 title: "Dependency errors in Grails plugins when updating to Grails 2.3"
 date: "2013-12-30"
 content_format: "html"
-archive_order: 43
 ---
 <p>I had some problems when upgrading a Grails 2.2.1 plugin to Grails 2.3.4. Grails 2.3.4 uses Maven for dependency resolving, so I added this to my BuildConfig.groovy:</p>
 

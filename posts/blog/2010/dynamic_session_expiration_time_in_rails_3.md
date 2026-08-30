@@ -2,7 +2,6 @@
 title: "Dynamic session expiration time in Rails 3"
 date: "2010-01-16"
 content_format: "html"
-archive_order: 64
 ---
 <h2>Update: new syntax</h2>
 

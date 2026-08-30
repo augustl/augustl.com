@@ -2,7 +2,6 @@
 title: "Styling Rails URLs"
 date: "2009-06-14"
 content_format: "html"
-archive_order: 70
 ---
 <p>This article explains how you can alter the looks of your URLs in a Rails friendly way. I assume that you know how to use <code class="highlight">map.resources</code> and named routes.</p>
 

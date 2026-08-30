@@ -2,7 +2,6 @@
 title: "JDK8 + Facebook React: Rendering single page apps on the server"
 date: "2014-03-20"
 content_format: "html"
-archive_order: 35
 ---
 <p>I've taken a short break from <a href="https://github.com/augustl/halt/">my OS project</a> in the light of the recent release of JDK8. The addition of Nashorn, a brand spanking new JavaScript engine, makes executing JS from a JVM app really easy and convenient. Much more so than the old Rhino.</p>
 

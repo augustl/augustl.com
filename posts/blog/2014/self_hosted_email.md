@@ -2,7 +2,6 @@
 title: "Self hosted e-mail with Node.js and dspam"
 date: "2014-08-06"
 content_format: "html"
-archive_order: 29
 ---
 <p>I self host my e-mail. When you send a message to <a href="mailto:august@augustl.com">august@augustl.com</a>, the message is delivered directly to my home server. In this post, I describe my setup.</p>
 

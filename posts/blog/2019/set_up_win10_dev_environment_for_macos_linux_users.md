@@ -2,7 +2,6 @@
 title: "How to set up a Windows 10 development environment - for macOS and Linux users"
 date: "2019-12-02"
 content_format: "markdown"
-archive_order: 19
 series: "advent_calendar_2019"
 ---
 So yeah, after years of back and forth between macOS and Linux, and numerous [failed attempts](https://augustl.com/blog/2016/notes_on_windows/) of switching to Windows before, I'm back again. I used Bootcamp on a Macbook Pro for a month, and got me a Dell XPS which I have been using for two months now.

@@ -2,7 +2,6 @@
 title: "Make form_for not call methods on your model"
 date: "2012-01-16"
 content_format: "html"
-archive_order: 54
 ---
 <p>I'm writing a Rails app that uses a custom model class to interact with Apache CouchDB via <a href="https://github.com/couchrest/couchrest">couchrest</a>. The app is very schemaless in nature, which is one of the reasons I'm using CouchDB in the first place.</p>
 

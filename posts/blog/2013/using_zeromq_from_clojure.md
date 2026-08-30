@@ -2,7 +2,6 @@
 title: "Using ZeroMQ from Clojure"
 date: "2013-01-26"
 content_format: "html"
-archive_order: 51
 ---
 <p>I'm quite the JVM noob with only 6 months of Clojure experience, and no prior JVM experience. After some hacking and tweaking, I managed to figure out how to use ZeroMQ from Clojure via Leiningen (the build tool). ZeroMQ is a native library that is packaged in a Java API via JNI, so the steps required weren't obvious to me.</p>
 

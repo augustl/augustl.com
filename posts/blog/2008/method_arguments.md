@@ -2,7 +2,6 @@
 title: "Method arguments"
 date: "2008-09-10"
 content_format: "html"
-archive_order: 78
 ---
 <p>An introduction to the stuff your mom and dad didn't tell you about giving arguments to methods.</p>
 

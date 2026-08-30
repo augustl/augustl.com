@@ -2,7 +2,6 @@
 title: "World of Warcraft on Ubuntu"
 date: "2007-12-16"
 content_format: "html"
-archive_order: 87
 ---
 <p>World of Warcraft, with Ati <span class="caps">X850</span>, on Ubuntu Gutsy</p>
  

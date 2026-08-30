@@ -2,7 +2,6 @@
 title: "iOS unit testing Tips & Tricks"
 date: "2010-11-27"
 content_format: "html"
-archive_order: 60
 ---
 <p>I recently presented Test Driven Development in iOS to a local Cocoa user group, where I TDD-ed the authentication of a Twitter app in about 1.5 hours of live coding. It was a great way of showcasing TDD, and the listeners seemed to enjoy it as well.</p>
 

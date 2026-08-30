@@ -2,7 +2,6 @@
 title: "Classes and constants magic"
 date: "2008-09-01"
 content_format: "html"
-archive_order: 81
 ---
 <p>An anonymous class!</p>
 

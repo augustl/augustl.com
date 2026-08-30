@@ -2,7 +2,6 @@
 title: "S3 upload Snow Leopard service"
 date: "2009-08-31"
 content_format: "html"
-archive_order: 67
 ---
 <p>Snow Leopard, the latest addition to the OS X family, has <del>a new and very powerful feature called services</del> revamped the Services system, and made it a whole lot more useful. In short, services are contextual aware actions, and Apple has made it easy for users to create their own services with an updated Automator.</p>
 

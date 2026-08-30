@@ -2,7 +2,6 @@
 title: "What is WSL, and how can it possibly even?"
 date: "2019-12-13"
 content_format: "markdown"
-archive_order: 8
 series: "advent_calendar_2019"
 ---
 Some of the other posts in my 2019 blog advent calendar has been about Windows. They all mention WSL. In this post, I'll focus only on WSL, and what it's all about, and how it works, and all that jazz.

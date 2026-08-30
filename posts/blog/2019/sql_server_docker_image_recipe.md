@@ -2,7 +2,6 @@
 title: "A short recipe for setting up the Microsoft SQL Server docker image"
 date: "2019-12-10"
 content_format: "markdown"
-archive_order: 11
 series: "advent_calendar_2019"
 ---
 More Microsoft stuff.

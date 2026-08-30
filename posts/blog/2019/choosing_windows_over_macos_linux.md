@@ -2,7 +2,6 @@
 title: "Why I ditched macOS, Linux, and chose Windows for development work"
 date: "2019-12-11"
 content_format: "markdown"
-archive_order: 10
 series: "advent_calendar_2019"
 ---
 I’ve already told you the ["how"](https://augustl.com/blog/2019/set_up_win10_dev_environment_for_macos_linux_users/). Now it’s time for the "why".

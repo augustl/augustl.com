@@ -2,7 +2,6 @@
 title: "The green padlock"
 date: "2019-12-17"
 content_format: "markdown"
-archive_order: 4
 series: "advent_calendar_2019"
 ---
 We just love that green padlock, don't we. The green padlock means that nobody can read your communications online.

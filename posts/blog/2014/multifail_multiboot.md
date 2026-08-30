@@ -2,7 +2,6 @@
 title: "Multifail with multiboot"
 date: "2014-05-16"
 content_format: "html"
-archive_order: 32
 ---
 <p>Sigh. How many things must a poor soul learn in order to boot some damn operating system code on a computer?</p>
 

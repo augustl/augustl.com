@@ -2,7 +2,6 @@
 title: "Unobtrusive Google Maps with jQuery"
 date: "2011-03-05"
 content_format: "html"
-archive_order: 56
 ---
 <p><em><strong>Note:</strong> I managed to delete this post in a migration some time ago. I have not been able to recover it. I've gotten some e-mails from people reporting the 404, so I'm putting it back online by writing a small summary of what was originally in it.</em></p>
 

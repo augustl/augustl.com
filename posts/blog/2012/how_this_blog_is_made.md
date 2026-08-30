@@ -2,7 +2,6 @@
 title: "How this blog is made"
 date: "2012-05-17"
 content_format: "html"
-archive_order: 53
 ---
 <p>Tl;dr: I use wget and GNU sed to convert a dynamic webapp into static HTML, served by Apache.</p>
 

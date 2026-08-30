@@ -2,7 +2,6 @@
 title: "Things you can do in Ruby"
 date: "2008-09-19"
 content_format: "html"
-archive_order: 75
 ---
 <h2>Arrays</h2>
 

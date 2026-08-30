@@ -2,7 +2,6 @@
 title: "An immutable VM?"
 date: "2014-02-04"
 content_format: "html"
-archive_order: 40
 ---
 <p>My two days old article <a href="http://augustl.com/blog/2014/an_immutable_operating_system/">An immutable operating system</a> sparked lots of interest, closing in on 60 000 page views now. I had totally not expected that, especially considering the post was mostly a brain dump, that I didn't advertise anywhere. The Github repo has over 150 watchers, and the link there was tossed into the last paragraph, with no skimmability in mind. People aren't supposed to have an attention span on the internet, and I thought it was impossible that anyone would actually read (or even skim) a ivory tower architecture wall of text post with no graphs. This interest is a blessing and a curse. It is great to see that other people has similar ideas and thoughts, but I definitely feel a pressure to write some useful code, pronto.</p>
 

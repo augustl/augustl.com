@@ -2,7 +2,6 @@
 title: "Effin' EFI"
 date: "2014-05-03"
 content_format: "html"
-archive_order: 33
 ---
 <p>I haven't sinked much time into my OS project the last couple of months, but it seems to have ramped up again lately.</p>
 

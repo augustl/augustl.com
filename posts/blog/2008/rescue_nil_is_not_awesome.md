@@ -2,7 +2,6 @@
 title: "<code>rescue nil</code> is not awesome"
 date: "2008-09-11"
 content_format: "html"
-archive_order: 77
 ---
 <p>Deliberately calling code that may raise an error is ugly. Just look at it:</p>
 

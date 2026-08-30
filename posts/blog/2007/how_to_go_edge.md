@@ -2,7 +2,6 @@
 title: "How to go edge"
 date: "2007-12-02"
 content_format: "html"
-archive_order: 92
 ---
 <p>People get confused when freezing their 1.2.x Rails app to edge. Here&#8217;s how to do it properly.</p>
 

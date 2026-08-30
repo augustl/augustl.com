@@ -2,7 +2,6 @@
 title: "Case or hash"
 date: "2008-09-26"
 content_format: "html"
-archive_order: 74
 ---
 <p>A case statement:</p>
 

@@ -2,7 +2,6 @@
 title: "Result equals new array"
 date: "2008-09-12"
 content_format: "html"
-archive_order: 76
 ---
 <p>If you ever find yourself doing <code class="highlight">result = []</code>, follewed by modifying the <code class="highlight">result</code>, and and then returning it when you've finished modifying it, you're letting everyone know you don't know how to program in Ruby.</p>
 

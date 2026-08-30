@@ -2,7 +2,6 @@
 title: "Datomic: Direct index lookup"
 date: "2013-07-17"
 content_format: "html"
-archive_order: 45
 series: "datomic"
 ---
 <p>A couple of years ago, I read about someone whose MySQL performance bottleneck was SQL parsing. Most of the queries were straightforward primary key lookups, so the author wrote code that called InnoDB (MySQL's storage engine) directly and removed the bottleneck. I thought this was really cool, and I feel like I've reached a small milestone today for doing the same thing myself, only in Datomic.</p>

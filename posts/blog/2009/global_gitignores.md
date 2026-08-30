@@ -2,7 +2,6 @@
 title: "Global gitignores"
 date: "2009-06-25"
 content_format: "html"
-archive_order: 69
 ---
 <p>On Mac OS X, the Finder creates a <tt>.DS_Store</tt> file in all the directories it displays. If you happen to browse your git repository with the Finder, you&#8217;ll get these files in your repo, and they&#8217;ll show up as untracked files in <tt>git status</tt>. A common workaround is to add <tt>.DS_Store</tt> to the <tt>.gitignore</tt>. Here&#8217;s one of my gitignore files for a Rails project:</p>
 

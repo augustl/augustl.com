@@ -2,7 +2,6 @@
 title: "iOS and Objective-C block quickref"
 date: "2010-12-08"
 content_format: "html"
-archive_order: 59
 ---
 <p>This is a reference/cheat sheet of Objective-C blocks, introduced in iOS 4.0 and OS X Snow Leopard.</p>
 

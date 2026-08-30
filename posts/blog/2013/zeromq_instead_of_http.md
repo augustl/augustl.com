@@ -2,7 +2,6 @@
 title: "ZeroMQ instead of HTTP, for internal services"
 date: "2013-07-22"
 content_format: "html"
-archive_order: 44
 ---
 <p>This article describes how to use ZeroMQ for RPC calls to internal services. HTTP is the canonical choice for public facing services. But for RPC to internal services in systems composed of many small parts, you're probably better off using ZeroMQ instead of HTTP.</p>
 

@@ -2,7 +2,6 @@
 title: "Syntax highlighter"
 date: "2007-11-26"
 content_format: "html"
-archive_order: 95
 ---
 <p>How I syntax highlight code in this blog. CodeRay + regular expressions.</p>  
  

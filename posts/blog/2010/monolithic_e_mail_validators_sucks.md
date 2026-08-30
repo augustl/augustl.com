@@ -2,7 +2,6 @@
 title: "Monolithic e-mail validators sucks"
 date: "2010-01-17"
 content_format: "html"
-archive_order: 63
 ---
 <pre><code class="highlight"><span class="n">validates_format_of</span> <span class="ss">:email</span><span class="p">,</span>
   <span class="ss">:with</span> <span class="o">=&gt;</span> <span class="sr">/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/</span>

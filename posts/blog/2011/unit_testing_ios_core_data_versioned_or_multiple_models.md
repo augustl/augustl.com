@@ -2,7 +2,6 @@
 title: "Unit testing iOS: Core Data with multiple and/or versioned models"
 date: "2011-01-31"
 content_format: "html"
-archive_order: 58
 ---
 <p>In my article <a href="http://augustl.com/blog/2010/ios_unit_testing_tips_and_tricks">iOS unit testing tips & tricks</a>, I explained how I use an in-memory managed object context in my unit tests. This article updates some code from that section. The old code did not work in a project that used versioned models.</p>
 

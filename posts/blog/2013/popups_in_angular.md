@@ -2,7 +2,6 @@
 title: "Asynchronous and flexible modal popups in AngularJS"
 date: "2013-03-11"
 content_format: "html"
-archive_order: 48
 ---
 <p>This post is a description of the technique I'm using to show modeal popups in AngularJS.</p>
 

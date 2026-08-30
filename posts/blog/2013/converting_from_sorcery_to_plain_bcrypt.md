@@ -2,7 +2,6 @@
 title: "Converting from Sorcery (Rails plugin) to plain BCrypt"
 date: "2013-02-21"
 content_format: "html"
-archive_order: 50
 ---
 <p>I recently split a Rails app into one Ruby app and a set of Clojure apps. The authentication in the Rails app was implemented using the Sorcery plugin, which defaults to BCrypt, so porting to Clojure is relatively easy, since BCrypt is a standard crypto method with implementations available on most platforms.</p>
 

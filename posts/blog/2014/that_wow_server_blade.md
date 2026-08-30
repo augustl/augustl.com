@@ -2,7 +2,6 @@
 title: "That WoW server blade"
 date: "2014-08-08"
 content_format: "html"
-archive_order: 28
 ---
 <p><em>EDIT: This was <a href="https://news.ycombinator.com/item?id=8153781">posted to Hacker News</a>. More details about the hardware can be found there!</em></p>
 

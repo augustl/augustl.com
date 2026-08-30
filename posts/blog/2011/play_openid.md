@@ -2,7 +2,6 @@
 title: "OpenID authentication with attributes in Play"
 date: "2011-10-16"
 content_format: "html"
-archive_order: 55
 ---
 <p>In an effort to <a href="http://chronicle.com/article/How-to-ProcrastinateStill/93959">procrastinate and still get things done</a>, I started work on a new project even though <a href="http://busterjs.org/">Buster.JS</a> isn't done yet. That's more useful than spending all day playing Minecraft, I guess.</p>
 

@@ -2,7 +2,6 @@
 title: "HTML list helper"
 date: "2007-11-21"
 content_format: "html"
-archive_order: 100
 ---
 <p>Tidy up HTML-list creation in views with one-liner neatness.</p>
 

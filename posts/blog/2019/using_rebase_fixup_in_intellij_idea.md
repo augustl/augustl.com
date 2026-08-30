@@ -2,7 +2,6 @@
 title: "You should use rebase/fixup in IntelliJ IDEA more often"
 date: "2019-12-03"
 content_format: "markdown"
-archive_order: 18
 series: "advent_calendar_2019"
 ---
 This one applies to all JetBrains products with git integration.

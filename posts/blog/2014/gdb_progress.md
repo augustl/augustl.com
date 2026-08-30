@@ -2,7 +2,6 @@
 title: "GDB progress"
 date: "2014-04-02"
 content_format: "html"
-archive_order: 34
 ---
 <p>I've been struggling a bit with getting gdb up and running. Without it, everything is in a black box. At this point I'm loading the actual kernel into memory. UEFI boot services have been exited, so I don't have any priting. Printing is a shitty form of feedback anyway, but it's at least something. But without it, you pretty much need a debugger.</p>
 

@@ -2,7 +2,6 @@
 title: "How Rails selects which view to render"
 date: "2008-10-09"
 content_format: "html"
-archive_order: 73
 ---
 <p>This is exactly how rails does that:</p>
 

@@ -2,7 +2,6 @@
 title: "before_filter-like stuff in Ruby"
 date: "2007-11-30"
 content_format: "html"
-archive_order: 93
 ---
 <p>Doin&#8217; some phat Ruby to add Rails&#8217; <code class="highlight">before_filter</code>-like behavior in Ruby (outside of Rails)</p> 
 

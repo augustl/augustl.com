@@ -2,7 +2,6 @@
 title: "Datomic: Look at all the things I'm not doing!"
 date: "2018-04-20"
 content_format: "markdown"
-archive_order: 24
 series: "datomic"
 ---
 <div class="update">

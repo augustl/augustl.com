@@ -2,7 +2,6 @@
 title: "Installing Noctua NH-U9B SE2 CPU cooler on ASUS P5E motherboard"
 date: "2011-02-08"
 content_format: "html"
-archive_order: 57
 ---
 <p>The ASUS P5E wraps the CPU area in heatsinks, so most large-ish CPU coolers will fight back. The Noctua NH-U9B SE2 is no different. The mounting brackets supports both directions - facing the IO ports, and facing the tower ceiling. On a P5E, it would only fit when facing the IO ports. The silver heat sink close to the IO ports also has to be bent slightly to make room.</p>
 

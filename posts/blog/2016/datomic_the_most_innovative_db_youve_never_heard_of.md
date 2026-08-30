@@ -2,7 +2,6 @@
 title: "Datomic: The most innovative DB you've never heard of"
 date: "2016-01-20"
 content_format: "html"
-archive_order: 27
 series: "datomic"
 ---
 <p>Once upon a time (late 2011, to be exact), a small group of programmers got blown away by <a href="http://www.infoq.com/presentations/Simple-Made-Easy">Rich Hickey's talk Simple Made Easy</a>. This group of programmers became passionately obsessed with the programming language Hickey created: Clojure. When Hickey then introduced Datomic a year later, <em>reconstructive jaw surgery</em> became a meme in the Clojure community.</p>

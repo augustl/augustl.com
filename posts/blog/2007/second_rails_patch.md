@@ -2,7 +2,6 @@
 title: "Second Rails patch"
 date: "2007-12-14"
 content_format: "html"
-archive_order: 88
 ---
 <p>Adding Giles Bowkett&#8217;s ideas to <tt class="inline_code"><span class="co">ActiveSupport</span></tt>.</p>
  

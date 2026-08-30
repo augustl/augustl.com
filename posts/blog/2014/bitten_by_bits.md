@@ -2,7 +2,6 @@
 title: "Bitten by bits"
 date: "2014-06-27"
 content_format: "html"
-archive_order: 31
 ---
 <p>Another post about the operating system project.</p>
 

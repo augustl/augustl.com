@@ -2,7 +2,6 @@
 title: "Constant lookup and blocks"
 date: "2008-08-19"
 content_format: "html"
-archive_order: 85
 ---
 <pre><code class="highlight"><span class="k">class</span> <span class="nc">HelperHandler</span>
   <span class="k">def</span> <span class="nf">foo_exists</span>

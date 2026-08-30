@@ -2,7 +2,6 @@
 title: "You have to know about persistent data structures"
 date: "2019-12-08"
 content_format: "markdown"
-archive_order: 13
 series: "advent_calendar_2019"
 ---
 The first thing I look for when checking out a new programming language is immutable persistent data structures. This is an injury I've gotten from Clojure, which has them out of the box. I tend to structure my whole app around these kinds of data structures. They are smart, fast, efficient, immutable and amazing.

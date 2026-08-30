@@ -2,7 +2,6 @@
 title: "Recursively doing stuff with hashes"
 date: "2008-08-31"
 content_format: "html"
-archive_order: 83
 ---
 <p>It's assumed that by "recursive", one means that when a value in a hash contains another hash, do X on that hash as well.</p>
 

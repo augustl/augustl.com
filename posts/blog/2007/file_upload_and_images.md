@@ -2,7 +2,6 @@
 title: "File upload and images"
 date: "2007-11-25"
 content_format: "html"
-archive_order: 96
 ---
 <p>Plugin recommendations: <a href="http://tore.darell.no/pages/acts_as_file">acts_as_file</a> and <a href="http://tore.darell.no/pages/acts_as_image">acts_as_image</a>.</p> 
 

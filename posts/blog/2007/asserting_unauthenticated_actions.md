@@ -2,7 +2,6 @@
 title: "Asserting unauthenticated actions"
 date: "2007-11-28"
 content_format: "html"
-archive_order: 94
 ---
 <p>Using <code class="highlight">assert_unauthenticated</code> to test that your <code class="highlight"><span class="n">before_filter</span> <span class="ss">:require_login</span></code> thingie works.</p>
  

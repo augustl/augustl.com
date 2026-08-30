@@ -2,7 +2,6 @@
 title: "Ordering of <code>:db.cardinality/many</code> attributes in Datomic"
 date: "2013-05-04"
 content_format: "html"
-archive_order: 46
 series: "datomic"
 ---
 <p>In this post, I assume you already know about Datomic, how to use it, and the difference of the two settings for <code class="highlight">:db/cardinality</code> on an attribute.</p>

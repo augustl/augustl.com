@@ -2,7 +2,6 @@
 title: "Filter hashes by keys"
 date: "2007-11-22"
 content_format: "html"
-archive_order: 98
 ---
 <p>Hash + enumerable = annoying, but negative rejects lets you achieve this filtering thingie.</p> 
 

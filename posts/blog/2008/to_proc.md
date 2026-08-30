@@ -2,7 +2,6 @@
 title: "<code>to_proc</code>"
 date: "2008-09-08"
 content_format: "html"
-archive_order: 79
 ---
 <p>You've probably seen this in Rails:</p>
 

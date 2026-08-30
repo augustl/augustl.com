@@ -2,7 +2,6 @@
 title: "Truly concurrent user interfaces"
 date: "2013-04-19"
 content_format: "html"
-archive_order: 47
 ---
 <div class="moved-post">
   <p><a href="http://augustl.com/blog/2014/an_immutable_operating_system/">Click here to read an update on this project</p></a>

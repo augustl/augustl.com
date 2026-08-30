@@ -2,7 +2,6 @@
 title: "Datomic: Traditional databases only spend about 25% of their time actually writing to and reading from the database"
 date: "2018-04-20"
 content_format: "markdown"
-archive_order: 25
 series: "datomic"
 ---
 This post is about how Datomic (and Volt DB, and a few other databases) are different from traditional databases.

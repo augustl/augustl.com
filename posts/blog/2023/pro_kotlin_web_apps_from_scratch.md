@@ -2,7 +2,6 @@
 title: "Pro Kotlin Web Apps from Scratch"
 date: "2023-02-02"
 content_format: "markdown"
-archive_order: 1
 ---
 I wrote a book!
 
