@@ -1,7 +1,10 @@
-date: 2019.06.11
-title: Datomic: Querying for the history of an entity (v2)
-series: datomic
-
+---
+title: "Datomic: Querying for the history of an entity (v2)"
+date: "2019-06-11"
+content_format: "markdown"
+archive_order: 22
+series: "datomic"
+---
 This is the updated and rewritten version of an [old classic](https://augustl.com/blog/2013/querying_datomic_for_history_of_entity/).
 
 ## Intro: how is this even possible?
@@ -16,49 +19,41 @@ Normally, you transact facts into your database, and your schema determines what
 
 Let's say we have the following history of transactions:
 
-<pre><code data-lang="clojure">
-;; The three transactions that we write to the database
+<pre><code class="highlight"><span class="c1">;; The three transactions that we write to the database</span>
 
-;; tx 1
-[[:db/add 1 :user/email "august@augustl.com"] [:db/add 1 :user/password "hash-here"]]
+<span class="c1">;; tx 1</span>
+<span class="p">[[</span><span class="ss">:db/add</span> <span class="mi">1</span> <span class="ss">:user/email</span> <span class="s">"august@augustl.com"</span><span class="p">]</span> <span class="p">[</span><span class="ss">:db/add</span> <span class="mi">1</span> <span class="ss">:user/password</span> <span class="s">"hash-here"</span><span class="p">]]</span>
 
-;; tx 2
-[[:db/add 1 :user/subscribed-to-newsletter? true]]
+<span class="c1">;; tx 2</span>
+<span class="p">[[</span><span class="ss">:db/add</span> <span class="mi">1</span> <span class="ss">:user/subscribed-to-newsletter?</span> <span class="nv">true</span><span class="p">]]</span>
 
-;; tx 3
-[[:db/add 1 :user/email "august@kodemaker.no"]]
-</code></pre>
+<span class="c1">;; tx 3</span>
+<span class="p">[[</span><span class="ss">:db/add</span> <span class="mi">1</span> <span class="ss">:user/email</span> <span class="s">"august@kodemaker.no"</span><span class="p">]]</span></code></pre>
 
 We pull out a view of the database:
 
-<pre><code data-lang="clojure">
-;; Set up
-(require '[datomic.api :as d])
+<pre><code class="highlight"><span class="c1">;; Set up</span>
+<span class="p">(</span><span class="nf">require</span> <span class="o">'</span><span class="p">[</span><span class="nv">datomic.api</span> <span class="ss">:as</span> <span class="nv">d</span><span class="p">])</span>
 
-(def my-db (d/db my-conn))
+<span class="p">(</span><span class="k">def </span><span class="nv">my-db</span> <span class="p">(</span><span class="nf">d/db</span> <span class="nv">my-conn</span><span class="p">))</span>
 
-(def my-eid 123654) ;; The assumed entity ID created above (`[:db/add 1 ...]`)
-</code></pre>
+<span class="p">(</span><span class="k">def </span><span class="nv">my-eid</span> <span class="mi">123654</span><span class="p">)</span> <span class="c1">;; The assumed entity ID created above (`[:db/add 1 ...]`)</span></code></pre>
 
 When you query `my-db`, you'll see a "current view" of the data, without any history. If you ask the db for the `:user/email` of user `1`` you'll get:
 
-<pre><code data-lang="clojure">
-;; Just "latest data"
-(d/q '[:find ?email :in $db ?eid :where [?eid :user/email ?email]] my-db my-eid)
-;; => returns
-#{["august@kodemaker.no"]}
-</code></pre>
+<pre><code class="highlight"><span class="c1">;; Just "latest data"</span>
+<span class="p">(</span><span class="nf">d/q</span> <span class="o">'</span><span class="p">[</span><span class="ss">:find</span> <span class="nv">?email</span> <span class="ss">:in</span> <span class="nv">$db</span> <span class="nv">?eid</span> <span class="ss">:where</span> <span class="p">[</span><span class="nv">?eid</span> <span class="ss">:user/email</span> <span class="nv">?email</span><span class="p">]]</span> <span class="nv">my-db</span> <span class="nv">my-eid</span><span class="p">)</span>
+<span class="c1">;; =&gt; returns</span>
+<span class="o">#</span><span class="p">{[</span><span class="s">"august@kodemaker.no"</span><span class="p">]}</span></code></pre>
 
 However, you can also ask for the "history" db. If you ask _that_ for the value of the `:user/email` of user `1`` you'll get:
 
-<pre><code data-lang="clojure">
-;; All historical data, just like that!
-(def my-history-db (d/history my-db))
+<pre><code class="highlight"><span class="c1">;; All historical data, just like that!</span>
+<span class="p">(</span><span class="k">def </span><span class="nv">my-history-db</span> <span class="p">(</span><span class="nf">d/history</span> <span class="nv">my-db</span><span class="p">))</span>
 
-(d/q '[:find ?email :in $db ?eid :where [?eid :user/email ?email]] my-history-db my-eid)
-;; => returns
-#{["august@augustl.com"] ["august@kodemaker.no"]}
-</code></pre>
+<span class="p">(</span><span class="nf">d/q</span> <span class="o">'</span><span class="p">[</span><span class="ss">:find</span> <span class="nv">?email</span> <span class="ss">:in</span> <span class="nv">$db</span> <span class="nv">?eid</span> <span class="ss">:where</span> <span class="p">[</span><span class="nv">?eid</span> <span class="ss">:user/email</span> <span class="nv">?email</span><span class="p">]]</span> <span class="nv">my-history-db</span> <span class="nv">my-eid</span><span class="p">)</span>
+<span class="c1">;; =&gt; returns</span>
+<span class="o">#</span><span class="p">{[</span><span class="s">"august@augustl.com"</span><span class="p">]</span> <span class="p">[</span><span class="s">"august@kodemaker.no"</span><span class="p">]}</span></code></pre>
 
 The "history" db is a special view of the database that doesn't filter out previously added data.
 
@@ -68,23 +63,21 @@ All Datomic facts contains information about which transaction the fact was adde
 
 This query will return a list of all changes made to the entity`, with information about the transaction in where it was added, the attribute in question, and whether that attribute was added or removed in that transaction.
 
-<pre><code data-lang="clojure">
-;; All changes made to entity my-eid
-(def res
-  (d/q
-    '[:find ?tx ?attr ?added
-      :in $ ?e
-      :where
-      [?e ?attr _ ?tx ?added]]
-    (d/history db)
-    my-eid))
-;; => returns
-#{[13194139534318 63 true]
-  [13194139534313 63 true]
-  [13194139534317 65 true]
-  [13194139534313 64 true]
-  [13194139534318 63 false]}
-</code></pre>
+<pre><code class="highlight"><span class="c1">;; All changes made to entity my-eid</span>
+<span class="p">(</span><span class="k">def </span><span class="nv">res</span>
+  <span class="p">(</span><span class="nf">d/q</span>
+    <span class="o">'</span><span class="p">[</span><span class="ss">:find</span> <span class="nv">?tx</span> <span class="nv">?attr</span> <span class="nv">?added</span>
+      <span class="ss">:in</span> <span class="nv">$</span> <span class="nv">?e</span>
+      <span class="ss">:where</span>
+      <span class="p">[</span><span class="nv">?e</span> <span class="nv">?attr</span> <span class="nv">_</span> <span class="nv">?tx</span> <span class="nv">?added</span><span class="p">]]</span>
+    <span class="p">(</span><span class="nf">d/history</span> <span class="nv">db</span><span class="p">)</span>
+    <span class="nv">my-eid</span><span class="p">))</span>
+<span class="c1">;; =&gt; returns</span>
+<span class="o">#</span><span class="p">{[</span><span class="mi">13194139534318</span> <span class="mi">63</span> <span class="nv">true</span><span class="p">]</span>
+  <span class="p">[</span><span class="mi">13194139534313</span> <span class="mi">63</span> <span class="nv">true</span><span class="p">]</span>
+  <span class="p">[</span><span class="mi">13194139534317</span> <span class="mi">65</span> <span class="nv">true</span><span class="p">]</span>
+  <span class="p">[</span><span class="mi">13194139534313</span> <span class="mi">64</span> <span class="nv">true</span><span class="p">]</span>
+  <span class="p">[</span><span class="mi">13194139534318</span> <span class="mi">63</span> <span class="nv">false</span><span class="p">]}</span></code></pre>
 
 This data structure is pretty bare metal. What follows are some examples of how to use it.
  
@@ -92,18 +85,16 @@ This data structure is pretty bare metal. What follows are some examples of how 
 
 We don't really do anything here other than restructuring the data to make it look more intuitive.
  
-<pre><code data-lang="clojure">
-;; More prettier
-(def txs
-  (->> res
-       (group-by first)
-       (map (fn [[k v]] [k (map (fn [[tx attr added]] {:attr attr :added? added}) v)]))
-       (sort-by (fn [[k v]] k))))
-;; => returns
-([13194139534313 ({:attr 63, :added? true} {:attr 64, :added? true})]
- [13194139534317 ({:attr 65, :added? true})]
- [13194139534318 ({:attr 63, :added? true} {:attr 63, :added? false})])
-</code></pre>
+<pre><code class="highlight"><span class="c1">;; More prettier</span>
+<span class="p">(</span><span class="k">def </span><span class="nv">txs</span>
+  <span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="nv">res</span>
+       <span class="p">(</span><span class="nf">group-by</span> <span class="nv">first</span><span class="p">)</span>
+       <span class="p">(</span><span class="nb">map </span><span class="p">(</span><span class="k">fn </span><span class="p">[[</span><span class="nv">k</span> <span class="nv">v</span><span class="p">]]</span> <span class="p">[</span><span class="nv">k</span> <span class="p">(</span><span class="nb">map </span><span class="p">(</span><span class="k">fn </span><span class="p">[[</span><span class="nv">tx</span> <span class="nv">attr</span> <span class="nv">added</span><span class="p">]]</span> <span class="p">{</span><span class="ss">:attr</span> <span class="nv">attr</span> <span class="ss">:added?</span> <span class="nv">added</span><span class="p">})</span> <span class="nv">v</span><span class="p">)]))</span>
+       <span class="p">(</span><span class="nb">sort-by </span><span class="p">(</span><span class="k">fn </span><span class="p">[[</span><span class="nv">k</span> <span class="nv">v</span><span class="p">]]</span> <span class="nv">k</span><span class="p">))))</span>
+<span class="c1">;; =&gt; returns</span>
+<span class="p">([</span><span class="mi">13194139534313</span> <span class="p">({</span><span class="ss">:attr</span> <span class="mi">63</span>, <span class="ss">:added?</span> <span class="nv">true</span><span class="p">}</span> <span class="p">{</span><span class="ss">:attr</span> <span class="mi">64</span>, <span class="ss">:added?</span> <span class="nv">true</span><span class="p">})]</span>
+ <span class="p">[</span><span class="mi">13194139534317</span> <span class="p">({</span><span class="ss">:attr</span> <span class="mi">65</span>, <span class="ss">:added?</span> <span class="nv">true</span><span class="p">})]</span>
+ <span class="p">[</span><span class="mi">13194139534318</span> <span class="p">({</span><span class="ss">:attr</span> <span class="mi">63</span>, <span class="ss">:added?</span> <span class="nv">true</span><span class="p">}</span> <span class="p">{</span><span class="ss">:attr</span> <span class="mi">63</span>, <span class="ss">:added?</span> <span class="nv">false</span><span class="p">})])</span></code></pre>
 
 Here we se the three transactions we did above. The first transaction contains the two "added" items, the email and the password. The second transaction contains the added newsletter subscription. The third transaction contains the removed old e-mail and the added new e-mail.
  
@@ -115,53 +106,49 @@ It also exposes an interesting detail about Datomic internals. Attributes themse
 
 Our raw data is not that interesting, so let's do something about that.
 
-<pre><code data-lang="clojure">
-;; List of changes, with the full entity as of before and after the change was made
-(->> res
-     (map first)
-     (set)
-     (sort)
-     (map
-       (fn [tx-eid]
-         (let [tx (d/entity my-db tx-eid)]
-           {:timestamp (:db/txInstant tx)
-            :ent-before (d/entity (d/as-of my-db (dec (d/tx->t tx-eid))) my-eid)
-            :ent-after (d/entity (d/as-of my-db tx-eid) my-eid))})))
-</code></pre>
+<pre><code class="highlight"><span class="c1">;; List of changes, with the full entity as of before and after the change was made</span>
+<span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="nv">res</span>
+     <span class="p">(</span><span class="nb">map </span><span class="nv">first</span><span class="p">)</span>
+     <span class="p">(</span><span class="nf">set</span><span class="p">)</span>
+     <span class="p">(</span><span class="nf">sort</span><span class="p">)</span>
+     <span class="p">(</span><span class="nf">map</span>
+       <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">tx-eid</span><span class="p">]</span>
+         <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">tx</span> <span class="p">(</span><span class="nf">d/entity</span> <span class="nv">my-db</span> <span class="nv">tx-eid</span><span class="p">)]</span>
+           <span class="p">{</span><span class="ss">:timestamp</span> <span class="p">(</span><span class="ss">:db/txInstant</span> <span class="nv">tx</span><span class="p">)</span>
+            <span class="ss">:ent-before</span> <span class="p">(</span><span class="nf">d/entity</span> <span class="p">(</span><span class="nf">d/as-of</span> <span class="nv">my-db</span> <span class="p">(</span><span class="nb">dec </span><span class="p">(</span><span class="nf">d/tx-&gt;t</span> <span class="nv">tx-eid</span><span class="p">)))</span> <span class="nv">my-eid</span><span class="p">)</span>
+            <span class="ss">:ent-after</span> <span class="p">(</span><span class="nf">d/entity</span> <span class="p">(</span><span class="nf">d/as-of</span> <span class="nv">my-db</span> <span class="nv">tx-eid</span><span class="p">)</span> <span class="nv">my-eid</span><span class="p">))})))</span></code></pre>
 
 Here's what we get back
 
-<pre><code data-lang="clojure">
-;; => returns
-(
-;; The first TX
-{:timestamp #inst"2019-06-11T13:53:09.055-00:00",
-  :ent-before #:db{:id 17592186045418},
-  :ent-after {:db/id 17592186045418, 
-              :user/email "august@augustl.com", 
-              :user/password "hash-123-abc"}}
+<pre><code class="highlight"><span class="c1">;; =&gt; returns</span>
+<span class="p">(</span>
+<span class="c1">;; The first TX</span>
+<span class="p">{</span><span class="ss">:timestamp</span> <span class="o">#</span><span class="nv">inst</span><span class="s">"2019-06-11T13:53:09.055-00:00"</span>,
+  <span class="ss">:ent-before</span> <span class="o">#</span><span class="ss">:db</span><span class="p">{</span><span class="ss">:id</span> <span class="mi">17592186045418</span><span class="p">}</span>,
+  <span class="ss">:ent-after</span> <span class="p">{</span><span class="ss">:db/id</span> <span class="mi">17592186045418</span>, 
+              <span class="ss">:user/email</span> <span class="s">"august@augustl.com"</span>, 
+              <span class="ss">:user/password</span> <span class="s">"hash-123-abc"</span><span class="p">}}</span>
 
-;; The second TX
- {:timestamp #inst"2019-06-11T13:54:12.693-00:00",
-  :ent-before {:db/id 17592186045418, 
-               :user/email "august@augustl.com", 
-               :user/password "hash-123-abc"},
-  :ent-after {:db/id 17592186045418,
-              :user/email "august@augustl.com",
-              :user/password "hash-123-abc",
-              :user/subscribed-to-newsletter? true}}
-;; The third TX
- {:timestamp #inst"2019-06-11T13:54:22.530-00:00",
-  :ent-before {:db/id 17592186045418,
-               :user/email "august@augustl.com",
-               :user/password "hash-123-abc",
-               :user/subscribed-to-newsletter? true},
-  :ent-after {:db/id 17592186045418,
-              :user/email "august@kodemaker.no",
-              :user/password "hash-123-abc",
-              :user/subscribed-to-newsletter? true}}
-)
-</code></pre>
+<span class="c1">;; The second TX</span>
+ <span class="p">{</span><span class="ss">:timestamp</span> <span class="o">#</span><span class="nv">inst</span><span class="s">"2019-06-11T13:54:12.693-00:00"</span>,
+  <span class="ss">:ent-before</span> <span class="p">{</span><span class="ss">:db/id</span> <span class="mi">17592186045418</span>, 
+               <span class="ss">:user/email</span> <span class="s">"august@augustl.com"</span>, 
+               <span class="ss">:user/password</span> <span class="s">"hash-123-abc"</span><span class="p">}</span>,
+  <span class="ss">:ent-after</span> <span class="p">{</span><span class="ss">:db/id</span> <span class="mi">17592186045418</span>,
+              <span class="ss">:user/email</span> <span class="s">"august@augustl.com"</span>,
+              <span class="ss">:user/password</span> <span class="s">"hash-123-abc"</span>,
+              <span class="ss">:user/subscribed-to-newsletter?</span> <span class="nv">true</span><span class="p">}}</span>
+<span class="c1">;; The third TX</span>
+ <span class="p">{</span><span class="ss">:timestamp</span> <span class="o">#</span><span class="nv">inst</span><span class="s">"2019-06-11T13:54:22.530-00:00"</span>,
+  <span class="ss">:ent-before</span> <span class="p">{</span><span class="ss">:db/id</span> <span class="mi">17592186045418</span>,
+               <span class="ss">:user/email</span> <span class="s">"august@augustl.com"</span>,
+               <span class="ss">:user/password</span> <span class="s">"hash-123-abc"</span>,
+               <span class="ss">:user/subscribed-to-newsletter?</span> <span class="nv">true</span><span class="p">}</span>,
+  <span class="ss">:ent-after</span> <span class="p">{</span><span class="ss">:db/id</span> <span class="mi">17592186045418</span>,
+              <span class="ss">:user/email</span> <span class="s">"august@kodemaker.no"</span>,
+              <span class="ss">:user/password</span> <span class="s">"hash-123-abc"</span>,
+              <span class="ss">:user/subscribed-to-newsletter?</span> <span class="nv">true</span><span class="p">}}</span>
+<span class="p">)</span></code></pre>
 
 There are a couple of intersting to note here.
 
@@ -179,65 +166,59 @@ This is pretty simple when we have our existing query over the history db.
 
 To make things slightly more interesting, let's add a fourth transaction, that doesn't update anything, but just deletes an attribute. Let's assume that the password expired or something like that, so we retract the hash from the database.
 
-<pre><code data-lang="clojure">
-;; Add some more data - retract (delete/remove/wipe) an attribute
+<pre><code class="highlight"><span class="c1">;; Add some more data - retract (delete/remove/wipe) an attribute</span>
 
-;; tx 4
-[[:db/retract 1 :user/password "hash-123-abc"]]
+<span class="c1">;; tx 4</span>
+<span class="p">[[</span><span class="ss">:db/retract</span> <span class="mi">1</span> <span class="ss">:user/password</span> <span class="s">"hash-123-abc"</span><span class="p">]]</span>
 
-;; Pull out reference to latest db
-(def my-db (d/db my-conn))
-</code></pre>
+<span class="c1">;; Pull out reference to latest db</span>
+<span class="p">(</span><span class="k">def </span><span class="nv">my-db</span> <span class="p">(</span><span class="nf">d/db</span> <span class="nv">my-conn</span><span class="p">))</span></code></pre>
 
 
 Note that if we didn't re-assign my-db, we'd still get the old view without transaction 4, even though we use the history db. The history db is still an immutable reference to a point in time, it's just that it contains all of the history up until that point, not just the data directly visible in the index in the normal db view.
 
 Now, let's generate the data we need.
 
-<pre><code data-lang="clojure">
-;; Complete diff of changes made over time to an entity
-(->> (d/q
-       '[:find ?tx ?attr ?val ?added
-         :in $ ?e
-         :where
-         [?e ?attr ?val ?tx ?added]]
-       (d/history my-db)
-       my-eid)
-     (group-by first)
-     (map (fn [[tx v]]
-            [tx
-             (->> v
-                  (group-by (fn [[tx attr val added]] attr))
-                  (map (fn [[attr changes]]
-                         [(d/ident my-db attr)
-                          (map (fn [[tx attr val added?]] {:val val :added? added?})
-                               changes)])))]))
-     (sort-by (fn [[tx v]] tx)))
-</code></pre>
+<pre><code class="highlight"><span class="c1">;; Complete diff of changes made over time to an entity</span>
+<span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="p">(</span><span class="nf">d/q</span>
+       <span class="o">'</span><span class="p">[</span><span class="ss">:find</span> <span class="nv">?tx</span> <span class="nv">?attr</span> <span class="nv">?val</span> <span class="nv">?added</span>
+         <span class="ss">:in</span> <span class="nv">$</span> <span class="nv">?e</span>
+         <span class="ss">:where</span>
+         <span class="p">[</span><span class="nv">?e</span> <span class="nv">?attr</span> <span class="nv">?val</span> <span class="nv">?tx</span> <span class="nv">?added</span><span class="p">]]</span>
+       <span class="p">(</span><span class="nf">d/history</span> <span class="nv">my-db</span><span class="p">)</span>
+       <span class="nv">my-eid</span><span class="p">)</span>
+     <span class="p">(</span><span class="nf">group-by</span> <span class="nv">first</span><span class="p">)</span>
+     <span class="p">(</span><span class="nb">map </span><span class="p">(</span><span class="k">fn </span><span class="p">[[</span><span class="nv">tx</span> <span class="nv">v</span><span class="p">]]</span>
+            <span class="p">[</span><span class="nv">tx</span>
+             <span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="nv">v</span>
+                  <span class="p">(</span><span class="nf">group-by</span> <span class="p">(</span><span class="k">fn </span><span class="p">[[</span><span class="nv">tx</span> <span class="nv">attr</span> <span class="nb">val </span><span class="nv">added</span><span class="p">]]</span> <span class="nv">attr</span><span class="p">))</span>
+                  <span class="p">(</span><span class="nb">map </span><span class="p">(</span><span class="k">fn </span><span class="p">[[</span><span class="nv">attr</span> <span class="nv">changes</span><span class="p">]]</span>
+                         <span class="p">[(</span><span class="nf">d/ident</span> <span class="nv">my-db</span> <span class="nv">attr</span><span class="p">)</span>
+                          <span class="p">(</span><span class="nb">map </span><span class="p">(</span><span class="k">fn </span><span class="p">[[</span><span class="nv">tx</span> <span class="nv">attr</span> <span class="nb">val </span><span class="nv">added?</span><span class="p">]]</span> <span class="p">{</span><span class="ss">:val</span> <span class="nb">val </span><span class="ss">:added?</span> <span class="nv">added?</span><span class="p">})</span>
+                               <span class="nv">changes</span><span class="p">)])))]))</span>
+     <span class="p">(</span><span class="nb">sort-by </span><span class="p">(</span><span class="k">fn </span><span class="p">[[</span><span class="nv">tx</span> <span class="nv">v</span><span class="p">]]</span> <span class="nv">tx</span><span class="p">)))</span></code></pre>
 
 When we look at the data, we can see that we have everything we need in order to generate a useful GUI.
 
-<pre><code data-lang="clojure">
-;; => returns
-(
- ;; tx 1
- [13194139534313 (
-   [:user/password ({:val "hash-123-abc", :added? true})] 
-   [:user/email ({:val "august@augustl.com", :added? true})])]
+<pre><code class="highlight"><span class="c1">;; =&gt; returns</span>
+<span class="p">(</span>
+ <span class="c1">;; tx 1</span>
+ <span class="p">[</span><span class="mi">13194139534313</span> <span class="p">(</span>
+   <span class="p">[</span><span class="ss">:user/password</span> <span class="p">({</span><span class="ss">:val</span> <span class="s">"hash-123-abc"</span>, <span class="ss">:added?</span> <span class="nv">true</span><span class="p">})]</span> 
+   <span class="p">[</span><span class="ss">:user/email</span> <span class="p">({</span><span class="ss">:val</span> <span class="s">"august@augustl.com"</span>, <span class="ss">:added?</span> <span class="nv">true</span><span class="p">})])]</span>
   
- ;; tx 2
- [13194139534317 (
-   [:user/subscribed-to-newsletter? ({:val true, :added? true})])]
+ <span class="c1">;; tx 2</span>
+ <span class="p">[</span><span class="mi">13194139534317</span> <span class="p">(</span>
+   <span class="p">[</span><span class="ss">:user/subscribed-to-newsletter?</span> <span class="p">({</span><span class="ss">:val</span> <span class="nv">true</span>, <span class="ss">:added?</span> <span class="nv">true</span><span class="p">})])]</span>
  
- ;; tx 3
- [13194139534318 (
-   [:user/email ({:val "august@kodemaker.no", :added? true}
-                 {:val "august@augustl.com", :added? false})])]
+ <span class="c1">;; tx 3</span>
+ <span class="p">[</span><span class="mi">13194139534318</span> <span class="p">(</span>
+   <span class="p">[</span><span class="ss">:user/email</span> <span class="p">({</span><span class="ss">:val</span> <span class="s">"august@kodemaker.no"</span>, <span class="ss">:added?</span> <span class="nv">true</span><span class="p">}</span>
+                 <span class="p">{</span><span class="ss">:val</span> <span class="s">"august@augustl.com"</span>, <span class="ss">:added?</span> <span class="nv">false</span><span class="p">})])]</span>
   
- ;; tx 4
- [13194139534319 (
-   [:user/email ({:val "august@kodemaker.no", :added? false})])])
-</code></pre>
+ <span class="c1">;; tx 4</span>
+ <span class="p">[</span><span class="mi">13194139534319</span> <span class="p">(</span>
+   <span class="p">[</span><span class="ss">:user/email</span> <span class="p">({</span><span class="ss">:val</span> <span class="s">"august@kodemaker.no"</span>, <span class="ss">:added?</span> <span class="nv">false</span><span class="p">})])])</span></code></pre>
 
 ## Look at all the things I'm not doing
 
@@ -250,4 +231,3 @@ Well, a buddy of mine has done just that. They did _not_ have an audit log requi
 Check it out! It starts around 24:00.
 
 <iframe src="https://player.vimeo.com/video/234054197?color=ff9933&portrait=0" width="640" height="360" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
-

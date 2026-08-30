@@ -1,7 +1,10 @@
-date: 2019.12.02
-title: How to set up a Windows 10 development environment - for macOS and Linux users
-series: advent_calendar_2019
-
+---
+title: "How to set up a Windows 10 development environment - for macOS and Linux users"
+date: "2019-12-02"
+content_format: "markdown"
+archive_order: 19
+series: "advent_calendar_2019"
+---
 So yeah, after years of back and forth between macOS and Linux, and numerous [failed attempts](https://augustl.com/blog/2016/notes_on_windows/) of switching to Windows before, I'm back again. I used Bootcamp on a Macbook Pro for a month, and got me a Dell XPS which I have been using for two months now.
 
 Maybe I'll write more about why I did that later. For now, I'll go through what I've done to set it up to get it the way I want it.
@@ -42,22 +45,20 @@ WSL is actually a full re-implemenation of the Linux system calls against the NT
 
 I use [gitforwindows.org](https://gitforwindows.org/). Here's my `.gitconfig`.
 
-<pre><code data-lang="properties">
-[user]
-    name = August Lilleaas
-    email = august@augustl.com
+<pre><code class="highlight"><span class="err">[user]</span>
+<span class="na">    name</span> <span class="o">=</span> <span class="s">August Lilleaas</span>
+<span class="na">    email</span> <span class="o">=</span> <span class="s">august@augustl.com</span>
 
-[includeIf "gitdir:C:/Users/August/code/animalia/"]
-    path = C:\\Users\\August\\.gitconfig-work
+<span class="na">[includeIf "gitdir</span><span class="o">:</span><span class="s">C:/Users/August/code/animalia/"]</span>
+<span class="na">    path</span> <span class="o">=</span> <span class="s">C:\\Users\\August\\.gitconfig-work</span>
     
-[core]
-    excludesfile = C:\\Users\\August\\.gitignore
-    autocrlf = input
-    sshCommand = "C:/Windows/System32/OpenSSH/ssh.exe"
+<span class="err">[core]</span>
+<span class="na">    excludesfile</span> <span class="o">=</span> <span class="s">C:\\Users\\August\\.gitignore</span>
+<span class="na">    autocrlf</span> <span class="o">=</span> <span class="s">input</span>
+<span class="na">    sshCommand</span> <span class="o">=</span> <span class="s">"C:/Windows/System32/OpenSSH/ssh.exe"</span>
     
-[pull]
-   rebase = true
-</code></pre>
+<span class="err">[pull]</span>
+<span class="na">   rebase</span> <span class="o">=</span> <span class="s">true</span></code></pre>
 
 [Animalia](https://animalia.no) is my current customer, and I have a separate gitconfig set up for them. This gitconfig sets my user.email to my work email, for example.
 
@@ -67,20 +68,16 @@ Setting `core.autocrlf` is super ridiculously important. On Windows, the default
 
 I actually have some more stuff in my real config - such as GPG signing of commits (to get [that nifty verified badge](https://github.com/augustl/augustl.com/commit/c27d49ae59272cf2e1764339e5e913d9d033268f) on Github). I use [gpg4win.org](https://www.gpg4win.org/) for that, which works beautifully out of the box.
 
-<pre><code data-lang="properties">
-[user]
-    # Replace with your actual fingerprint obviously
-    signingkey = 0B50B734F49ACA83497E64E14FC2CE07E6E2A9DF
-[commit]
-    gpgsign = true
-</code></pre>
+<pre><code class="highlight"><span class="err">[user]</span>
+    <span class="c"># Replace with your actual fingerprint obviously</span>
+<span class="na">    signingkey</span> <span class="o">=</span> <span class="s">0B50B734F49ACA83497E64E14FC2CE07E6E2A9DF</span>
+<span class="err">[commit]</span>
+<span class="na">    gpgsign</span> <span class="o">=</span> <span class="s">true</span></code></pre>
 
 I also configured GPG to cache my keys for longer, so I don't have to enter the GPG key passphrase almost every time I commit. The file to edit is C:\Users\MyUser\AppData\Roaming\gnupg\gpg-agent.conf (or %appdata%\gnupg\gpg-agent.conf for short).
 
-<pre><code data-lang="ini">
-default-cache-ttl 34560000
-max-cache-ttl 34560000
-</code></pre>
+<pre><code class="highlight"><span class="na">default-cache-ttl 34560000</span>
+<span class="na">max-cache-ttl 34560000</span></code></pre>
 
 # You probably want VSCode
 
@@ -103,34 +100,30 @@ One thing you need to fix is some permission stuff I haven't yet understood comp
 
 Click on "settings" in Windows Terminal, and your editor (VSCode for me) will open with the config file. Mine looks sort of like this:
 
-<pre><code data-lang="js">
-{
-    "$schema": "https://aka.ms/terminal-profiles-schema",
-    "defaultProfile": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+<pre><code class="highlight"><span class="p">{</span>
+    <span class="s2">"$schema"</span><span class="o">:</span> <span class="s2">"https://aka.ms/terminal-profiles-schema"</span><span class="p">,</span>
+    <span class="s2">"defaultProfile"</span><span class="o">:</span> <span class="s2">"{61c54bbd-c2c6-5271-96e7-009a87ff44bf}"</span><span class="p">,</span>
 
-    "profiles":
-    [
-        {
-            "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
-            "name": "Windows PowerShell",
-            "commandline": "powershell.exe -NonInteractive -ExecutionPolicy Bypass",
-            "hidden": false
-        },
-        {
-            "guid": "{71c54bbd-c2c6-5271-96e7-009a87ff44bf}",
-            "name": "Windows PowerShell (plain)",
-            "commandline": "powershell.exe",
-            "hidden": false
-        },
-        // ... the rest of my stuff here...
-    ],
-}
-</code></pre>
+    <span class="s2">"profiles"</span><span class="o">:</span>
+    <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">"guid"</span><span class="o">:</span> <span class="s2">"{61c54bbd-c2c6-5271-96e7-009a87ff44bf}"</span><span class="p">,</span>
+            <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"Windows PowerShell"</span><span class="p">,</span>
+            <span class="s2">"commandline"</span><span class="o">:</span> <span class="s2">"powershell.exe -NonInteractive -ExecutionPolicy Bypass"</span><span class="p">,</span>
+            <span class="s2">"hidden"</span><span class="o">:</span> <span class="kc">false</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">"guid"</span><span class="o">:</span> <span class="s2">"{71c54bbd-c2c6-5271-96e7-009a87ff44bf}"</span><span class="p">,</span>
+            <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"Windows PowerShell (plain)"</span><span class="p">,</span>
+            <span class="s2">"commandline"</span><span class="o">:</span> <span class="s2">"powershell.exe"</span><span class="p">,</span>
+            <span class="s2">"hidden"</span><span class="o">:</span> <span class="kc">false</span>
+        <span class="p">},</span>
+        <span class="c1">// ... the rest of my stuff here...</span>
+    <span class="p">],</span>
+<span class="p">}</span></code></pre>
 
 I also have `.jabbarc` in my system gitignore file (see gitconfig above) and put that in various projects. For example, one of the projects at work has this `.jabbarc` in the root of the project:
 
-<pre><code>
-zulu@1.8.232
-</code></pre>
+<pre><code class="highlight">zulu@1.8.232</code></pre>
 
 Then I can just type `jabba use` when opening a new PowerShell terminal to my project folder, to use that version.

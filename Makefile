@@ -1,11 +1,13 @@
-.DEFAULT_GOAL := all
-.PHONY: build
-.PHONY: upload
+.DEFAULT_GOAL := build
+.PHONY: build legacy-build deploy upload
 
 build:
+	yarn build
+
+legacy-build:
 	lein export
 
 upload:
 	vercel --prod
 
-all: build upload
+deploy: build upload

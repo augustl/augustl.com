@@ -1,7 +1,10 @@
-date: 2019.12.16
-title: Validating data after storing it
-series: advent_calendar_2019
-
+---
+title: "Validating data after storing it"
+date: "2019-12-16"
+content_format: "markdown"
+archive_order: 5
+series: "advent_calendar_2019"
+---
 This is me trying to be some kind of thought leader or something. Someone told me they do this in their system, and it stayed with me. So I want to share what they told me.
 
 Keeping it short and sweet.

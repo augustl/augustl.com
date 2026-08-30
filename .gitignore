@@ -1,5 +1,11 @@
 # Output folder
 /dist
+/.next
+/.parity
+/node_modules
+/playwright-report
+/test-results
+/.idea
 
 pom.xml
 *jar

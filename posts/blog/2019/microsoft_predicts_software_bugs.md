@@ -1,7 +1,10 @@
-date: 2019.12.15
-title: According to Microsoft, the number one predictor of software bugs is...
-series: advent_calendar_2019
-
+---
+title: "According to Microsoft, the number one predictor of software bugs is..."
+date: "2019-12-15"
+content_format: "markdown"
+archive_order: 6
+series: "advent_calendar_2019"
+---
 UPDATE: This article was too clickbait-y. I've [made a proper version of it here](https://augustl.com/blog/2019/best_bug_predictor_is_organizational_complexity/).
 
 Microsoft launched Windows Vista in 2007, with varying degrees of success.

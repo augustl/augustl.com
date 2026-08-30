@@ -1,7 +1,10 @@
-date: 2019.12.08
-title: You have to know about persistent data structures
-series: advent_calendar_2019
-
+---
+title: "You have to know about persistent data structures"
+date: "2019-12-08"
+content_format: "markdown"
+archive_order: 13
+series: "advent_calendar_2019"
+---
 The first thing I look for when checking out a new programming language is immutable persistent data structures. This is an injury I've gotten from Clojure, which has them out of the box. I tend to structure my whole app around these kinds of data structures. They are smart, fast, efficient, immutable and amazing.
 
 In this post, I'll try to make you feel the same way about them.
@@ -101,36 +104,29 @@ Transients are a special version of immutable data structures. You first "unlock
 
 Here's a normal immutable example:
 
-<pre><code data-lang="clojure">
-(->> [1 2 3 4]
-     (reduce
-       (fn [res curr] (conj res (+ 1 curr)))
-       []))
-;; [2 3 4 5]
-</code></pre> 
+<pre><code class="highlight"><span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">]</span>
+     <span class="p">(</span><span class="nf">reduce</span>
+       <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">res</span> <span class="nv">curr</span><span class="p">]</span> <span class="p">(</span><span class="nb">conj </span><span class="nv">res</span> <span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="nv">curr</span><span class="p">)))</span>
+       <span class="p">[]))</span>
+<span class="c1">;; [2 3 4 5]</span></code></pre> 
 
 Here it is with transients. Notice how we have to use special versions of the functions, like `conj!` instead of `conj`.
 
-<pre><code data-lang="clojure">
-(->> [1 2 3 4]
-     (reduce
-       (fn [res curr] (conj! res (+ 1 curr)))
-       (transient [])))
-;; clojure.lang.PersistentVector$TransientVector@139e6e1d
-</code></pre> 
+<pre><code class="highlight"><span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">]</span>
+     <span class="p">(</span><span class="nf">reduce</span>
+       <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">res</span> <span class="nv">curr</span><span class="p">]</span> <span class="p">(</span><span class="nf">conj!</span> <span class="nv">res</span> <span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="nv">curr</span><span class="p">)))</span>
+       <span class="p">(</span><span class="nf">transient</span> <span class="p">[])))</span>
+<span class="c1">;; clojure.lang.PersistentVector$TransientVector@139e6e1d</span></code></pre> 
 
 Whoops! We forgot to make it persistent:
 
-<pre><code data-lang="clojure">
-(->> [1 2 3 4]
-     (reduce
-       (fn [res curr] (conj! res (+ 1 curr)))
-       (transient []))
-     (persistent!))
-;; [2 3 4 5]
-</code></pre> 
+<pre><code class="highlight"><span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">]</span>
+     <span class="p">(</span><span class="nf">reduce</span>
+       <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">res</span> <span class="nv">curr</span><span class="p">]</span> <span class="p">(</span><span class="nf">conj!</span> <span class="nv">res</span> <span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="nv">curr</span><span class="p">)))</span>
+       <span class="p">(</span><span class="nf">transient</span> <span class="p">[]))</span>
+     <span class="p">(</span><span class="nf">persistent!</span><span class="p">))</span>
+<span class="c1">;; [2 3 4 5]</span></code></pre> 
 
 This optimization allows Clojure to know that in your tight loop, nobody else will actually use the data structure, so it can be "less fancy" in how it builds it up. And much faster, skipping the entire potential overhead of managing a persistent data structure.
 
 Clojure has pretty cool data structures.
-

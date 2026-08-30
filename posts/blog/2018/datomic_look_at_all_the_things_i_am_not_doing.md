@@ -1,7 +1,10 @@
-date: 2018.04.20
-title: Datomic: Look at all the things I'm not doing!
-series: datomic
-
+---
+title: "Datomic: Look at all the things I'm not doing!"
+date: "2018-04-20"
+content_format: "markdown"
+archive_order: 24
+series: "datomic"
+---
 <div class="update">
 <p>UPDATE: This post has a follow-up: <a href="http://augustl.com/blog/2018/datomic_look_at_all_the_things_i_am_not_doing_cont/">http://augustl.com/blog/2018/datomic_look_at_all_the_things_i_am_not_doing_cont/</a></p>
 
@@ -32,22 +35,18 @@ Let's explore all the things you're _not_ doing when you're using Datomic.
 
 Datomic has made a decision for you. When inserting data, everything is completely and utterly flat, with no structure.
 
-<pre><code data-lang="clojure">
-[:db/add -1 :person/name "August Lilleaas"]
-[:db/add -1 :person/age 31]
-</code></pre>
+<pre><code class="highlight"><span class="p">[</span><span class="ss">:db/add</span> <span class="mi">-1</span> <span class="ss">:person/name</span> <span class="s">"August Lilleaas"</span><span class="p">]</span>
+<span class="p">[</span><span class="ss">:db/add</span> <span class="mi">-1</span> <span class="ss">:person/age</span> <span class="mi">31</span><span class="p">]</span></code></pre>
 
 This is _it_. All you have for writing data are these facts. A fact consists of:
 
-<pre><code data-lang="clojure">
-[:db/add 
-  -1                 ;; Entity (the id of the thing we're talking about)
-  :person/name       ;; Attribute (defines the type and some other properties)
-  "August Lilleaas"  ;; Value (self evident)
-  ]
+<pre><code class="highlight"><span class="p">[</span><span class="ss">:db/add</span> 
+  <span class="mi">-1</span>                 <span class="c1">;; Entity (the id of the thing we're talking about)</span>
+  <span class="ss">:person/name</span>       <span class="c1">;; Attribute (defines the type and some other properties)</span>
+  <span class="s">"August Lilleaas"</span>  <span class="c1">;; Value (self evident)</span>
+  <span class="p">]</span>
   
-  ;; No table, no nesting, no depth, no ...
-</code></pre>
+  <span class="c1">;; No table, no nesting, no depth, no ...</span></code></pre>
 
 Any structure comes later, from queries and reads.
 

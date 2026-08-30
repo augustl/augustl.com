@@ -1,7 +1,10 @@
-date: 2019.12.06
-title: The important difference between layout and rendering
-series: advent_calendar_2019
-
+---
+title: "The important difference between layout and rendering"
+date: "2019-12-06"
+content_format: "markdown"
+archive_order: 15
+series: "advent_calendar_2019"
+---
 Layout and rendering reminds me of variable names in math. What the heck is "c"? Well, that's the speed of light, obviously! And what about "L"? Angular momentum, silly! There's a [whole list of these](https://en.wikipedia.org/wiki/List_of_letters_used_in_mathematics_and_science).
 
 Different rendering engines might have different names for these. But the concept of separating layout and rendering exists in every rendering engine I'm aware of.
@@ -12,17 +15,13 @@ Let's see how this works, using the web and HTML as an example.
 
 Allright, we have a div, with plain old HTML. No JavaScript, no React.
 
-<pre><code data-lang="html">
-<div>hai</div>
-</code></pre>
+<pre><code class="highlight"><span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>hai<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span></code></pre>
 
 Nothing special about it.
 
 Let's give it a margin.
 
-<pre><code data-lang="html">
-<div style="margin-left: 20px;">hai</div>
-</code></pre>
+<pre><code class="highlight"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"margin-left: 20px;"</span><span class="p">&gt;</span>hai<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span></code></pre>
 
 And BOOM, the browser has to do a "layout" pass.
 
@@ -32,16 +31,14 @@ Because another completely unrelated element might _also_ have to change _its_ l
 
 For example, let's say your actual full HTML looks like this:
 
-<pre><code data-lang="html">
-<div style="width: 200px; background: #c1b4ae;">
-  <div style="background: #be5a38; display: inline-block; width: 160px;">
+<pre><code class="highlight"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"width: 200px; background: #c1b4ae;"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"background: #be5a38; display: inline-block; width: 160px;"</span><span class="p">&gt;</span>
     foo
-  </div>
-  <div style="background: #92140c; display: inline-block;">
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"background: #92140c; display: inline-block;"</span><span class="p">&gt;</span>
     hai
-  </div>
-</div>
-</code></pre>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span></code></pre>
 
 It looks like this:
 
@@ -58,17 +55,15 @@ It looks like this:
 
 Then we add a margin.
 
-<pre><code data-lang="html">
-<!-- This causes new layout! -->
-<div style="width: 200px; background: #c1b4ae;">
-  <div style="background: #be5a38; display: inline-block; width: 160px;">
+<pre><code class="highlight"><span class="c">&lt;!-- This causes new layout! --&gt;</span>
+<span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"width: 200px; background: #c1b4ae;"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"background: #be5a38; display: inline-block; width: 160px;"</span><span class="p">&gt;</span>
     foo
-  </div>
-  <div style="background: #92140c; display: inline-block; margin-left: 20px;">
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"background: #92140c; display: inline-block; margin-left: 20px;"</span><span class="p">&gt;</span>
     hai
-  </div>
-</div>
-</code></pre>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span></code></pre>
 
 Which then looks like this:
 
@@ -130,16 +125,14 @@ There are two main ways of doing that.
 
 Let's say you have the divs from above:
 
-<pre><code data-lang="html">
-<div style="width: 200px; background: #c1b4ae;">
-  <div style="background: #be5a38; display: inline-block; width: 160px;">
+<pre><code class="highlight"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"width: 200px; background: #c1b4ae;"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"background: #be5a38; display: inline-block; width: 160px;"</span><span class="p">&gt;</span>
     foo
-  </div>
-  <div style="background: #92140c; display: inline-block; margin-left: 20px;">
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"background: #92140c; display: inline-block; margin-left: 20px;"</span><span class="p">&gt;</span>
     hai
-  </div>
-</div>
-</code></pre>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span></code></pre>
 
 Which then looks like this:
 
@@ -152,17 +145,15 @@ Which then looks like this:
 
 All we want to do, is to change the color on one of them, from <span style="color: #fff; background-color: #92140c">Pretty Smooth Red</span> to <span style="color: #fff; background-color: blue">Ugly Web Blue</span>.
 
-<pre><code data-lang="html">
-<!-- This does _not_ cause new layout, just new render -->
-<div style="width: 200px; background: #c1b4ae;">
-  <div style="background: #be5a38; display: inline-block; width: 160px;">
+<pre><code class="highlight"><span class="c">&lt;!-- This does _not_ cause new layout, just new render --&gt;</span>
+<span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"width: 200px; background: #c1b4ae;"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"background: #be5a38; display: inline-block; width: 160px;"</span><span class="p">&gt;</span>
     foo
-  </div>
-  <div style="background: blue; display: inline-block; margin-left: 20px;">
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"background: blue; display: inline-block; margin-left: 20px;"</span><span class="p">&gt;</span>
     hai
-  </div>
-</div>
-</code></pre>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span></code></pre>
 
 <div style="width: 200px; background: #c1b4ae;">
   <div style="background: #be5a38; display: inline-block; width: 160px;">foo</div>
@@ -177,17 +168,15 @@ The browser knows that there is absolutely no way that changing the background-c
 
 Now, CSS has a separate property for just affecting the rendering stage. Let's move a box, without causing layout!
 
-<pre><code data-lang="html">
-<!-- This also doesn't cause new layout, just new render -->
-<div style="width: 200px; background: #c1b4ae;">
-  <div style="background: #be5a38; display: inline-block; width: 160px;">
+<pre><code class="highlight"><span class="c">&lt;!-- This also doesn't cause new layout, just new render --&gt;</span>
+<span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"width: 200px; background: #c1b4ae;"</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"background: #be5a38; display: inline-block; width: 160px;"</span><span class="p">&gt;</span>
     foo
-  </div>
-  <div style="transform: translate(20px, -5px); background: blue; display: inline-block; margin-left: 20px;">
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">"transform: translate(20px, -5px); background: blue; display: inline-block; margin-left: 20px;"</span><span class="p">&gt;</span>
     hai
-  </div>
-</div>
-</code></pre>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span></code></pre>
 
 <div style="width: 200px; background: #c1b4ae;">
   <div style="background: #be5a38; display: inline-block; width: 160px;">foo</div>

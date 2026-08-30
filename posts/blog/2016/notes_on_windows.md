@@ -1,6 +1,9 @@
-date: 2016.11.25
-title: Notes on my attempt to move from Linux/Mac to Windows
-
+---
+title: "Notes on my attempt to move from Linux/Mac to Windows"
+date: "2016-11-25"
+content_format: "markdown"
+archive_order: 26
+---
 Surface Studio [was announced](https://www.youtube.com/watch?v=BzMLA8YIgG0), and [Hololens](https://www.microsoft.com/microsoft-hololens/en-us) is amazing. Microsoft has seduced me into switching to Windows as my development/programming envrionment. I could easily se myself using a Surface Pro 4 or the  upcoming Surface Book 2 as my main dev box.
 
 Here are my notes and thoughts on my 3 week trip into Windows land.

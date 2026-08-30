@@ -1,0 +1,70 @@
+.custom_scroll_bar_with_native {
+    width: 400px;
+    height: 200px;
+    border: 5px solid #ccc;
+}
+
+.custom_scroll_bar_with_native .native {
+    overflow-y: auto;
+    height: 200px;
+}
+
+
+
+
+
+
+
+.custom_scroll_bar_wide_content {
+    width: 400px;
+    height: 200px;
+    border: 5px solid #ccc;
+}
+
+.custom_scroll_bar_wide_content .native {
+    width: 200%;
+    height: 200px;
+    overflow-y: auto;
+}
+
+.custom_scroll_bar_wide_content .content {
+
+}
+
+
+.custom_scroll_bar_sized_content {
+    width: 400px;
+    height: 200px;
+    border: 5px solid #ccc;
+}
+
+.custom_scroll_bar_sized_content .native {
+    width: 200%;
+    height: 200px;
+    overflow-y: auto;
+}
+
+.custom_scroll_bar_sized_content .content {
+    width: 400px;
+}
+
+
+
+
+
+.custom_scroll_bar_hidden_native {
+    width: 400px;
+    height: 200px;
+    border: 5px solid #ccc;
+    overflow-x: hidden;
+}
+
+.custom_scroll_bar_hidden_native .native {
+    width: 200%;
+    height: 200px;
+    overflow-y: auto;
+}
+
+.custom_scroll_bar_hidden_native .content {
+    width: 400px;
+}

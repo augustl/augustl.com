@@ -1,0 +1,24 @@
+---
+title: "World of Warcraft on Ubuntu"
+date: "2007-12-16"
+content_format: "html"
+archive_order: 87
+---
+<p>World of Warcraft, with Ati <span class="caps">X850</span>, on Ubuntu Gutsy</p>
+ 
+<p>First, do this:</p>
+
+<p><a href="https://help.ubuntu.com/community/WorldofWarcraft">https://help.ubuntu.com/community/WorldofWarcraft</a></p>
+
+<p>Then, do this:</p>
+
+<p><a href="https://help.ubuntu.com/community/WorldofWarcraft/Troubleshooting#head-d366bbe2368631c30095651b367b98de8ad6e9e8">https://help.ubuntu.com/community/WorldofWarcraft/Troubleshooting#head-d366bbe2368631c30095651b367b98de8ad6e9e8</a></p>
+
+<p>Then, if you use Dvorak, use this awesome shellscript (!) to launch WoW:</p>
+
+<pre><code class="highlight">#!/usr/bin/env bash
+setxkbmap en
+wine /home/[your user]/.wine/drive_c/Program\ Files/World\ of\ Warcraft/WoW.exe -opengl
+setxkbmap dvorak</code></pre> 
+ 
+<p>Yay, it gives you that phat qwerty layout, launches WoW, and swaps back to dvorak when WoW exits.</p>

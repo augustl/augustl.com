@@ -1,6 +1,9 @@
-date: 2019.10.14
-title: Here are some of my failures
-
+---
+title: "Here are some of my failures"
+date: "2019-10-14"
+content_format: "markdown"
+archive_order: 21
+---
 I'm writing this post for two reasons: to organize my thoughts, and to convince myself that my failures are actually failures.
 
 I want to cultivate my failures, and I want to have more of them. Most of my failures are pretty bland and uninteresting. I want them to be grand and spectacular.

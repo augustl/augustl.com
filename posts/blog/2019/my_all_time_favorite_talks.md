@@ -1,7 +1,10 @@
-date: 2019.12.09
-title: My all-time favorite talks
-series: advent_calendar_2019
-
+---
+title: "My all-time favorite talks"
+date: "2019-12-09"
+content_format: "markdown"
+archive_order: 12
+series: "advent_calendar_2019"
+---
 It's sharing time!
 
 ## Rich Hickey: _That_ talk

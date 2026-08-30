@@ -1,0 +1,368 @@
+---
+title: "ZeroMQ instead of HTTP, for internal services"
+date: "2013-07-22"
+content_format: "html"
+archive_order: 44
+---
+<p>This article describes how to use ZeroMQ for RPC calls to internal services. HTTP is the canonical choice for public facing services. But for RPC to internal services in systems composed of many small parts, you're probably better off using ZeroMQ instead of HTTP.</p>
+
+<p>In summary, the benefits ZeroMQ offers over HTTP are:</p>
+
+<ul>
+  <li>Multiple concurrent RPC calls over the same TCP connection. With HTTP, you're limited to sequential calls (keep-alive). This is a big one.</li>
+  <li>No manual connection management. This isn't impossible to do with HTTP, and is mostly a library problem, but AFAIK few libraries exist that lets you do this right with HTTP.</li>
+  <li>Supports multiple server processes responding to requests. No HTTP load balancer needed.</li>
+  <li>No manual retry handling. Can stop the server, do a RPC, then start the server, then get a response - the message is queued, instead of delivered directly.</li>
+</ul>
+
+<p>Let's dive in!</p>
+
+<h2>A very quick Clojure interop tutorial</h2>
+
+<p>Clojure's Java interop might not be intuitive at first glance, so here's a quick explanation.</p>
+
+<pre><code class="highlight"><span class="c1">;; Quick Clojure tutorial, with Java equivalents</span>
+
+ <span class="c1">;;  Java method call on string instance. Returns "A STRING"</span>
+<span class="p">(</span><span class="nf">.toUpperCase</span> <span class="s">"a string"</span><span class="p">)</span>
+<span class="s">"a string"</span><span class="nv">.toUpperCase</span><span class="p">()</span>
+
+ <span class="c1">;; Java method call with one argument. Returns byte[].</span>
+<span class="p">(</span><span class="nf">.getBytes</span> <span class="s">"a string"</span> <span class="s">"UTF8"</span><span class="p">)</span>
+<span class="s">"a string"</span><span class="nv">.getBytes</span><span class="p">(</span><span class="s">"UTF8"</span><span class="p">)</span>
+
+ <span class="c1">;; Calls the constructor and creates a new instance of Point</span>
+<span class="p">(</span><span class="nf">Point.</span> <span class="mi">15</span> <span class="mi">21</span><span class="p">)</span>
+<span class="k">new </span><span class="nv">Point</span><span class="p">(</span><span class="mi">15</span>, <span class="mi">21</span><span class="p">)</span>
+
+<span class="c1">;; Create a new thread and start it</span>
+<span class="p">(</span><span class="nf">.start</span> <span class="p">(</span><span class="nf">Thread.</span> <span class="p">(</span><span class="k">fn </span><span class="p">[]</span> <span class="nv">...</span><span class="p">)))</span>
+<span class="nv">Thread</span> <span class="nv">t</span> <span class="nb">= </span><span class="k">new </span><span class="nv">Thread</span><span class="p">(</span><span class="nf">aClojureFunctionHere</span><span class="p">)</span>
+<span class="nv">t.start</span><span class="p">()</span></code></pre>
+
+<h2>A ZeroMQ tutorial</h2>
+
+<p>ZeroMQ is <del>badly</del> too cleverly named. It's not a message queue, there's no server or broker you need to download and run. In fact, there are no centralized components in ZeroMQ at all. So in a way, ZeroMQ is an apt name: there's zero message queue in ZeroMQ. So what is it, then?</p>
+
+<p>ZeroMQ is <strong>a networking library</strong>. You create sockets of different types (REQ, REP, DEALER, ROUTER, PUB, SUB, ...), connect these sockets to each other in various interesting ways, and send messages to these sockets. The type of socket determines how the messages are routed and delivered.</p>
+
+<p>How to connect the sockets and how to use them for RPC instead of HTTP, is what this blog post is covering.</p>
+
+<p>Don't think of ZeroMQ as an alternative to ActiveMQ or RabbitMQ, think of ZeroMQ as a nuculear powered mutant ninja networking and sockets library.</p>
+
+<h3>Iteration 1: requests and replies, no concurrency</h3>
+
+<p>This first example is something you would never do in production code, since it has no concurrency. But it demonstrates some important ZeroMQ concepts in a small and isolated snippet, on which we will improve iteratively until it does what we want.</p>
+
+<p>We will create two sockets. One is the REQ (request) socket. ZeroMQ sockets has different APIs depending on their type. If you try to send two messages in a row from a REQ socket, you'll get an error. You have to send, then wait for a reply, until you can send again.</p>
+
+<p>The other socket is a REP (reply) socket. It has a similar but mirrored API. If the first thing you do on a REP socket is to send data, you'll get an error. You have to start by waiting for a message, and only when you receive one you send a message. Then you have to wait for another message.</p>
+
+<p>This API makes it easy to do RPC, as ZeroMQ will handle all the details for us. All we need to do is to wait for a response and reply on REP, and send a request and wait for a response on REQ.</p>
+
+<p>Evidently, a single ZeroMQ REQ or REP socket has no concurrency. You can only do one request or one reply at a time. We'll get into concurrency later.</p>
+
+<pre><code class="highlight"><span class="c1">;; Very small REQ/REP setup, to demonstrate the basics.</span>
+<span class="c1">;; One request at a time, no concurrency.</span>
+
+<span class="p">(</span><span class="nf">.start</span>
+ <span class="p">(</span><span class="nf">Thread.</span>
+  <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+    <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">sock</span> <span class="p">(</span><span class="nf">.socket</span> <span class="p">(</span><span class="nf">ZMQ/context</span> <span class="mi">1</span><span class="p">)</span> <span class="nv">ZMQ/REP</span><span class="p">)]</span>
+      <span class="p">(</span><span class="nf">.bind</span> <span class="nv">sock</span> <span class="s">"tcp://127.0.0.1:1337"</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">while</span> <span class="nv">true</span>
+        <span class="c1">;; Block until we receive a message</span>
+        <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">req</span> <span class="p">(</span><span class="nf">.recv</span> <span class="nv">sock</span> <span class="mi">0</span><span class="p">)]</span>
+          <span class="c1">;; req is a byte[]. Do whatever you want with it!</span>
+          <span class="c1">;; We echo the req back to the client.</span>
+          <span class="p">(</span><span class="nf">.send</span> <span class="nv">sock</span> <span class="p">(</span><span class="nf">.getBytes</span> <span class="p">(</span><span class="nb">str </span><span class="p">(</span><span class="nf">String.</span> <span class="nv">req</span><span class="p">)</span> <span class="s">" - echoed!"</span><span class="p">))</span> <span class="nv">ZMQ/NOBLOCK</span><span class="p">)))))))</span>
+
+<span class="p">(</span><span class="nf">.start</span>
+ <span class="p">(</span><span class="nf">Thread.</span>
+  <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+    <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">sock</span> <span class="p">(</span><span class="nf">.socket</span> <span class="p">(</span><span class="nf">ZMQ/context</span> <span class="mi">1</span><span class="p">)</span> <span class="nv">ZMQ/REQ</span><span class="p">)]</span>
+      <span class="p">(</span><span class="nf">.connect</span> <span class="nv">sock</span> <span class="s">"tcp://127.0.0.1:1337"</span><span class="p">)</span>
+      <span class="p">(</span><span class="nb">dotimes </span><span class="p">[</span><span class="nv">n</span> <span class="mi">5</span><span class="p">]</span>
+        <span class="c1">;; Perform a request</span>
+        <span class="p">(</span><span class="nf">.send</span> <span class="nv">sock</span> <span class="p">(</span><span class="nf">.getBytes</span> <span class="p">(</span><span class="nb">str </span><span class="s">"Hello, "</span> <span class="nv">n</span><span class="p">))</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1">;; Block until we receive a response</span>
+        <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">res</span> <span class="p">(</span><span class="nf">.recv</span> <span class="nv">sock</span> <span class="mi">0</span><span class="p">)]</span>
+          <span class="c1">;; res is a byte[] containing whatever the REP socket replied with.</span>
+          <span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">String.</span> <span class="nv">res</span><span class="p">))))))))</span></code></pre>
+
+<p>There are actually many lessons to learn in this small example.</p>
+
+<ul>
+  <li>Look, no broker! Again, ZeroMQ is not a traditional message queue, it's a socket library. (But with some message queue like semantics, read on!)</li>
+  <li>We're assuming that the messages are strings with our JVM's default encoding. But to ZeroMQ they are just bytes.</li>
+  <li>The order of bind/connect does not matter. Woot! If it did matter, we had to ensure that we didn't connect REQ until after we bound REP, but we don't (the order of the thread invocation is undefined). For ZeroMQ sockets, the actual connection is hidden from us. If we post a message and we're not connected, the message is queued locally on the REQ socket until it manages to connect. Try it! Put a <code class="highlight"><span class="p">(</span><span class="nf">Thread/sleep</span> <span class="mi">1000</span><span class="p">)</span></code> before the bind and notice how it still works.</li>
+  <li>A single ZeroMQ socket can not be used concurrently in different threads. In fact, the limitation isn't really about threads, but about state. As explained above, we can't do two send in a row on REQ, that'll just throw an error. So you <em>can</em> use a single socket in multiple threads. But read on to figure out an alternative to shared mutable state hell.</li>
+</ul>
+
+<h3>Iteration 2: Adding concurrent replies</h3>
+
+<p>We'll keep our request code for now, but we'll replace the single thread that does one reply at a time.</p>
+
+<p>ZeroMQ allows for in process message passing, and this is what we'll use to achieve concurrent replies. We'll create multiple thread with one REP socket for each thread, and use a new thread with a new socket to connect these into one blob. There will be no cross thread state stuff, the only "state" we pass between threads will be ZeroMQ messages.</p>
+
+<p>To achieve this, we create a socket with the type DEALER. We bind this to the <code class="highlight"><span class="s">"inproc://"</span></code> protocol, and connect the actual REP sockets to this DEALER. When the DEALER socket receives messages, it will pass it on to one of the REP sockets, keep track of which REP sockets are busy. When a REP socket replies, it will do so to the DEALER, which will just forward the message as is. This setup allows for one top level socket that forwards messages for a multitude of REP sockets.</p>
+
+<p>In all the examples in this post we will be doing concurrent requests with multiple REQ sockets over one single TCP connection. But if we want to support multiple TCP connections to our server, which we almost certainly want, we need a ROUTER in front of our DEALER. For example, we might have multiple systems connecting to one service, requiring separate TCP connections for each service/process. Or we might want to connect to the server for maintenance RPC calls.</p>
+
+<p>The ROUTER will assign an internal id to each socket that connects to it, and immediately forward that message with metadata attached to it, containing the internal socket ID. When it gets messages back, it immediately forwards the message to the connected REQ sockets based on the socket ID present in the metadata.</p>
+
+<pre><code class="highlight"><span class="p">(</span><span class="kd">defn </span><span class="nv">my-response-handler</span>
+  <span class="s">"Takes a req (bytes), returns the response (also bytes)."</span>
+  <span class="p">[</span><span class="nv">req</span><span class="p">]</span>
+  <span class="p">(</span><span class="nf">.getBytes</span> <span class="p">(</span><span class="nb">str </span><span class="p">(</span><span class="nf">String.</span> <span class="nv">req</span><span class="p">)</span> <span class="s">" - echoed!"</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">ctx</span> <span class="p">(</span><span class="nf">ZMQ/context</span> <span class="mi">1</span><span class="p">)</span>
+      <span class="nv">worker-url</span> <span class="s">"inproc://responders"</span>
+      <span class="nv">router-socket</span> <span class="p">(</span><span class="nf">.socket</span> <span class="nv">ctx</span> <span class="nv">ZMQ/ROUTER</span><span class="p">)</span>
+      <span class="nv">dealer-socket</span> <span class="p">(</span><span class="nf">.socket</span> <span class="nv">ctx</span> <span class="nv">ZMQ/DEALER</span><span class="p">)]</span>
+  <span class="p">(</span><span class="nf">.bind</span> <span class="nv">router-socket</span> <span class="s">"tcp://127.0.0.1:1337"</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">.bind</span> <span class="nv">dealer-socket</span> <span class="nv">worker-url</span><span class="p">)</span>
+  <span class="c1">;; We can now respond to 10 requests in parallel</span>
+  <span class="p">(</span><span class="nb">dotimes </span><span class="p">[</span><span class="nv">n</span> <span class="mi">10</span><span class="p">]</span>
+    <span class="p">(</span><span class="nf">.start</span>
+     <span class="p">(</span><span class="nf">Thread.</span>
+      <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+        <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">sock</span> <span class="p">(</span><span class="nf">.socket</span> <span class="nv">ctx</span> <span class="nv">ZMQ/REP</span><span class="p">)]</span>
+          <span class="c1">;; We reply to the DEALER</span>
+          <span class="p">(</span><span class="nf">.connect</span> <span class="nv">sock</span> <span class="nv">worker-url</span><span class="p">)</span>
+          <span class="p">(</span><span class="nf">while</span> <span class="nv">true</span>
+            <span class="c1">;; Same API as before - receive message, then reply.</span>
+            <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">req</span> <span class="p">(</span><span class="nf">.recv</span> <span class="nv">sock</span> <span class="mi">0</span><span class="p">)]</span>
+              <span class="p">(</span><span class="nf">.send</span> <span class="nv">sock</span> <span class="p">(</span><span class="nf">my-response-handler</span> <span class="nv">req</span><span class="p">)</span> <span class="nv">ZMQ/NOBLOCK</span><span class="p">))))))))</span>
+  <span class="p">(</span><span class="nf">.start</span>
+   <span class="p">(</span><span class="nf">Thread.</span>
+    <span class="c1">;; Forwards messages from router to dealer and vice versa.</span>
+    <span class="p">(</span><span class="k">fn </span><span class="p">[]</span> <span class="p">(</span><span class="nf">.run</span> <span class="p">(</span><span class="nf">ZMQQueue.</span> <span class="nv">ctx</span> <span class="nv">router-socket</span> <span class="nv">dealer-socket</span><span class="p">))))))</span></code></pre>
+
+<p>You can replace this code with the REP thread in the previous example, and it will still work. Except now, we have ten threads responding to requests.</p>
+
+<p>A few things to note</p>
+
+<ul>
+  <li>The <code class="highlight">ZMQQueue</code> is a built in convenience function that passes all messages to the other socket and vice versa. In our setup, that means that all messages from the ROUTER is sent to the DEALER, and all messages from the DEALER is sent to the ROUTER, without us having to write the code to make that happen.</li>
+  <li>Invoking .run on the ZMQQueue will block the current thread, which is why we have a separate thread for it.</li>
+  <li>The order of bind/connect matters for the <code class="highlight"><span class="s">"inproc://"</span></code> protocol. This is only true for inproc; <code class="highlight"><span class="s">"tcp://"</span></code>, as we saw above, can connect first, then bind. For inproc, you don't risk stuff going down, not being up, etc, and you control the flow of inproc binds and connects, so it's more of a inconvenience than an essential problem that the ordering matters. This also means that connecting inproc is very cheap - it doesn't have to check if the connection is up, do retries, etc, so inproc is much more effecient than TCP, not only because it doesn't have to do TCP handshakes, checksums, etc.</li>
+</ul>
+
+<h3>Iteration 3: Adding concurrent requests</h3>
+
+<p>We now have multiple threads doing replies. It's time to replace the single REQ socket with something more clever that lets us achieve concurrency.</p>
+
+<p>As you might have guessed, we could just create a gazillion REQ sockets. This is bad, though, as each REQ socket requires its own TCP connection. We could have a pool of REQ sockets available so that we don't have to pay the cost of a new TCP connection every time we do a request. But ZeroMQ has a better solution where it handles all the cruft for us.</p>
+
+<p>We won't be getting away from the fact that REQ has a blocking API. I'm going to assume you're in an environment where blocking requests are OK. My use case have always been Java HTTP servlet responders that needs to call out to internal services via ZeroMQ. I'm not sure if ZeroMQ has async APIs.</p>
+
+<p>OK, now for the actual code.</p>
+
+<pre><code class="highlight"><span class="p">(</span><span class="kd">defn </span><span class="nv">connect</span>
+  <span class="p">[</span><span class="nv">server-url</span><span class="p">]</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">ctx</span> <span class="p">(</span><span class="nf">ZMQ/context</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="nv">worker-url</span> <span class="p">(</span><span class="nb">str </span><span class="s">"inproc://"</span> <span class="p">(</span><span class="nf">java.util.UUID/randomUUID</span><span class="p">))</span>
+        <span class="nv">queue-thread</span> <span class="p">(</span><span class="nf">Thread.</span>
+                      <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+                        <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">client-sock</span> <span class="p">(</span><span class="nf">.socket</span> <span class="nv">ctx</span> <span class="nv">ZMQ/DEALER</span><span class="p">)</span>
+                              <span class="nv">worker-sock</span> <span class="p">(</span><span class="nf">.socket</span> <span class="nv">ctx</span> <span class="nv">ZMQ/ROUTER</span><span class="p">)]</span>
+                          <span class="p">(</span><span class="nf">.connect</span> <span class="nv">client-sock</span> <span class="nv">server-url</span><span class="p">)</span>
+                          <span class="p">(</span><span class="nf">.bind</span> <span class="nv">worker-sock</span> <span class="nv">worker-url</span><span class="p">)</span>
+                          <span class="p">(</span><span class="nf">.run</span> <span class="p">(</span><span class="nf">ZMQQueue.</span> <span class="nv">ctx</span>  <span class="nv">client-sock</span> <span class="nv">worker-sock</span><span class="p">)))))]</span>
+    <span class="p">(</span><span class="nf">.start</span> <span class="nv">queue-thread</span><span class="p">)</span>
+    <span class="p">{</span><span class="ss">:ctx</span> <span class="nv">ctx</span>
+     <span class="ss">:worker-url</span> <span class="nv">worker-url</span>
+     <span class="ss">:queue-thread</span> <span class="nv">queue-thread</span><span class="p">}))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">disconnect</span>
+  <span class="s">"Useful for tests etc. Pass the map returned by `connect` above."</span>
+  <span class="p">[</span><span class="nv">connection</span><span class="p">]</span>
+  <span class="p">(</span><span class="nf">.interrupt</span> <span class="p">(</span><span class="nb">get </span><span class="nv">connection</span> <span class="ss">:queue-thread</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">.term</span> <span class="p">(</span><span class="nb">get </span><span class="nv">connection</span> <span class="ss">:ctx</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">with-req-sock</span>
+  <span class="s">"Takes the connection and a higher order function that is passed a new REQ</span>
+<span class="s">   socket. When this function returns, the REQ socket is destroyed."</span>
+  <span class="p">[</span><span class="nv">connection</span> <span class="nv">handler</span><span class="p">]</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">socket</span> <span class="p">(</span><span class="nf">.socket</span> <span class="p">(</span><span class="nb">get </span><span class="nv">connection</span> <span class="ss">:ctx</span><span class="p">)</span> <span class="nv">ZMQ/REQ</span><span class="p">)]</span>
+    <span class="p">(</span><span class="nf">.connect</span> <span class="nv">socket</span> <span class="p">(</span><span class="nb">get </span><span class="nv">connection</span> <span class="ss">:worker-url</span><span class="p">))</span>
+    <span class="p">(</span><span class="nf">try</span>
+      <span class="p">(</span><span class="nf">handler</span> <span class="nv">socket</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">finally</span> <span class="p">(</span><span class="nf">.close</span> <span class="nv">socket</span><span class="p">)))))</span>
+
+<span class="c1">;; Usage</span>
+<span class="p">(</span><span class="k">def </span><span class="nv">connection</span> <span class="p">(</span><span class="nf">connect</span> <span class="s">"tcp://127.0.0.1:1337"</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nb">dotimes </span><span class="p">[</span><span class="nv">n</span> <span class="mi">5</span><span class="p">]</span>
+  <span class="p">(</span><span class="nf">.start</span>
+   <span class="p">(</span><span class="nf">Thread.</span>
+    <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+      <span class="p">(</span><span class="nf">with-req-sock</span> <span class="nv">connection</span>
+        <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">sock</span><span class="p">]</span>
+          <span class="p">(</span><span class="nf">.send</span> <span class="nv">sock</span> <span class="p">(</span><span class="nf">.getBytes</span> <span class="p">(</span><span class="nb">str </span><span class="s">"Hello, "</span> <span class="nv">n</span><span class="p">))</span> <span class="mi">0</span><span class="p">)</span>
+          <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">res</span> <span class="p">(</span><span class="nf">.recv</span> <span class="nv">sock</span> <span class="mi">0</span><span class="p">)]</span>
+            <span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">String.</span> <span class="nv">res</span><span class="p">)))))))))</span></code></pre>
+
+<p><code class="highlight"><span class="p">(</span><span class="nf">connect</span> <span class="nv">server-url</span><span class="p">)</span></code> creates new connections. We create a single connection for our process, and pass it around when we want to make requests. We create a new REQ socket for each request, and use use <code class="highlight"><span class="s">"inproc://"</span></code> to send messages to the ROUTER. The ROUTER then forwards the message to the DEALER (via ZMQQueue as before). The DEALER connects via TCP to our actual server.</p>
+
+<p>A few things to note:</p>
+
+<ul>
+  <li>The output should be interleaved in your terminal if you run this code. That's because both the requests and replies happens concurrently.</li>
+  <li>Again, no state is shared between threads other than the inproc url, all we really do is sending ZeroMQ messages between them.</li>
+  <li>As already noted, we could REQ directly against the server, but that means we would need to perform a full TCP connection per request. In this setup, our DEALER is the sole tcp connection, everything else is inproc. We end up with concurrent requests running over the same TCP connection. The DEALER doesn't really care about the types of messages, so it can send 5 requests, get 2 replies, send 2 more requests, and so on. The ROUTER sockets takes care of sending the messages to the correct place, based on the internal socket IDs.</li>
+  <li>As the code shows, we can now create multiple REQ sockets in separate threads and perform requests. Typically, you create a new REQ for each incoming request, using <code class="highlight">(with-req-sock)</code>.</li>
+</ul>
+
+<h2>Implementing actual RPC</h2>
+
+<p>So far, all you've learned is how to use ZeroMQ to send messages back and forth. We've seen that we can send any number of request and replies concurrently on one TCP connection. We can start a client, do a request, <em>then</em> start the server, and everything will work, even though we don't have a broker. We don't have to manage connections and there's no manual retry handling.</p>
+
+<p>But what about actually doing RPC? So far we've been sending bytes and echoed them. We want a way to invoke multiple procedures, and also send data with out procedure calls. What should we do to send something useful here?</p>
+
+<p>Let's just mimic HTTP! I like the method, path and body semantics, so let's keep that. Similar to HTTP, we'll always respond, but some times with error codes - there's no "null" response. Since ZeroMQ likes bytes, we can use SMILE as the data format, which is JSON-like in that it knows how to encode maps, lists, sets and strings into something that can be decoded later. It's a so called "binary" format, so it can also do raw bytes, and there won't be any string encoding issues.</p>
+
+<h3>Performing requests</h3>
+
+<p>Here's how I perform a request to list all the users in my system:</p>
+
+<pre><code class="highlight"><span class="p">(</span><span class="kd">defn </span><span class="nv">do-rpc</span>
+  <span class="p">([</span><span class="nv">sock</span> <span class="nv">method</span> <span class="nv">path</span><span class="p">]</span> <span class="p">(</span><span class="nf">do-rpc</span> <span class="nv">sock</span> <span class="nv">method</span> <span class="nb">path </span><span class="nv">nil</span><span class="p">))</span>
+  <span class="p">([</span><span class="nv">sock</span> <span class="nv">method</span> <span class="nb">path </span><span class="nv">body</span><span class="p">]</span>
+     <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">msg</span> <span class="p">(</span><span class="nf">cheshire.core/generate-smile</span>
+                <span class="p">{</span><span class="ss">:method</span> <span class="nv">method</span> <span class="ss">:path</span> <span class="nb">path </span><span class="ss">:body</span> <span class="nv">body</span><span class="p">})]</span>
+       <span class="p">(</span><span class="nf">.send</span> <span class="nv">sock</span> <span class="nv">msg</span> <span class="mi">0</span><span class="p">)</span>
+       <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">res</span> <span class="p">(</span><span class="nf">.recv</span> <span class="nv">sock</span> <span class="mi">0</span><span class="p">)]</span>
+         <span class="p">(</span><span class="nf">cheshire.core/parse-smile</span> <span class="nv">res</span> <span class="nv">true</span><span class="p">)))))</span>
+
+<span class="p">(</span><span class="nf">with-req-sock</span> <span class="nv">connection</span>
+  <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">sock</span><span class="p">]</span>
+    <span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">do-rpc</span> <span class="nv">sock</span> <span class="s">"GET"</span> <span class="s">"/users"</span><span class="p">))))</span></code></pre>
+
+<p>This sends a request with a "json" map that contains the keys method, path and body. If we do this now, we'll just get a weird response back since our server still just echoes the requsest. So let's get our hands dirty and implement an actual RPC request handler!</p>
+
+<h3>Responding to requests</h3>
+
+<p>Since we're very HTTP like, implementing a rudimentary request handler only takes a few small steps.</p>
+
+<p>We're going to re-implement the <code class="highlight">my-response-handler</code> from above into something that reads in the SMILE encoded requests and responds with SMILE encoded responses.</p>
+
+<pre><code class="highlight"><span class="p">(</span><span class="kd">defn </span><span class="nv">respond</span>
+  <span class="p">[</span><span class="nv">req</span><span class="p">]</span>
+  <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">and </span><span class="p">(</span><span class="nb">= </span><span class="p">(</span><span class="nb">get </span><span class="nv">req</span> <span class="ss">:method</span><span class="p">)</span> <span class="s">"GET"</span><span class="p">)</span> <span class="p">(</span><span class="nb">= </span><span class="p">(</span><span class="nb">get </span><span class="nv">req</span> <span class="ss">:path</span><span class="p">)</span> <span class="s">"/users"</span><span class="p">))</span>
+    <span class="p">{</span><span class="ss">:status</span> <span class="mi">200</span> <span class="ss">:body</span> <span class="p">[{</span><span class="ss">:id</span> <span class="mi">1</span> <span class="ss">:name</span> <span class="s">"August"</span><span class="p">}]}))</span>
+
+<span class="c1">;; This function used to echo. We now parse and generate SMILE.</span>
+<span class="p">(</span><span class="kd">defn </span><span class="nv">my-response-handler</span>
+  <span class="p">[</span><span class="nv">raw-req</span><span class="p">]</span>
+  <span class="p">(</span><span class="nf">try</span>
+    <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">req</span> <span class="p">(</span><span class="nf">cheshire.core/parse-smile</span> <span class="nv">raw-req</span> <span class="nv">true</span><span class="p">)]</span>
+      <span class="p">(</span><span class="nb">if-let </span><span class="p">[</span><span class="nv">response</span> <span class="p">(</span><span class="nf">respond</span> <span class="nv">req</span><span class="p">)]</span>
+        <span class="p">(</span><span class="nf">cheshire.core/generate-smile</span> <span class="nv">response</span><span class="p">)</span>
+        <span class="p">(</span><span class="nf">cheshire.core/generate-smile</span> <span class="p">{</span><span class="ss">:status</span> <span class="mi">404</span><span class="p">})))</span>
+    <span class="p">(</span><span class="nf">catch</span> <span class="nv">Exception</span> <span class="nv">e</span>
+      <span class="p">(</span><span class="nf">cheshire.core/generate-smile</span> <span class="p">{</span><span class="ss">:status</span> <span class="mi">500</span><span class="p">}))))</span></code></pre>
+
+<p>If respond returns non-nil, assume it's a valid response and SMILE encode it. If respond returns nil, return status 404. Just like HTTP, because why not! If any of this throws an exception, we'll respond with status 500. Again, just like HTTP.</p>
+
+<p>While this is slightly more interesting than an echo server, we don't want to manually do RPC routing with if tests. We want to utilize some kind of library to be able to set up different request handlers with as little repetition as possible.</p>
+
+<p>Take a deep breath. Sit down. Are you comfortable? This is going to be awesome.</p>
+
+<h3>Using existing HTTP routing libraries</h3>
+
+<p>Our requests are very HTTP-like, with a method and a path, which is really all we need in order to do traditional HTTP routing on, well, method and path.</p>
+
+<p><em>So let's just use an existing HTTP routing library for that!</em></p>
+
+<p>We'll be using Compojure, which handles Ring request. Ring is the most commonly used HTTP stack for Clojure. Ring has a very simple API. You give Ring a function. This function takes one argument, the request, represented as an immutable map. This function should return a map, representing the response. That's it!</p>
+
+<p>The only thing we need to do, is to turn our ZeroMQ based map into something that Compojure understands. On Ring, it's called <code class="highlight">:request-method</code> instead of just <code class="highlight">:method</code>, for example.</p>
+
+<pre><code class="highlight"><span class="p">(</span><span class="nf">defroutes</span> <span class="nv">app</span>
+  <span class="p">(</span><span class="nf">GET</span> <span class="s">"/users"</span> <span class="p">[]</span>
+       <span class="p">{</span><span class="ss">:status</span> <span class="mi">200</span> <span class="ss">:body</span> <span class="p">[{</span><span class="ss">:id</span> <span class="mi">1</span> <span class="ss">:name</span> <span class="s">"August"</span><span class="p">}]})</span>
+  <span class="p">(</span><span class="nf">GET</span> <span class="s">"/users/:user-id"</span> <span class="p">[</span><span class="nv">user-id</span><span class="p">]</span>
+       <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">= </span><span class="mi">1</span> <span class="nv">user-id</span><span class="p">)</span>
+         <span class="p">{</span><span class="ss">:status</span> <span class="mi">200</span> <span class="ss">:body</span> <span class="p">{</span><span class="ss">:id</span> <span class="mi">1</span> <span class="ss">:name</span> <span class="s">"August"</span><span class="p">}})))</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">respond</span>
+  <span class="p">[</span><span class="nv">req</span><span class="p">]</span>
+  <span class="p">(</span><span class="nf">app</span> <span class="p">{</span><span class="ss">:request-method</span> <span class="p">(</span><span class="nb">keyword </span><span class="p">(</span><span class="nf">.toLowerCase</span> <span class="p">(</span><span class="nb">get </span><span class="nv">req</span> <span class="ss">:method</span><span class="p">)))</span>
+        <span class="ss">:uri</span> <span class="p">(</span><span class="nb">get </span><span class="nv">req</span> <span class="ss">:path</span><span class="p">)</span>
+        <span class="ss">:body</span> <span class="p">(</span><span class="nb">get </span><span class="nv">req</span> <span class="ss">:body</span><span class="p">)}))</span></code></pre>
+
+<p>Words cannot describe how awesome this is. <em>With just a couple of lines of code, we're invoking a HTTP stack from something that isn't HTTP at all.</em></p>
+
+<h2>We're done!</h2>
+
+<p>Wow, you made it this far! Or perhaps you just skimmed and got to this part. I'm proud of you either way.</p>
+
+<p>We now have a solid way of doing RPC calls over just one TCP connection, with no manual connection management, and with queuing of requests if the server is down. We have a sane way of implementing our server to respond to different procedures. This is all we really wanted, so let's celebrate and perform remote procedure calls without having to deal with boring details such as connection management.</p>
+
+<p>And I think this post demonstrates the powers of one datastructure and a hundred functions. Just by creating a data structure that looks identical to the ones the Ring stack create, we can re-use an entire suite of HTTP tools already available to us.</p>
+
+<p>Good luck!</p>
+
+<hr>
+
+<h2>Multiple servers</h2>
+
+<p>I've never actually done this myself, so I won't show you the code for it. I'll leave the implementation details as an exercise for the reader. The concepts are clear, though. Since we've seen that it's really easy to compose REQ/REP and DEALER/ROUTER, all it should take is another node that sits between the REQ clients and the REP servers and routes and deals requests to multiple servers. Alternatively, just bind the DEALER we already have on the server and connect a bunch of REP sockets directly to it. But be aware, that would result in one TCP connection per REP socket.</p>
+
+<h2>Authentication</h2>
+
+<p>I've only used ZeroMQ for internal services that are behind firewalls, so I haven't needed to add any form of auth. My advice for authentication would be to mimic HTTP. I would allow full access to the service itself, but in the routing, have a precondition that checks if an auth token of some sort is present in the request. If the request fails to authenticate, respond with status 403 or something along those lines.</p>
+
+<p>Work is underway in ZeroMQ 3 for providing encrypted transports, too, so you don't have to manually encrypt your messages to be MITM safe if you're dispatching messages across a network you don't trust.</p>
+
+<h2>Some notes on the Clojure code</h2>
+
+<p>I have this crazy idea that I should make the code as readable as possible to people that are unfamiliar with Clojure in general. So I do some non-ideomatic stuff. All I probably achieved with this was to alienate the people that actually read the article - Clojure programmers. Oh well.</p>
+
+<p>We're doing a lot of Java interop, and in my code I like to use the <code class="highlight">(doto)</code> macro. Instead of this:</p>
+
+<pre><code class="highlight"><span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">ctx</span> <span class="p">(</span><span class="nf">ZMQ/context</span> <span class="mi">1</span><span class="p">)</span>
+      <span class="nv">router-socket</span> <span class="p">(</span><span class="nf">.socket</span> <span class="nv">ctx</span> <span class="nv">ZMQ/ROUTER</span><span class="p">)</span>
+      <span class="nv">dealer-socket</span> <span class="p">(</span><span class="nf">.socket</span> <span class="nv">ctx</span> <span class="nv">ZMQ/DEALER</span><span class="p">)]</span>
+  <span class="p">(</span><span class="nf">.bind</span> <span class="nv">router-socket</span> <span class="s">"tcp://127.0.0.1:1337"</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">.bind</span> <span class="nv">dealer-socket</span> <span class="s">"inproc://responders"</span><span class="p">)</span>
+  <span class="c1">;; ...</span>
+  <span class="p">)</span></code></pre>
+
+<p>We could have written this:</p>
+
+<pre><code class="highlight"><span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">ctx</span> <span class="p">(</span><span class="nf">ZMQ/context</span> <span class="mi">1</span><span class="p">)</span>
+      <span class="nv">router-socket</span> <span class="p">(</span><span class="nb">doto </span><span class="p">(</span><span class="nf">.socket</span> <span class="nv">ctx</span> <span class="nv">ZMQ/ROUTER</span><span class="p">)</span> <span class="p">(</span><span class="nf">.bind</span> <span class="s">"tcp://127.0.0.1:1337"</span><span class="p">))</span>
+      <span class="nv">dealer-socket</span> <span class="p">(</span><span class="nb">doto </span><span class="p">(</span><span class="nf">.socket</span> <span class="nv">ctx</span> <span class="nv">ZMQ/DEALER</span><span class="p">)</span> <span class="p">(</span><span class="nf">.bind</span> <span class="s">"inproc://responders"</span><span class="p">))]</span>
+  <span class="c1">;; ...</span>
+  <span class="p">)</span></code></pre>
+
+<p>Which means we could have created a whole lot less names in that code, and created our ROUTER/DEALER pair and the queue like so:</p>
+
+<pre><code class="highlight">(let [ctx (ZMQ/context 1)
+      queue (ZMQQueue.
+              ctx
+              (doto (.socket ctx ZMQ/ROUTER) (.bind "tcp://127.0.0.1:1337"))
+              (doto (.socket ctx ZMQ/DEALER) (.bind "inproc://responders")))]
+  ;; ...
+  (.start (Thread. (fn [] (.run queue)))))</code></pre>
+
+<p>Or even fewer names, and inlined the entire thing.</p>
+
+<pre><code class="highlight">(let [ctx (ZMQ/context 1)]
+  ;; ...
+  (.start
+   (Thread.
+    (fn []
+     (doto
+       (ZMQQueue.
+         ctx
+         (doto (.socket ctx ZMQ/ROUTER) (.bind "tcp://127.0.0.1:1337"))
+         (doto (.socket ctx ZMQ/DEALER) (.bind "inproc://responders")))
+       (.run))))))</code></pre>
+
+<p><code class="highlight">doto</code> takes a Java object as the first argument, and all the other following arguments are assumed to be lists (in Clojure, a list is a function call) and inserts this instance as the 2nd element in the list, i.e. the first argument to the function. So while the code looks like we call bind on a string, it's actually called on the instance pased to the first argument - the socket instances created by the call to socket on the ctx. This is convenient for creating an instance of something, calling a bunch of methods with side effects on it, and return that instance, without having to create a named variable for the instance.</p>
+
+<p>I've also chosen to use <code class="highlight"><span class="p">(</span><span class="nb">get </span><span class="nv">my-map</span> <span class="ss">:a-key</span><span class="p">)</span></code> instead of the more idiomatic <code class="highlight"><span class="p">(</span><span class="ss">:a-key</span> <span class="nv">my-map</span><span class="p">)</span></code>. It might be confusing for people unfamiliar with Clojure that keywords are also callable polymorphic functions, that does map lookups if the first argument is a map.</p>

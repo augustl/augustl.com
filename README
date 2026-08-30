@@ -1,10 +1,67 @@
-My blog!
+# augustl.com
 
-The URLs don't have .html in them, so you need a web server with directory listing.
+The live site is a Next.js app. The previous Clojure static-site generator remains
+in the repository as a reference and can still be built independently.
 
-This ensures that your actual index.html files aren't writeable:
+## Development
 
-   RewriteRule ^(.*)index\.html$ - [R=404,L]
+Install the toolchain declared in `mise.toml`, then install dependencies and run
+Next.js:
 
+```sh
+mise install
+mise run setup
+mise run dev
+```
 
-TODO: https://fonts.google.com/specimen/Libre+Baskerville
+With the mise shell hook enabled, entering the repository automatically selects
+Node 24.11.0, Yarn 1.22.22, and Temurin JDK 25. The `mise run` commands also
+guarantee the pinned versions even when another executable appears earlier in
+`PATH`.
+
+The development site is available at <http://localhost:7010>. Production builds use:
+
+```sh
+mise run build
+mise run start
+```
+
+Vercel detects the Next.js app directly; no static export step is needed.
+
+## Posts
+
+Posts live below `posts/` as plain `.md` files with YAML frontmatter:
+
+```md
+---
+title: "A post title"
+date: "2026-08-30"
+content_format: "markdown"
+archive_order: 0
+---
+
+Post contents go here.
+```
+
+`content_format` is either `markdown` or `html`. The latter preserves the markup
+of older posts byte-for-byte inside a Markdown file. `archive_order` preserves the
+historic ordering of posts that share a publication date; lower numbers appear
+first. Optional legacy fields are `updated`, `series`, `rss_warning`, and
+`unlisted`.
+
+## Legacy generator and parity testing
+
+Run the Clojure generator with:
+
+```sh
+make legacy-build
+```
+
+After exporting the legacy site to a directory, compare every post, page shell,
+and Atom feed with the Next.js production build:
+
+```sh
+yarn check:parity /path/to/legacy-export
+```
+
+The parity suite uses the system Chromium browser.

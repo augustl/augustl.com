@@ -1,0 +1,24 @@
+[tools]
+java = "temurin-25"
+node = "24.11.0"
+yarn = "1.22.22"
+
+[tasks.setup]
+description = "Install the pinned toolchain and JavaScript dependencies"
+run = "yarn install --frozen-lockfile"
+
+[tasks.dev]
+description = "Run the Next.js development server"
+run = "yarn dev"
+
+[tasks.build]
+description = "Create the Next.js production build"
+run = "yarn build"
+
+[tasks.start]
+description = "Run the Next.js production server"
+run = "yarn start"
+
+[tasks.legacy-build]
+description = "Run the legacy Clojure static-site generator"
+run = "lein export"

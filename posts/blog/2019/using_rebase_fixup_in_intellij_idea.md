@@ -1,7 +1,10 @@
-date: 2019.12.03
-title: You should use rebase/fixup in IntelliJ IDEA more often
-series: advent_calendar_2019
-
+---
+title: "You should use rebase/fixup in IntelliJ IDEA more often"
+date: "2019-12-03"
+content_format: "markdown"
+archive_order: 18
+series: "advent_calendar_2019"
+---
 This one applies to all JetBrains products with git integration.
 
 You can also be inspired by this post and use rebase/fixup with just plain old git. Just do `git rebase --interactive` to do essentially the same stuff, just without all the visual aid.

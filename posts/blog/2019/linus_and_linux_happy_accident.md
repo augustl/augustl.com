@@ -1,7 +1,10 @@
-date: 2019.12.05
-title: Linux exists only because of a happy accident
-series: advent_calendar_2019
-
+---
+title: "Linux exists only because of a happy accident"
+date: "2019-12-05"
+content_format: "markdown"
+archive_order: 16
+series: "advent_calendar_2019"
+---
 EDIT: Discussion [here](https://www.reddit.com/r/linux/comments/e6fvj0/linux_exists_only_because_of_a_happy_accident/), [here](https://www.reddit.com/r/programming/comments/e6kn97/linux_exists_only_because_of_a_happy_accident/) and [here](https://news.ycombinator.com/item?id=21711572).
 
 You should read the book [Just For Fun](https://www.amazon.com/Just-Fun-Story-Accidental-Revolutionary/dp/0066620732), Linus Torvalds' autobiography.

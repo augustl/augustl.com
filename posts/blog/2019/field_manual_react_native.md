@@ -1,7 +1,10 @@
-date: 2019.12.12
-title: Field manual - choosing React Native
-series: advent_calendar_2019
-
+---
+title: "Field manual - choosing React Native"
+date: "2019-12-12"
+content_format: "markdown"
+archive_order: 9
+series: "advent_calendar_2019"
+---
 Here's my opinionated summarized thoughts of things to know about and take into consideration, when deciding whether or not to choose React Native for your next mobile app.
 
 ## What is React Native?

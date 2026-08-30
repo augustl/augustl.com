@@ -1,6 +1,9 @@
-date: 2023.02.02
-title: Pro Kotlin Web Apps from Scratch
-
+---
+title: "Pro Kotlin Web Apps from Scratch"
+date: "2023-02-02"
+content_format: "markdown"
+archive_order: 1
+---
 I wrote a book!
 
 <p><img src="/static/posts/pro-kotlin-web-apps-from-scratch/kotlin-book-pro-kotlin-web-apps-from-scratch-cover.jpg" alt="Pro Kotlin Web Apps from Scratch book cover"></p>

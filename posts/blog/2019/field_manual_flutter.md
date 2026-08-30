@@ -1,7 +1,10 @@
-date: 2019.12.07
-title: Field manual: choosing Flutter
-series: advent_calendar_2019
-
+---
+title: "Field manual: choosing Flutter"
+date: "2019-12-07"
+content_format: "markdown"
+archive_order: 14
+series: "advent_calendar_2019"
+---
 Here's my opinionated summarized thoughts of things to take into consideration when deciding whether or not to choose Flutter.
 
 ## What is Flutter?
@@ -76,4 +79,4 @@ I might end up blogging more about the details of this at a later time. It's a v
 
 ## Adopt?
 
-I'm not a tech radar. Make up your own mind. :) 
+I'm not a tech radar. Make up your own mind. :)

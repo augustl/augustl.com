@@ -1,7 +1,10 @@
-date: 2019.12.04
-title: DevOps: The magic of going back in time with Datomic
-series: advent_calendar_2019
-
+---
+title: "DevOps: The magic of going back in time with Datomic"
+date: "2019-12-04"
+content_format: "markdown"
+archive_order: 17
+series: "advent_calendar_2019"
+---
 I'm a bit of a [Datomic](https://www.datomic.com/) fan. That's a bit of an understatement.
 
 I'm going to tell you a DevOps story today, about Marzia and Felix. They are both DevOps experts, delivering quality software at breakneck speeds. Marzia uses Datomic, and Felix uses PostgreSQL. Let's see how their DevOps acts out in the world.
@@ -72,57 +75,53 @@ Marzia finds the transaction where the boss changed the rules.
 
 (Say _what??_)
 
-<pre><code data-lang="clojure">
-;; Finds all transactions by boss-user
-(->> (d/q '[:find [?tx ...]
-            :in $ ?boss-id
-            :where
-            [?tx :tx/changed-by ?boss-id]]
-       (d/history db-3)
-       (:db/id boss-user))
-     ;; Get the last 3 ones
-     (sort)
-     (reverse)
-     (take 3)
-     (map
-       (fn [tx]
-              ;; Get raw data from transaction log for this tx
-         (->> (d/tx-range db-log tx (inc tx))
-              (first)
-              :data
-              ;; Remove noise we don't want
-              (filter (fn [[e a v t added?]] (and added? (not= e tx))))
-              ;; Give us the good stuff
-              (map (fn [[e a v]]
-                     {:id e
-                      :attr (d/ident db-3 a)
-                      :val v}))))))
-</code></pre>
+<pre><code class="highlight"><span class="c1">;; Finds all transactions by boss-user</span>
+<span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="p">(</span><span class="nf">d/q</span> <span class="o">'</span><span class="p">[</span><span class="ss">:find</span> <span class="p">[</span><span class="nv">?tx</span> <span class="nv">...</span><span class="p">]</span>
+            <span class="ss">:in</span> <span class="nv">$</span> <span class="nv">?boss-id</span>
+            <span class="ss">:where</span>
+            <span class="p">[</span><span class="nv">?tx</span> <span class="ss">:tx/changed-by</span> <span class="nv">?boss-id</span><span class="p">]]</span>
+       <span class="p">(</span><span class="nf">d/history</span> <span class="nv">db-3</span><span class="p">)</span>
+       <span class="p">(</span><span class="ss">:db/id</span> <span class="nv">boss-user</span><span class="p">))</span>
+     <span class="c1">;; Get the last 3 ones</span>
+     <span class="p">(</span><span class="nf">sort</span><span class="p">)</span>
+     <span class="p">(</span><span class="nf">reverse</span><span class="p">)</span>
+     <span class="p">(</span><span class="nb">take </span><span class="mi">3</span><span class="p">)</span>
+     <span class="p">(</span><span class="nf">map</span>
+       <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">tx</span><span class="p">]</span>
+              <span class="c1">;; Get raw data from transaction log for this tx</span>
+         <span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="p">(</span><span class="nf">d/tx-range</span> <span class="nv">db-log</span> <span class="nv">tx</span> <span class="p">(</span><span class="nb">inc </span><span class="nv">tx</span><span class="p">))</span>
+              <span class="p">(</span><span class="nf">first</span><span class="p">)</span>
+              <span class="ss">:data</span>
+              <span class="c1">;; Remove noise we don't want</span>
+              <span class="p">(</span><span class="nb">filter </span><span class="p">(</span><span class="k">fn </span><span class="p">[[</span><span class="nv">e</span> <span class="nv">a</span> <span class="nv">v</span> <span class="nv">t</span> <span class="nv">added?</span><span class="p">]]</span> <span class="p">(</span><span class="nb">and </span><span class="nv">added?</span> <span class="p">(</span><span class="nb">not= </span><span class="nv">e</span> <span class="nv">tx</span><span class="p">))))</span>
+              <span class="c1">;; Give us the good stuff</span>
+              <span class="p">(</span><span class="nb">map </span><span class="p">(</span><span class="k">fn </span><span class="p">[[</span><span class="nv">e</span> <span class="nv">a</span> <span class="nv">v</span><span class="p">]]</span>
+                     <span class="p">{</span><span class="ss">:id</span> <span class="nv">e</span>
+                      <span class="ss">:attr</span> <span class="p">(</span><span class="nf">d/ident</span> <span class="nv">db-3</span> <span class="nv">a</span><span class="p">)</span>
+                      <span class="ss">:val</span> <span class="nv">v</span><span class="p">}))))))</span></code></pre>
 
 Marzia could have asked for more than the 3 latest ones, but decided that 3 was a good start. Here's what Marzia gets back from that query.
 
-<pre><code data-lang="clojure">
-({:timestamp #inst"2019-11-28T07:54:28.102-00:00",
-  :changes 
-  ({:id 17592186045421, 
-    :attr :order-rule/zip-code, :val "0061", :added? true}
-   {:id 17592186045421, 
-     :attr :order-rule/zip-code, :val "0056", :added? false})}
+<pre><code class="highlight"><span class="p">({</span><span class="ss">:timestamp</span> <span class="o">#</span><span class="nv">inst</span><span class="s">"2019-11-28T07:54:28.102-00:00"</span>,
+  <span class="ss">:changes</span> 
+  <span class="p">({</span><span class="ss">:id</span> <span class="mi">17592186045421</span>, 
+    <span class="ss">:attr</span> <span class="ss">:order-rule/zip-code</span>, <span class="ss">:val</span> <span class="s">"0061"</span>, <span class="ss">:added?</span> <span class="nv">true</span><span class="p">}</span>
+   <span class="p">{</span><span class="ss">:id</span> <span class="mi">17592186045421</span>, 
+     <span class="ss">:attr</span> <span class="ss">:order-rule/zip-code</span>, <span class="ss">:val</span> <span class="s">"0056"</span>, <span class="ss">:added?</span> <span class="nv">false</span><span class="p">})}</span>
    
- {:timestamp #inst"2019-11-28T07:53:58.031-00:00",
-   :changes 
-   ({:id 17592186092838, 
-     :attr :customer/name, :val "Some Flower Shop", :added? true}
-    {:id 17592186092838, 
-     :attr :customer/department, :val 17592186860812, :added? true})}
+ <span class="p">{</span><span class="ss">:timestamp</span> <span class="o">#</span><span class="nv">inst</span><span class="s">"2019-11-28T07:53:58.031-00:00"</span>,
+   <span class="ss">:changes</span> 
+   <span class="p">({</span><span class="ss">:id</span> <span class="mi">17592186092838</span>, 
+     <span class="ss">:attr</span> <span class="ss">:customer/name</span>, <span class="ss">:val</span> <span class="s">"Some Flower Shop"</span>, <span class="ss">:added?</span> <span class="nv">true</span><span class="p">}</span>
+    <span class="p">{</span><span class="ss">:id</span> <span class="mi">17592186092838</span>, 
+     <span class="ss">:attr</span> <span class="ss">:customer/department</span>, <span class="ss">:val</span> <span class="mi">17592186860812</span>, <span class="ss">:added?</span> <span class="nv">true</span><span class="p">})}</span>
     
- {:timestamp #inst"2019-11-28T07:52:01.511-00:00",
-   :changes 
-   ({:id 17592186089123, 
-     :attr :customer/name, :val "Some Office", :added? true}
-    {:id 17592186089123, 
-      :attr :customer/name, :val "Some Offcie", :added? false})})
-</code></pre>
+ <span class="p">{</span><span class="ss">:timestamp</span> <span class="o">#</span><span class="nv">inst</span><span class="s">"2019-11-28T07:52:01.511-00:00"</span>,
+   <span class="ss">:changes</span> 
+   <span class="p">({</span><span class="ss">:id</span> <span class="mi">17592186089123</span>, 
+     <span class="ss">:attr</span> <span class="ss">:customer/name</span>, <span class="ss">:val</span> <span class="s">"Some Office"</span>, <span class="ss">:added?</span> <span class="nv">true</span><span class="p">}</span>
+    <span class="p">{</span><span class="ss">:id</span> <span class="mi">17592186089123</span>, 
+      <span class="ss">:attr</span> <span class="ss">:customer/name</span>, <span class="ss">:val</span> <span class="s">"Some Offcie"</span>, <span class="ss">:added?</span> <span class="nv">false</span><span class="p">})})</span></code></pre>
 
 Marzia found it! The query yielded three transactions, performed around 07:55. The oldest one fixed a spelling error in a customer name, the second one added a new customer and set its name and assigned it to a department, and the most recent one changed an `:order-rule/zip-code` from "0056" to "0061".
 
@@ -130,32 +129,28 @@ Marzia knows that the zip code is important to the routing, and the change of zi
 
 And the order that failed was related to the department that order rule is assigned to.
 
-<pre><code data-lang="clojure">
-(d/q
-  '[:find [?rule-id ...]
-    :in $ ?order-id
-    :where
-    [?order-id :order/zip-code ?zip-code]
-    [?rule-id :order-rule/zip-code ?zip-code]]
-  db
-  failed-order-id)  
-;; => #{17592186045421}
-</code></pre>
+<pre><code class="highlight"><span class="p">(</span><span class="nf">d/q</span>
+  <span class="o">'</span><span class="p">[</span><span class="ss">:find</span> <span class="p">[</span><span class="nv">?rule-id</span> <span class="nv">...</span><span class="p">]</span>
+    <span class="ss">:in</span> <span class="nv">$</span> <span class="nv">?order-id</span>
+    <span class="ss">:where</span>
+    <span class="p">[</span><span class="nv">?order-id</span> <span class="ss">:order/zip-code</span> <span class="nv">?zip-code</span><span class="p">]</span>
+    <span class="p">[</span><span class="nv">?rule-id</span> <span class="ss">:order-rule/zip-code</span> <span class="nv">?zip-code</span><span class="p">]]</span>
+  <span class="nv">db</span>
+  <span class="nv">failed-order-id</span><span class="p">)</span>  
+<span class="c1">;; =&gt; #{17592186045421}</span></code></pre>
 
 
 Jut to be on the safe side, Marzia checks that the order rule in question was actually associated with the same department around the time the order failed. This can be done easily, by running the same query again, but running it with the database `as-of` a provided timestamp.
 
-<pre><code data-lang="clojure">
-(d/q
-  '[:find [?rule-id ...]
-    :in $ ?order-id
-    :where
-    [?order-id :order/zip-code ?zip-code]
-    [?rule-id :order-rule/zip-code ?zip-code]]
-  (d/as-of db #inst "2019-11-27T23:30:00.000")
-  failed-order-id)  
-;; => #{17592186045421}
-</code></pre>
+<pre><code class="highlight"><span class="p">(</span><span class="nf">d/q</span>
+  <span class="o">'</span><span class="p">[</span><span class="ss">:find</span> <span class="p">[</span><span class="nv">?rule-id</span> <span class="nv">...</span><span class="p">]</span>
+    <span class="ss">:in</span> <span class="nv">$</span> <span class="nv">?order-id</span>
+    <span class="ss">:where</span>
+    <span class="p">[</span><span class="nv">?order-id</span> <span class="ss">:order/zip-code</span> <span class="nv">?zip-code</span><span class="p">]</span>
+    <span class="p">[</span><span class="nv">?rule-id</span> <span class="ss">:order-rule/zip-code</span> <span class="nv">?zip-code</span><span class="p">]]</span>
+  <span class="p">(</span><span class="nf">d/as-of</span> <span class="nv">db</span> <span class="o">#</span><span class="nv">inst</span> <span class="s">"2019-11-27T23:30:00.000"</span><span class="p">)</span>
+  <span class="nv">failed-order-id</span><span class="p">)</span>  
+<span class="c1">;; =&gt; #{17592186045421}</span></code></pre>
 
 Marzia could also have checked the full history, in case it changed departments rapidly back and forth for some reason, but decides to leave it at that. 
 
@@ -168,11 +163,9 @@ Marzia queried the Datomic database, and had all the info readily available.
 
 Datomic keeps the history for _all_ the changes across the database over time. Datomic also treats transactions as first class entities, so the only "clever" thing that was done here was to make sure to tag transactions with the user that performed the change, so that it's easy to find that later on.
 
-<pre><code data-lang="clojure">
-(d/transact conn 
-  [[:db/add (:db/id my-order-rule) :order-rule/zip-code "0061"]
-   [:db/add "datomic.tx" :tx/changed-by (:db/id boss-user)]])
-</code></pre>
+<pre><code class="highlight"><span class="p">(</span><span class="nf">d/transact</span> <span class="nv">conn</span> 
+  <span class="p">[[</span><span class="ss">:db/add</span> <span class="p">(</span><span class="ss">:db/id</span> <span class="nv">my-order-rule</span><span class="p">)</span> <span class="ss">:order-rule/zip-code</span> <span class="s">"0061"</span><span class="p">]</span>
+   <span class="p">[</span><span class="ss">:db/add</span> <span class="s">"datomic.tx"</span> <span class="ss">:tx/changed-by</span> <span class="p">(</span><span class="ss">:db/id</span> <span class="nv">boss-user</span><span class="p">)]])</span></code></pre>
 
 This is a DevOps superpower. You can track your data as it changes and churns, across deploys and code changes, and all the way back to the beginning of time. And it's just there, out of the box, you don't have to think up the use cases for time tracking up front.
 

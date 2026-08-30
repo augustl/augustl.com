@@ -1,7 +1,10 @@
-date: 2019.12.18
-title: The #1 bug predictor is not technical, it's organizational complexity
-series: advent_calendar_2019
-
+---
+title: "The #1 bug predictor is not technical, it's organizational complexity"
+date: "2019-12-18"
+content_format: "markdown"
+archive_order: 3
+series: "advent_calendar_2019"
+---
 EDIT: Discussion on [Hacker News](https://news.ycombinator.com/item?id=21823199) and [/r/programming](https://www.reddit.com/r/programming/comments/ec9s2o/the_1_bug_predictor_is_not_technical_its/).
 
 In this post, I'll explore the findings made by Microsoft Research, after the unsuccessful launch of Windows Vista in 2007. Microsoft decided to dig deep and figure out what went wrong.

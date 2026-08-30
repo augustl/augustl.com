@@ -1,7 +1,10 @@
-date: 2018.04.20
-title: Datomic: Traditional databases only spend about 25% of their time actually writing to and reading from the database
-series: datomic
-
+---
+title: "Datomic: Traditional databases only spend about 25% of their time actually writing to and reading from the database"
+date: "2018-04-20"
+content_format: "markdown"
+archive_order: 25
+series: "datomic"
+---
 This post is about how Datomic (and Volt DB, and a few other databases) are different from traditional databases.
 
 It turns out that OLTP databases [spend 75% of their time coordinating reads and writes](http://nms.csail.mit.edu/~stavros/pubs/OLTP_sigmod08.pdf). That means that 75% of the time, the database isn't actually running queries and writing data, but is instead figuring out safe ways to allow multiple concurrent clients to perform reads and writes in parallel.
