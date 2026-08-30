@@ -1,7 +1,6 @@
 # augustl.com
 
-The live site is a Next.js app. The previous Clojure static-site generator remains
-in the repository as a reference and can still be built independently.
+The live site is a Next.js app deployed on Vercel.
 
 ## Development
 
@@ -15,9 +14,8 @@ mise run dev
 ```
 
 With the mise shell hook enabled, entering the repository automatically selects
-Node 24.11.0, Yarn 1.22.22, and Temurin JDK 25. The `mise run` commands also
-guarantee the pinned versions even when another executable appears earlier in
-`PATH`.
+Node 24.11.0 and Yarn 1.22.22. The `mise run` commands also guarantee the pinned
+versions even when another executable appears earlier in `PATH`.
 
 The development site is available at <http://localhost:7010>. Production builds use:
 
@@ -49,15 +47,9 @@ historic ordering of posts that share a publication date; lower numbers appear
 first. Optional legacy fields are `updated`, `series`, `rss_warning`, and
 `unlisted`.
 
-## Legacy generator and parity testing
+## Parity testing
 
-Run the Clojure generator with:
-
-```sh
-make legacy-build
-```
-
-After exporting the legacy site to a directory, compare every post, page shell,
+Given an archived export of the previous site, compare every post, page shell,
 and Atom feed with the Next.js production build:
 
 ```sh

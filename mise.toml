@@ -1,5 +1,4 @@
 [tools]
-java = "temurin-25"
 node = "24.11.0"
 yarn = "1.22.22"
 
@@ -18,7 +17,3 @@ run = "yarn build"
 [tasks.start]
 description = "Run the Next.js production server"
 run = "yarn start"
-
-[tasks.legacy-build]
-description = "Run the legacy Clojure static-site generator"
-run = "lein export"
