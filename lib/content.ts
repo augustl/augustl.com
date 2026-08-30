@@ -12,7 +12,7 @@ import { z } from "zod";
 import { isSeriesName, type SeriesName } from "./series";
 
 export const BASE_TITLE = "August Lilleaas' blog";
-export const SITE_ORIGIN = "http://augustl.com";
+export const SITE_ORIGIN = "https://www.augustl.com";
 
 const POSTS_ROOT = path.join(process.cwd(), "posts");
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -61,6 +61,16 @@ function markdownFilesBelow(directory: string): string[] {
 function prettyDate(date: string): string {
   const [year, month, day] = date.split("-");
   return `${MONTHS[Number(month) - 1]} ${day}, ${year}`;
+}
+
+export function plainTextTitle(title: string): string {
+  return title
+    .replace(/<[^>]*>/g, "")
+    .replaceAll("&amp;", "&")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#39;", "'");
 }
 
 function sourceToUrl(sourcePath: string): string {
