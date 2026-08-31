@@ -8,10 +8,10 @@ export default function HomePage() {
     <div className="site-content site-content-main">
       <h1>Blog</h1>
       <ul className="plain" style={{ display: "flex", flexDirection: "row", gap: "10px", marginBottom: "20px" }}>
-        <li><a href="https://crud.business">Work</a></li>
+        <li><a href="https://www.snowbee.no">Work</a></li>
         <li><a href="https://github.com/augustl">Code</a></li>
         <li><a href="https://x.com/augustl">X</a></li>
-        <li><a href="https://www.linkedin.com/in/programmer666schmogrammer/">LinkedIn</a></li>
+        <li><a href="https://www.linkedin.com/in/augustlilleaas/">LinkedIn</a></li>
       </ul>
       {[...postsByYear.entries()].map(([year, posts]) => (
         <Fragment key={year}>
